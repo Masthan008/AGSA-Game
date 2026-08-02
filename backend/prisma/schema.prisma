@@ -1,0 +1,71 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id            String          @id // Clerk User ID or Guest UUID
+  email         String?         @unique
+  username      String
+  imageUrl      String?
+  xp            Int             @default(0)
+  streakDays    Int             @default(1)
+  levelUnlocked Int             @default(1)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  progress      LevelProgress[]
+  bookmarks     Bookmark[]
+  notes         UserNote[]
+  completions   PuzzleCompletion[]
+}
+
+model PuzzleCompletion {
+  id          String   @id @default(uuid())
+  userId      String
+  puzzleId    String
+  puzzleType  String   @default("rotation") // rotation | quiz | flashcard
+  completedAt DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, puzzleId])
+}
+
+model LevelProgress {
+  id          String   @id @default(uuid())
+  userId      String
+  levelId     String
+  stars       Int      @default(0)
+  completedAt DateTime @default(now())
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, levelId])
+}
+
+model Bookmark {
+  id         String   @id @default(uuid())
+  userId     String
+  topicId    String
+  topicTitle String
+  note       String?
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserNote {
+  id         String   @id @default(uuid())
+  userId     String
+  topicId    String
+  topicTitle String
+  content    String
+  updatedAt  DateTime @updatedAt
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

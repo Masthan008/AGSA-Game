@@ -1,0 +1,536 @@
+/* ADSA Quest v2 — CRED-Style White & Black Premium Design System */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+
+:root {
+  /* ── Core Palette ── */
+  --bg-white: #FFFFFF;
+  --bg-light: #F7F7F7;
+  --bg-grey: #F0F0F0;
+  --bg-dark-card: #000000;
+  --bg-dark-card-alt: #1A1A1A;
+  --bg-code: #141414;
+
+  --text-black: #000000;
+  --text-dark: #1A1A1A;
+  --text-body: #333333;
+  --text-secondary: #666666;
+  --text-muted: #999999;
+  --text-light: #CCCCCC;
+  --text-white: #FFFFFF;
+
+  --accent-red: #FF3B30;
+  --accent-green: #34C759;
+  --accent-blue: #007AFF;
+  --accent-orange: #FF9500;
+  --accent-gold: #FFD700;
+  --accent-gold-dark: #C8A600;
+
+  --border-hairline: #E5E5E5;
+  --border-light: #D1D1D6;
+  --border-dark: #333333;
+
+  /* ── Typography ── */
+  --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, sans-serif;
+  --font-code: 'JetBrains Mono', 'Fira Code', monospace;
+
+  /* ── Spacing & Radius ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-pill: 100px;
+
+  /* ── Shadows (Soft Elevation) ── */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.10);
+  --shadow-card: 0 2px 12px rgba(0, 0, 0, 0.06);
+
+  /* ── Layout ── */
+  --header-height: 60px;
+  --bottom-nav-height: 60px;
+  --max-width: 1200px;
+}
+
+/* ── Reset ── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-white);
+  color: var(--text-black);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.55;
+  font-size: 16px;
+  font-weight: 400;
+}
+
+/* ── Cards ── */
+.card-black {
+  background: var(--bg-dark-card);
+  color: var(--text-white);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-md);
+  transition: transform 0.2s cubic-bezier(0.33, 1, 0.68, 1), box-shadow 0.2s ease;
+}
+
+.card-black:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.card-black:active {
+  transform: scale(0.98);
+}
+
+.card-dark-alt {
+  background: var(--bg-dark-card-alt);
+  color: var(--text-white);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.card-light {
+  background: var(--bg-white);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-card);
+  transition: transform 0.2s cubic-bezier(0.33, 1, 0.68, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.card-light:hover {
+  border-color: var(--border-light);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.card-light:active {
+  transform: scale(0.985);
+}
+
+.card-grey {
+  background: var(--bg-light);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+}
+
+/* ── Panels ── */
+.panel {
+  background: var(--bg-white);
+  border: 1px solid var(--border-hairline);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Buttons ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-family: var(--font-main);
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.33, 1, 0.68, 1);
+  user-select: none;
+  min-height: 44px;
+  letter-spacing: -0.01em;
+}
+
+.btn-primary {
+  background: var(--bg-dark-card);
+  color: var(--text-white);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+  box-shadow: var(--shadow-xs);
+}
+
+.btn-secondary {
+  background: var(--bg-light);
+  color: var(--text-black);
+  border: 1px solid var(--border-hairline);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-grey);
+  border-color: var(--border-light);
+}
+
+.btn-secondary:active {
+  transform: scale(0.97);
+}
+
+.btn-danger {
+  background: var(--accent-red);
+  color: white;
+}
+
+.btn-success {
+  background: var(--accent-green);
+  color: white;
+}
+
+.btn-icon {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: var(--radius-md);
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  min-height: 32px;
+}
+
+/* ── Section Typography ── */
+.section-title {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  color: var(--text-black);
+}
+
+.section-subtitle {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+/* ── Chips / Badges ── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.chip-black {
+  background: var(--bg-dark-card);
+  color: var(--text-white);
+}
+
+.chip-red {
+  background: rgba(255, 59, 48, 0.1);
+  color: var(--accent-red);
+}
+
+.chip-green {
+  background: rgba(52, 199, 89, 0.1);
+  color: var(--accent-green);
+}
+
+.chip-orange {
+  background: rgba(255, 149, 0, 0.1);
+  color: var(--accent-orange);
+}
+
+.chip-blue {
+  background: rgba(0, 122, 255, 0.1);
+  color: var(--accent-blue);
+}
+
+.chip-grey {
+  background: var(--bg-grey);
+  color: var(--text-secondary);
+}
+
+/* ── Dividers ── */
+.divider {
+  border: none;
+  border-top: 1px solid var(--border-hairline);
+  margin: 16px 0;
+}
+
+/* ── Stat Row (CRED-style big numbers) ── */
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-top: 4px;
+}
+
+/* ── SVG Tree & Graph Animations ── */
+.tree-node {
+  /* Position glides smoothly between frames (transform set inline in px). */
+  transition: transform 0.45s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.3s ease;
+  cursor: pointer;
+}
+
+.tree-node circle, .tree-node rect {
+  transition: all 0.3s ease;
+}
+
+.tree-edge {
+  transition: stroke 0.3s ease, stroke-width 0.3s ease;
+}
+
+@keyframes pulse-highlight {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.node-active {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulse-highlight 1.2s infinite cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+@keyframes node-pop {
+  0% { transform: scale(0.3); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.tree-node circle {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: node-pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes shake-wrong {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+.shake {
+  animation: shake-wrong 0.4s ease;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fade-in-up 0.35s ease forwards;
+}
+
+/* ── Flashcard 3D Flip ── */
+.flashcard-scene {
+  position: relative;
+  min-height: 300px;
+  perspective: 1400px;
+  animation: card-enter 0.45s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(16px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.flashcard-scene .flashcard-face {
+  position: absolute;
+  inset: 0;
+  min-height: 300px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
+}
+
+.flashcard-front {
+  transform: rotateY(0deg);
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
+.flashcard-scene.is-flipped .flashcard-front {
+  transform: rotateY(-180deg);
+}
+
+.flashcard-scene.is-flipped .flashcard-back {
+  transform: rotateY(0deg);
+}
+
+/* ── Arena, Compare & General Motion Effects ── */
+@keyframes gradient-slide {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pop-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  70% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.pop-in {
+  display: inline-block;
+  animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.arena-option {
+  animation: fade-in-up 0.35s ease both;
+}
+
+.arena-option:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.compare-card {
+  position: relative;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: #FFFFFF;
+  border: 1px solid var(--border-hairline);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.3s cubic-bezier(0.33, 1, 0.68, 1), box-shadow 0.3s ease;
+}
+
+.compare-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.complexity-bar {
+  height: 100%;
+  border-radius: 100px;
+  transform-origin: left;
+  animation: bar-grow 0.8s cubic-bezier(0.33, 1, 0.68, 1) both;
+}
+
+@keyframes bar-grow {
+  from { transform: scaleX(0); opacity: 0.4; }
+  to { transform: scaleX(1); opacity: 1; }
+}
+
+.verdict-card {
+  background: linear-gradient(135deg, #000000, #1C1C1E 60%, #2C2C2E);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.25);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.verdict-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.3);
+}
+
+.verdict-glow {
+  display: inline-block;
+  animation: verdict-pulse 2s ease-in-out infinite;
+}
+
+@keyframes verdict-pulse {
+  0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(255, 204, 0, 0.6)); }
+  50% { transform: scale(1.25); filter: drop-shadow(0 0 10px rgba(255, 204, 0, 0.9)); }
+}
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg-light);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border-light);
+  border-radius: var(--radius-pill);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* ── Input Fields ── */
+input, textarea, select {
+  font-family: var(--font-main);
+  font-size: 0.95rem;
+  border: 1.5px solid var(--border-hairline);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  background: var(--bg-white);
+  color: var(--text-black);
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: var(--text-black);
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Responsive Utilities ── */
+@media (max-width: 768px) {
+  body {
+    padding-bottom: var(--bottom-nav-height);
+  }
+
+  .desktop-only {
+    display: none !important;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-only {
+    display: none !important;
+  }
+}

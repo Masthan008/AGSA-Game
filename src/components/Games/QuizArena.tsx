@@ -9,12 +9,18 @@ import confetti from 'canvas-confetti';
 interface QuizArenaProps {
   currentLevel?: LevelTopic;
   userId?: string;
+  levelUnlocked?: number;
   onCompleteQuiz: (earnedStars: number, earnedXp: number) => void;
   onBackToCampaign: () => void;
 }
 
-export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, onCompleteQuiz, onBackToCampaign }) => {
-  const [topicId, setTopicId] = useState<string>(() => currentLevel?.id || LEVEL_TOPICS[0].id);
+export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, levelUnlocked, onCompleteQuiz, onBackToCampaign }) => {
+  const unlockedLevels = LEVEL_TOPICS.filter(l => l.levelNumber <= (levelUnlocked ?? 1));
+  const firstUnlockedId = unlockedLevels[0]?.id || LEVEL_TOPICS[0].id;
+  const [topicId, setTopicId] = useState<string>(() => {
+    if (currentLevel && currentLevel.levelNumber <= (levelUnlocked ?? 1)) return currentLevel.id;
+    return firstUnlockedId;
+  });
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isAnswered, setIsAnswered] = useState(false);
@@ -26,6 +32,11 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, onCo
 
   const questions = getQuizQuestionsForLevel(topicId);
   const activeTopic = LEVEL_TOPICS.find(l => l.id === topicId) || LEVEL_TOPICS[0];
+
+  useEffect(() => {
+    const locked = LEVEL_TOPICS.find(l => l.id === topicId && l.levelNumber > (levelUnlocked ?? 1));
+    if (locked) setTopicId(firstUnlockedId);
+  }, [topicId, levelUnlocked, firstUnlockedId]);
 
   useEffect(() => {
     setLoading(true);
@@ -163,25 +174,34 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, onCo
             const topicDone = l.id !== topicId && getQuizQuestionsForLevel(l.id).length > 0 &&
               getQuizQuestionsForLevel(l.id).every(q => completedSet.has(q.id));
             const active = l.id === topicId;
+            const locked = l.levelNumber > (levelUnlocked ?? 1);
             return (
               <button
                 key={l.id}
-                onClick={() => handleTopicChange(l.id)}
+                onClick={locked ? undefined : () => handleTopicChange(l.id)}
+                title={locked ? `Complete Level ${l.levelNumber - 1} to unlock this quiz` : `Level ${l.levelNumber}: ${l.title}`}
                 style={{
                   padding: '8px 14px', borderRadius: 100, whiteSpace: 'nowrap',
                   fontSize: '0.78rem', fontWeight: 800,
-                  background: active ? 'linear-gradient(135deg, #000, #1C1C1E)' : 'var(--bg-light)',
-                  color: active ? '#fff' : 'var(--text-secondary)',
-                  border: active ? '1.5px solid #000' : `1.5px solid ${topicDone ? 'var(--accent-green)' : 'var(--border-hairline)'}`,
-                  cursor: 'pointer', fontFamily: 'var(--font-main)', transition: 'all 0.2s ease',
-                  display: 'inline-flex', alignItems: 'center', gap: 5,
+                  background: active ? 'linear-gradient(135deg, #000, #1C1C1E)' : locked ? 'var(--bg-light)' : 'var(--bg-light)',
+                  color: active ? '#fff' : locked ? 'var(--text-muted)' : 'var(--text-secondary)',
+                  border: active ? '1.5px solid #000' : locked ? '1.5px dashed var(--border-light)' : `1.5px solid ${topicDone ? 'var(--accent-green)' : 'var(--border-hairline)'}`,
+                  cursor: locked ? 'not-allowed' : 'pointer', fontFamily: 'var(--font-main)', transition: 'all 0.2s ease',
+                  display: 'inline-flex', alignItems: 'center', gap: 5, opacity: locked ? 0.6 : 1,
                 }}
               >
-                L{l.levelNumber} {topicDone && <CheckCircle2 size={12} color="var(--accent-green)" />}
+                {locked && <Lock size={12} />}
+                L{l.levelNumber} {!locked && topicDone && <CheckCircle2 size={12} color="var(--accent-green)" />}
               </button>
             );
           })}
         </div>
+        {unlockedLevels.length < LEVEL_TOPICS.length && (
+          <div style={{ fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', marginTop: 8, display: 'flex', alignItems: 'center', gap: 5 }}>
+            <Lock size={12} />
+            Complete Level {unlockedLevels.length} to unlock more quizzes
+          </div>
+        )}
         <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, flexWrap: 'wrap' }}>
           <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#000' }}>{activeTopic.title}</span>
           <span style={{

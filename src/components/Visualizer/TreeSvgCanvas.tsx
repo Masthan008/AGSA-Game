@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { NodePosition, EdgeConnection } from '../../types';
-import { ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
+import { ZoomIn, ZoomOut, Maximize2, ArrowDownLeft, ArrowDownRight, ArrowUpLeft, ArrowUpRight } from 'lucide-react';
 
 interface TreeSvgCanvasProps {
   nodes: NodePosition[];
@@ -35,6 +35,16 @@ export const TreeSvgCanvas: React.FC<TreeSvgCanvasProps> = ({ nodes, edges = [],
   };
 
   const handleMouseUp = () => setIsDragging(false);
+
+  // Balance analysis — shown for trees that carry balance factors.
+  const bfNodes = nodes.filter(n => n.balanceFactor !== undefined);
+  const showMeter = bfNodes.length > 0;
+  const maxAbsBF = bfNodes.reduce((m, n) => Math.max(m, Math.abs(n.balanceFactor || 0)), 0);
+  const isBalanced = maxAbsBF <= 1;
+  const childIds = new Set(edges.map(e => String(e.to)));
+  const root = nodes.find(n => !childIds.has(String(n.id)) && n.balanceFactor !== undefined);
+  const rootBF = root ? (root.balanceFactor || 0) : (bfNodes[0]?.balanceFactor || 0);
+  const bubbleOffset = Math.max(-30, Math.min(30, rootBF * -13));
 
   // Calculate SVG ViewBox based on Zoom & Pan
   const baseW = 600;
@@ -77,6 +87,49 @@ export const TreeSvgCanvas: React.FC<TreeSvgCanvasProps> = ({ nodes, edges = [],
           <Maximize2 size={14} /> Fit
         </button>
       </div>
+
+      {/* Balance Status — spirit-level meter + converging/diverging arrows */}
+      {showMeter && (
+        <div key={`bal-${isBalanced}-${maxAbsBF}`} style={{
+          position: 'absolute', top: 12, left: 12, zIndex: 10,
+          display: 'flex', flexDirection: 'column', gap: 6, pointerEvents: 'none',
+          animation: 'cmp-fade-in 0.3s ease both',
+        }}>
+          <div className={isBalanced ? 'bal-badge bal-badge-ok' : 'bal-badge bal-badge-bad'}>
+            <div className="bal-arrows">
+              {isBalanced ? (
+                <>
+                  <ArrowDownLeft size={15} className="bal-arrow-in bal-arrow-l" />
+                  <ArrowDownRight size={15} className="bal-arrow-in bal-arrow-r" />
+                </>
+              ) : (
+                <>
+                  <ArrowUpLeft size={15} className="bal-arrow-out bal-arrow-l" />
+                  <ArrowUpRight size={15} className="bal-arrow-out bal-arrow-r" />
+                </>
+              )}
+            </div>
+            <span>
+              {isBalanced ? 'BALANCED' : `UNBALANCED · BF ${rootBF > 0 ? '+' : ''}${maxAbsBF}`}
+            </span>
+          </div>
+
+          <div className={isBalanced ? 'bal-meter bal-meter-ok' : 'bal-meter bal-meter-bad'}>
+            <div className="bal-track">
+              <span className="bal-track-mark" style={{ left: '25%' }} />
+              <span className="bal-track-mark" style={{ left: '50%' }} />
+              <span className="bal-track-mark" style={{ left: '75%' }} />
+              <div
+                className={isBalanced ? 'bal-bubble' : 'bal-bubble bal-bubble-bad'}
+                style={{ left: `calc(50% + ${bubbleOffset}px)` }}
+              />
+            </div>
+            <span className="bal-side">
+              {isBalanced ? 'EVEN' : rootBF > 0 ? 'LEFT-HEAVY' : 'RIGHT-HEAVY'}
+            </span>
+          </div>
+        </div>
+      )}
 
       {nodes.length === 0 ? (
         <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: 32 }}>

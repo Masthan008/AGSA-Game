@@ -8,7 +8,10 @@ export type AlgorithmKey =
   | 'avl' | 'redblack' | 'btree' | 'segment' | 'trie'
   | 'dijkstra' | 'tarjan' | 'knapsack' | 'dsu'
   | 'bst' | 'heap' | 'bfsdfs' | 'mst' | 'bellmanford'
-  | 'floydwarshall' | 'lcs' | 'matrixchain' | 'kmp' | 'suffixarray';
+  | 'floydwarshall' | 'lcs' | 'matrixchain' | 'kmp' | 'suffixarray'
+  | 'toposort' | 'hashing' | 'fenwick' | 'editdistance' | 'bitmaskdp'
+  | 'maxflow' | 'skiplist' | 'splay' | 'radixsort' | 'zalgo'
+  | 'manacher' | 'bloomfilter' | 'sparsetable' | 'nqueens';
 
 export interface CodeSnippet {
   title: string;

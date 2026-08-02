@@ -460,7 +460,7 @@ export const App: React.FC = () => {
               <h2 className="section-title">Challenge Arena</h2>
               <p className="section-subtitle">Test your knowledge with quizzes and interactive puzzles.</p>
             </div>
-            <QuizArena currentLevel={currentLevel} userId={userProgress.username || 'Student'} onCompleteQuiz={handleCompleteQuiz} onBackToCampaign={() => setActiveTab('campaign')} />
+            <QuizArena currentLevel={currentLevel} userId={userProgress.username || 'Student'} levelUnlocked={userProgress.levelUnlocked} onCompleteQuiz={handleCompleteQuiz} onBackToCampaign={() => setActiveTab('campaign')} />
             <div style={{ marginTop: 32 }}><TreeBalanceGame currentLevel={currentLevel} userId={userProgress.username || 'Student'} /></div>
           </div>
         )}

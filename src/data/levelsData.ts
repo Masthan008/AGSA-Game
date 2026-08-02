@@ -480,5 +480,285 @@ export const LEVEL_TOPICS: LevelTopic[] = [
         explanation: 'Greedy maximal matching picks both endpoints of un-covered edges, guaranteeing ≤ 2 * OPT.'
       }
     ]
+  },
+  {
+    id: 'level-25-toposort',
+    levelNumber: 25,
+    title: 'Topological Sort (Kahn & DFS)',
+    category: 'Graphs',
+    description: 'Linear ordering of DAG vertices so every edge flows forward — with in-degree counting and DFS finishing times.',
+    algorithmKey: 'toposort',
+    difficulty: 'Medium',
+    estimatedMinutes: 10,
+    defaultInput: [0, 1, 2, 3, 4, 5],
+    quizQuestions: [
+      {
+        id: 'q25',
+        question: 'On which graph does Topological Sort apply?',
+        options: ['Directed Acyclic Graphs (DAG)', 'Undirected graphs', 'Cyclic directed graphs', 'Any weighted graph'],
+        correctAnswerIndex: 0,
+        explanation: 'A cycle means no valid linear ordering exists, so Topological Sort requires a DAG.'
+      }
+    ]
+  },
+  {
+    id: 'level-26-hashing',
+    levelNumber: 26,
+    title: 'Hash Tables: Chaining & Open Addressing',
+    category: 'AdvancedSets',
+    description: 'Hash functions, collision resolution via chaining and linear/quadratic probing, and load factors.',
+    algorithmKey: 'hashing',
+    difficulty: 'Medium',
+    estimatedMinutes: 10,
+    defaultInput: [10, 22, 31, 4, 15, 28, 17, 88, 59],
+    quizQuestions: [
+      {
+        id: 'q26',
+        question: 'What is the expected time complexity of search in a hash table with good hashing and low load factor?',
+        options: ['O(1)', 'O(log N)', 'O(N)', 'O(N log N)'],
+        correctAnswerIndex: 0,
+        explanation: 'With uniform hashing, expected probe/collision counts are constant, giving O(1) average search.'
+      }
+    ]
+  },
+  {
+    id: 'level-27-fenwick',
+    levelNumber: 27,
+    title: 'Binary Indexed Tree (Fenwick Tree)',
+    category: 'Trees',
+    description: 'Point updates and prefix sums in O(log N) using lowbit-indexed BIT arrays.',
+    algorithmKey: 'fenwick',
+    difficulty: 'Hard',
+    estimatedMinutes: 12,
+    defaultInput: [3, 2, -1, 6, 5, 4, -3, 3, 7, 2, 9],
+    quizQuestions: [
+      {
+        id: 'q27',
+        question: 'Which operation on a Fenwick tree costs O(log N) and tracks prefix sums?',
+        options: ['Update a single index and query prefix sums', 'Range updates in O(1)', 'Find the median in O(1)', 'Delete arbitrary elements'],
+        correctAnswerIndex: 0,
+        explanation: 'Point update + prefix query both walk O(log N) lowbit jumps in the BIT array.'
+      }
+    ]
+  },
+  {
+    id: 'level-28-editdistance',
+    levelNumber: 28,
+    title: 'Edit Distance (Levenshtein)',
+    category: 'DynamicProgramming',
+    description: 'Minimum insert/delete/substitute operations to convert one string into another via DP grid.',
+    algorithmKey: 'editdistance',
+    difficulty: 'Medium',
+    estimatedMinutes: 10,
+    defaultInput: ['horse', 'ros'],
+    quizQuestions: [
+      {
+        id: 'q28',
+        question: 'What is the edit distance between "cat" and "car"?',
+        options: ['1 (substitute t → r)', '2', '3', '0'],
+        correctAnswerIndex: 0,
+        explanation: 'Only the last character differs, so one substitution suffices.'
+      }
+    ]
+  },
+  {
+    id: 'level-29-bitmaskdp',
+    levelNumber: 29,
+    title: 'Bitmask DP (TSP & Subset Cover)',
+    category: 'DynamicProgramming',
+    description: 'DP over subsets encoded as bitmasks — the classic Held-Karp Travelling Salesman solution.',
+    algorithmKey: 'bitmaskdp',
+    difficulty: 'Master',
+    estimatedMinutes: 14,
+    defaultInput: [0, 1, 2, 3],
+    quizQuestions: [
+      {
+        id: 'q29',
+        question: 'What is the complexity of Held-Karp (bitmask TSP) for N cities?',
+        options: ['O(2^N · N²)', 'O(N!)', 'O(N³)', 'O(2^N · N)'],
+        correctAnswerIndex: 0,
+        explanation: 'There are 2^N subsets and N endpoints, each transitioned over N predecessors: O(2^N · N²).'
+      }
+    ]
+  },
+  {
+    id: 'level-30-maxflow',
+    levelNumber: 30,
+    title: 'Ford-Fulkerson & Max Flow',
+    category: 'Graphs',
+    description: 'Augmenting paths, residual networks, and the Max-Flow Min-Cut theorem.',
+    algorithmKey: 'maxflow',
+    difficulty: 'Hard',
+    estimatedMinutes: 12,
+    defaultInput: [0, 1, 2, 3, 4, 5],
+    quizQuestions: [
+      {
+        id: 'q30',
+        question: 'What does the Max-Flow Min-Cut theorem state?',
+        options: ['Max flow equals min cut capacity', 'Max flow equals graph density', 'Min cut equals number of edges', 'Flow can exceed cut capacity'],
+        correctAnswerIndex: 0,
+        explanation: 'The maximum amount of flow from source to sink equals the capacity of the smallest cut separating them.'
+      }
+    ]
+  },
+  {
+    id: 'level-31-skiplist',
+    levelNumber: 31,
+    title: 'Skip Lists & Randomized Indexing',
+    category: 'AdvancedSets',
+    description: 'Multi-level ordered linked lists with random promotion for O(log N) search.',
+    algorithmKey: 'skiplist',
+    difficulty: 'Medium',
+    estimatedMinutes: 10,
+    defaultInput: [30, 40, 50, 60, 70, 90, 110],
+    quizQuestions: [
+      {
+        id: 'q31',
+        question: 'What is the expected search complexity in a Skip List with p = 1/2 promotion?',
+        options: ['O(log N)', 'O(N)', 'O(1)', 'O(N log N)'],
+        correctAnswerIndex: 0,
+        explanation: 'With roughly log N levels, each level halves the search space, giving O(log N) expected time.'
+      }
+    ]
+  },
+  {
+    id: 'level-32-splay',
+    levelNumber: 32,
+    title: 'Splay Trees & Self-Adjusting BSTs',
+    category: 'Trees',
+    description: 'Move recently accessed nodes to the root via zig, zig-zig, and zig-zag rotations.',
+    algorithmKey: 'splay',
+    difficulty: 'Hard',
+    estimatedMinutes: 12,
+    defaultInput: [10, 20, 30, 40, 50, 25],
+    quizQuestions: [
+      {
+        id: 'q32',
+        question: 'What is the amortized complexity of each operation in a Splay tree?',
+        options: ['O(log N) amortized', 'O(N) worst case only', 'O(1) always', 'O(N log N) amortized'],
+        correctAnswerIndex: 0,
+        explanation: 'Splay trees guarantee O(log N) amortized via the potential method, despite O(N) worst-case single ops.'
+      }
+    ]
+  },
+  {
+    id: 'level-33-radixsort',
+    levelNumber: 33,
+    title: 'Radix Sort & Counting Sort',
+    category: 'AdvancedSets',
+    description: 'Linear-time integer sorting digit-by-digit with stable counting sort passes.',
+    algorithmKey: 'radixsort',
+    difficulty: 'Medium',
+    estimatedMinutes: 10,
+    defaultInput: [170, 45, 75, 90, 802, 24, 2, 66],
+    quizQuestions: [
+      {
+        id: 'q33',
+        question: 'What is the time complexity of Radix Sort on N numbers with d digits?',
+        options: ['O(d · N)', 'O(N log N)', 'O(N²)', 'O(d² · N)'],
+        correctAnswerIndex: 0,
+        explanation: 'Each of the d digit passes is a linear counting sort over N elements.'
+      }
+    ]
+  },
+  {
+    id: 'level-34-zalgo',
+    levelNumber: 34,
+    title: 'Z-Algorithm for Pattern Matching',
+    category: 'StringAndTrie',
+    description: 'Z-array longest common prefix computation powering linear-time substring search.',
+    algorithmKey: 'zalgo',
+    difficulty: 'Hard',
+    estimatedMinutes: 10,
+    defaultInput: ['aaabcxyzaaaabczaaczabbaaaaaabc', 'aaabc'],
+    quizQuestions: [
+      {
+        id: 'q34',
+        question: 'What does Z[i] represent in the Z-array of a string?',
+        options: ['Length of longest substring starting at i that is also a prefix', 'Number of occurrences of char i', 'Length of the string', 'Suffix array position'],
+        correctAnswerIndex: 0,
+        explanation: 'Z[i] = longest common prefix length between the string and its suffix starting at i.'
+      }
+    ]
+  },
+  {
+    id: 'level-35-manacher',
+    levelNumber: 35,
+    title: "Manacher's Palindromes",
+    category: 'StringAndTrie',
+    description: 'Linear-time longest palindromic substring using mirror indices and centers.',
+    algorithmKey: 'manacher',
+    difficulty: 'Hard',
+    estimatedMinutes: 12,
+    defaultInput: ['babad', 'cbbd', 'racecar'],
+    quizQuestions: [
+      {
+        id: 'q35',
+        question: "What is the time complexity of Manacher's algorithm?",
+        options: ['O(N)', 'O(N²)', 'O(N log N)', 'O(N³)'],
+        correctAnswerIndex: 0,
+        explanation: 'The palindrome radius array is built with linear amortized work per character.'
+      }
+    ]
+  },
+  {
+    id: 'level-36-bloomfilter',
+    levelNumber: 36,
+    title: 'Bloom Filters & Probabilistic Sets',
+    category: 'AdvancedSets',
+    description: 'Space-efficient membership testing with k hash functions and false-positive trade-offs.',
+    algorithmKey: 'bloomfilter',
+    difficulty: 'Medium',
+    estimatedMinutes: 8,
+    defaultInput: ['apple', 'banana', 'grape', 'mango'],
+    quizQuestions: [
+      {
+        id: 'q36',
+        question: 'What is the key property of a Bloom filter answer?',
+        options: ['No false negatives, possible false positives', 'No false positives, possible false negatives', 'Always exact', 'Only works for numbers'],
+        correctAnswerIndex: 0,
+        explanation: 'Bloom filters never say "not present" for an inserted item, but may claim an absent item is present.'
+      }
+    ]
+  },
+  {
+    id: 'level-37-sparsetable',
+    levelNumber: 37,
+    title: 'Sparse Table (Static RMQ)',
+    category: 'Trees',
+    description: 'O(1) range minimum queries over immutable arrays using power-of-two interval stabbing.',
+    algorithmKey: 'sparsetable',
+    difficulty: 'Hard',
+    estimatedMinutes: 10,
+    defaultInput: [4, 2, 3, 7, 1, 5, 3, 3, 9, 6, 7],
+    quizQuestions: [
+      {
+        id: 'q37',
+        question: 'What are the build and query complexities of a Sparse Table?',
+        options: ['Build O(N log N), query O(1)', 'Build O(N), query O(log N)', 'Build O(N log N), query O(log N)', 'Build O(N²), query O(1)'],
+        correctAnswerIndex: 0,
+        explanation: 'N log N intervals are precomputed, and overlapping two intervals answers any range in O(1).'
+      }
+    ]
+  },
+  {
+    id: 'level-38-nqueens',
+    levelNumber: 38,
+    title: 'N-Queens & Backtracking',
+    category: 'DynamicProgramming',
+    description: 'Constraint-based recursive search with pruning via row/column/diagonal attack sets.',
+    algorithmKey: 'nqueens',
+    difficulty: 'Hard',
+    estimatedMinutes: 12,
+    defaultInput: [4, 5, 6, 8],
+    quizQuestions: [
+      {
+        id: 'q38',
+        question: 'How many solutions exist for the 4-Queens problem?',
+        options: ['2', '4', '8', '1'],
+        correctAnswerIndex: 0,
+        explanation: 'The 4x4 board admits exactly 2 distinct solution placements.'
+      }
+    ]
   }
 ];

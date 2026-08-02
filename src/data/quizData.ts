@@ -39,6 +39,78 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     hint: 'The imbalance is on the Left child\u2019s Right subtree.'
   },
   {
+    id: 'q2-avl-3',
+    levelId: 'level-2-avl',
+    question: 'What is the balance factor of a node whose left subtree has height 3 and right subtree has height 1?',
+    options: ['+2', '-2', '0', '+1'],
+    correctAnswerIndex: 0,
+    explanation: 'Balance Factor = Height(Left) - Height(Right) = 3 - 1 = +2, which violates the AVL constraint.',
+    hint: 'BF = height(left) - height(right).'
+  },
+  {
+    id: 'q2-avl-4',
+    levelId: 'level-2-avl',
+    question: 'After inserting 30, 20, 10 into an empty AVL tree, which rotation rebalances the root?',
+    options: ['Right rotation (LL case)', 'Left rotation (RR case)', 'LR double rotation', 'RL double rotation'],
+    correctAnswerIndex: 0,
+    explanation: 'The left-left chain 30→20→10 has BF +2 with left child BF +1 — a single right rotation makes 20 the root.',
+    hint: 'Both the root and its left child lean left.'
+  },
+  {
+    id: 'q2-avl-5',
+    levelId: 'level-2-avl',
+    question: 'An AVL tree with N nodes guarantees a height of at most:',
+    options: ['1.44 log₂(N+1)', 'log₂(N)', '2N', 'N/2'],
+    correctAnswerIndex: 0,
+    explanation: 'The AVL balance constraint bounds height to about 1.44 log₂(N+1), keeping search O(log N).',
+    hint: 'Compare with the worst-case skew of a plain BST.'
+  },
+  {
+    id: 'q2-avl-6',
+    levelId: 'level-2-avl',
+    question: 'In a double rotation (LR case), which node ends up as the new subtree root?',
+    options: ['The child of the pivot\u2019s left child (the "grandchild")', 'The original pivot', 'The leftmost leaf', 'The right child of the pivot'],
+    correctAnswerIndex: 0,
+    explanation: 'The middle value (grandchild) rises: rotate left on the child, then right on the pivot.',
+    hint: 'The middle key becomes the root of the rotated subtree.'
+  },
+  {
+    id: 'q2-avl-7',
+    levelId: 'level-2-avl',
+    question: 'What is the worst-case time complexity of search, insert, and delete in an AVL tree?',
+    options: ['O(log N) each', 'O(N) each', 'O(1) each', 'O(N log N) each'],
+    correctAnswerIndex: 0,
+    explanation: 'Height is O(log N) and rotations are constant-time, so all three operations are O(log N).',
+    hint: 'Bounded height.'
+  },
+  {
+    id: 'q2-avl-8',
+    levelId: 'level-2-avl',
+    question: 'Deleting a node in an AVL tree may require how many rotations to fix?',
+    options: ['Up to O(log N) rotations up the path', 'At most one', 'Exactly two', 'Zero always'],
+    correctAnswerIndex: 0,
+    explanation: 'Deletion can rebalance one level then cascade upward, potentially O(log N) rotations.',
+    hint: 'Unlike insertion, the imbalance can propagate.'
+  },
+  {
+    id: 'q2-avl-9',
+    levelId: 'level-2-avl',
+    question: 'Which traversal of an AVL tree always yields sorted order?',
+    options: ['In-order', 'Pre-order', 'Post-order', 'Level-order'],
+    correctAnswerIndex: 0,
+    explanation: 'AVL is a BST, so in-order (Left, Root, Right) outputs keys in sorted order.',
+    hint: 'The same property as any BST.'
+  },
+  {
+    id: 'q2-avl-10',
+    levelId: 'level-2-avl',
+    question: 'After a left rotation at node X, which statement is true?',
+    options: ['X becomes the left child of its former right child', 'X stays the root', 'The subtree height always decreases by 2', 'The right child is deleted'],
+    correctAnswerIndex: 0,
+    explanation: 'In a left rotation, X\u2019s right child rises and X attaches as its left child (the right child\u2019s left subtree reattaches to X\u2019s right).',
+    hint: 'The rising node takes the old pivot as its left child.'
+  },
+  {
     id: 'q3-redblack-1',
     levelId: 'level-3-redblack',
     question: 'Can a Red node have a Red child in a Red-Black tree?',
@@ -2094,14 +2166,1268 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     correctAnswerIndex: 0,
     explanation: 'Dijkstra solves it in polynomial time, so it is in P, not NP-complete.',
     hint: 'The one with a known fast algorithm.'
+  },
+  {
+    id: 'q25-toposort-1',
+    levelId: 'level-25-toposort',
+    question: 'On which graph does Topological Sort apply?',
+    options: ['Directed Acyclic Graphs (DAG)', 'Undirected graphs', 'Cyclic directed graphs', 'Any weighted graph'],
+    correctAnswerIndex: 0,
+    explanation: 'A cycle means no valid linear ordering exists, so Topological Sort requires a DAG.',
+    hint: 'Think about the "DAG" acronym.'
+  },
+  {
+    id: 'q25-toposort-2',
+    levelId: 'level-25-toposort',
+    question: 'Kahn\u2019s algorithm processes vertices in which order?',
+    options: ['In-degree 0 first', 'Out-degree 0 first', 'Random order', 'Reverse of insertion'],
+    correctAnswerIndex: 0,
+    explanation: 'Kahn\u2019s algorithm repeatedly extracts vertices with no incoming edges (in-degree 0).',
+    hint: 'A vertex with no prerequisites can be placed immediately.'
+  },
+  {
+    id: 'q25-toposort-3',
+    levelId: 'level-25-toposort',
+    question: 'If Kahn\u2019s algorithm finishes without visiting all vertices, what does that prove?',
+    options: ['The graph contains a cycle', 'The graph is a tree', 'The graph is disconnected only', 'The graph is complete'],
+    correctAnswerIndex: 0,
+    explanation: 'Unvisited vertices have unresolved in-degrees, meaning a cycle traps them.',
+    hint: 'Only a cycle can keep in-degrees permanently above zero.'
+  },
+  {
+    id: 'q25-toposort-4',
+    levelId: 'level-25-toposort',
+    question: 'How many valid topological orderings can a DAG have?',
+    options: ['Possibly more than one', 'Exactly one', 'Exactly zero', 'Always two'],
+    correctAnswerIndex: 0,
+    explanation: 'Any DAG has at least one ordering; many have several (e.g., independent branches).',
+    hint: 'Swap two unrelated vertices to get another valid order.'
+  },
+  {
+    id: 'q25-toposort-5',
+    levelId: 'level-25-toposort',
+    question: 'What is the time complexity of Kahn\u2019s algorithm with adjacency lists?',
+    options: ['O(V + E)', 'O(V²)', 'O(E log V)', 'O(V log V)'],
+    correctAnswerIndex: 0,
+    explanation: 'Each vertex is dequeued once and each edge relaxes an in-degree once: O(V + E).',
+    hint: 'Count how many times each edge is touched.'
+  },
+  {
+    id: 'q25-toposort-6',
+    levelId: 'level-25-toposort',
+    question: 'Which classic application uses Topological Sort?',
+    options: ['Task scheduling / course prerequisites', 'Finding shortest path in trees only', 'Sorting integers', 'Matrix multiplication'],
+    correctAnswerIndex: 0,
+    explanation: 'Build systems and course planners order tasks so every prerequisite precedes its dependents.',
+    hint: 'Think "make" or "build order".'
+  },
+  {
+    id: 'q25-toposort-7',
+    levelId: 'level-25-toposort',
+    question: 'In the DFS-based topological sort, vertices are output in which order?',
+    options: ['Reverse of DFS finishing times', 'Order of first discovery', 'Sorted by value', 'Level order'],
+    correctAnswerIndex: 0,
+    explanation: 'A vertex finishes only after all descendants, so the reverse finishing order is topological.',
+    hint: 'Stack the finished vertices and pop.'
+  },
+  {
+    id: 'q25-toposort-8',
+    levelId: 'level-25-toposort',
+    question: 'What data structure does Kahn\u2019s algorithm primarily use?',
+    options: ['Queue (or set) of in-degree 0 vertices', 'Priority queue of weights', 'Stack of cycles', 'Linked list of values'],
+    correctAnswerIndex: 0,
+    explanation: 'A queue seeds with in-degree 0 vertices; processing one can unlock new ones.',
+    hint: 'FIFO fits "process in the order they become free".'
+  },
+  {
+    id: 'q25-toposort-9',
+    levelId: 'level-25-toposort',
+    question: 'Does Topological Sort on a DAG with 5 vertices always produce 5 vertices in the output?',
+    options: ['Yes, if no cycle exists', 'No, only 4 max', 'Only for complete graphs', 'Only if weights are zero'],
+    correctAnswerIndex: 0,
+    explanation: 'A DAG of N vertices always admits a full topological order of length N.',
+    hint: 'Every vertex eventually reaches in-degree 0.'
+  },
+  {
+    id: 'q25-toposort-10',
+    levelId: 'level-25-toposort',
+    question: 'A "prerequisite" relation defines which graph property?',
+    options: ['DAG (no cyclic dependencies)', 'Undirected tree', 'Bipartite graph', 'Complete graph'],
+    correctAnswerIndex: 0,
+    explanation: 'A valid prerequisite system cannot contain circular dependencies, hence a DAG.',
+    hint: 'Circular prerequisites are impossible in practice.'
+  },
+  {
+    id: 'q26-hashing-1',
+    levelId: 'level-26-hashing',
+    question: 'What is the expected time complexity of search in a hash table with good hashing and low load factor?',
+    options: ['O(1)', 'O(log N)', 'O(N)', 'O(N log N)'],
+    correctAnswerIndex: 0,
+    explanation: 'With uniform hashing, expected probe/collision counts are constant, giving O(1) average search.',
+    hint: 'The hash directly locates the bucket.'
+  },
+  {
+    id: 'q26-hashing-2',
+    levelId: 'level-26-hashing',
+    question: 'Separate chaining resolves collisions by:',
+    options: ['Storing colliding keys in a linked list per bucket', 'Moving to the next empty slot', 'Rehashing the whole table', 'Ignoring the collision'],
+    correctAnswerIndex: 0,
+    explanation: 'Each bucket holds a chain (list/tree) of all keys that hash to it.',
+    hint: 'The chain hangs off the bucket.'
+  },
+  {
+    id: 'q26-hashing-3',
+    levelId: 'level-26-hashing',
+    question: 'In linear probing, when a slot is occupied we:',
+    options: ['Try the next consecutive slot', 'Try slots at squared offsets', 'Rehash the key', 'Abort insertion'],
+    correctAnswerIndex: 0,
+    explanation: 'Linear probing scans (h(k) + i) mod m for i = 0, 1, 2, …',
+    hint: 'Move one step at a time.'
+  },
+  {
+    id: 'q26-hashing-4',
+    levelId: 'level-26-hashing',
+    question: 'What does load factor α = n/m measure?',
+    options: ['Average number of keys per slot', 'Hash function speed', 'Table size in bytes', 'Number of hash functions'],
+    correctAnswerIndex: 0,
+    explanation: 'α = keys/slots; high α raises collision probability, so tables resize near α = 0.75.',
+    hint: 'n keys into m slots.'
+  },
+  {
+    id: 'q26-hashing-5',
+    levelId: 'level-26-hashing',
+    question: 'Which property makes a hash function good?',
+    options: ['Keys spread uniformly across slots', 'It always returns 0', 'It sorts the keys', 'It compresses data'],
+    correctAnswerIndex: 0,
+    explanation: 'Uniform distribution minimizes collisions regardless of input patterns.',
+    hint: 'Avoid clustering.'
+  },
+  {
+    id: 'q26-hashing-6',
+    levelId: 'level-26-hashing',
+    question: 'Primary clustering is a problem of which technique?',
+    options: ['Linear probing', 'Separate chaining', 'Double hashing only', 'Universal hashing'],
+    correctAnswerIndex: 0,
+    explanation: 'Linear probing builds long contiguous occupied runs, degrading search time.',
+    hint: 'Consecutive slots fill together.'
+  },
+  {
+    id: 'q26-hashing-7',
+    levelId: 'level-26-hashing',
+    question: 'Double hashing avoids clustering by using:',
+    options: ['A second hash function for the probe step', 'Two linked lists per bucket', 'Sorting before probing', 'Bigger slots'],
+    correctAnswerIndex: 0,
+    explanation: 'Probe sequence is (h1(k) + i·h2(k)) mod m, varying the step per key.',
+    hint: 'A second hash decides the step size.'
+  },
+  {
+    id: 'q26-hashing-8',
+    levelId: 'level-26-hashing',
+    question: 'When α of a hash table reaches the threshold, the standard fix is:',
+    options: ['Rehash into a larger table', 'Disallow new inserts', 'Switch to linear search', 'Delete all colliding keys'],
+    correctAnswerIndex: 0,
+    explanation: 'Resizing (typically doubling) and rehashing restores a low load factor.',
+    hint: 'Grow and redistribute.'
+  },
+  {
+    id: 'q26-hashing-9',
+    levelId: 'level-26-hashing',
+    question: 'A cryptographic hash differs from a table hash because it must:',
+    options: ['Be one-way and collision resistant', 'Be faster than O(1)', 'Sort its input', 'Always return even numbers'],
+    correctAnswerIndex: 0,
+    explanation: 'Table hashes optimize distribution; cryptographic hashes add security properties.',
+    hint: 'Think of password storage.'
+  },
+  {
+    id: 'q26-hashing-10',
+    levelId: 'level-26-hashing',
+    question: 'In open addressing, deleted slots are marked "tombstone" because:',
+    options: ['Probe chains must not be broken', 'They are faster', 'Memory is freed', 'The hash changes'],
+    correctAnswerIndex: 0,
+    explanation: 'Removing an entry naively would stop later probes from finding keys past the gap.',
+    hint: 'The probe sequence continues through the gap.'
+  },
+  {
+    id: 'q27-fenwick-1',
+    levelId: 'level-27-fenwick',
+    question: 'Which operation on a Fenwick tree costs O(log N) and tracks prefix sums?',
+    options: ['Update a single index and query prefix sums', 'Range updates in O(1)', 'Find the median in O(1)', 'Delete arbitrary elements'],
+    correctAnswerIndex: 0,
+    explanation: 'Point update + prefix query both walk O(log N) lowbit jumps in the BIT array.',
+    hint: 'lowbit(i) = i & -i.'
+  },
+  {
+    id: 'q27-fenwick-2',
+    levelId: 'level-27-fenwick',
+    question: 'What is lowbit(i)?',
+    options: ['The lowest set bit of i, i & -i', 'The highest bit of i', 'i mod 2', 'i / 2'],
+    correctAnswerIndex: 0,
+    explanation: 'lowbit extracts the least significant 1-bit, the core of BIT index arithmetic.',
+    hint: 'i & -i isolates the rightmost 1.'
+  },
+  {
+    id: 'q27-fenwick-3',
+    levelId: 'level-27-fenwick',
+    question: 'A Fenwick tree is stored as:',
+    options: ['A 1-indexed array where tree[i] covers a range ending at i', 'A 2D matrix', 'A linked list', 'A sorted array'],
+    correctAnswerIndex: 0,
+    explanation: 'tree[i] aggregates the range (i - lowbit(i) + 1) ... i.',
+    hint: 'Index i stores a local summary.'
+  },
+  {
+    id: 'q27-fenwick-4',
+    levelId: 'level-27-fenwick',
+    question: 'A Fenwick tree can answer which query in O(log N)?',
+    options: ['Prefix sum up to index i', 'Minimum in a range only', 'The K-th largest with updates in O(1)', 'Only full array sum'],
+    correctAnswerIndex: 0,
+    explanation: 'Prefix(i) is the fundamental query; range sums follow by difference.',
+    hint: 'prefix(r) - prefix(l-1).'
+  },
+  {
+    id: 'q27-fenwick-5',
+    levelId: 'level-27-fenwick',
+    question: 'Compared to a Segment Tree for prefix sums with point updates, a Fenwick tree:',
+    options: ['Uses less memory and is simpler', 'Supports lazy range updates natively', 'Is always faster asymptotically', 'Handles non-invertible ops'],
+    correctAnswerIndex: 0,
+    explanation: 'BIT needs only an N+1 array and trivial code, at the cost of some generality.',
+    hint: 'Size and simplicity.'
+  },
+  {
+    id: 'q27-fenwick-6',
+    levelId: 'level-27-fenwick',
+    question: 'For a range-sum query [l, r], the correct computation is:',
+    options: ['prefix(r) - prefix(l-1)', 'prefix(r) + prefix(l)', 'prefix(r) - prefix(l)', 'prefix(l) - prefix(r)'],
+    correctAnswerIndex: 0,
+    explanation: 'Subtract the prefix before l from the prefix at r.',
+    hint: 'Inclusion-exclusion over prefixes.'
+  },
+  {
+    id: 'q27-fenwick-7',
+    levelId: 'level-27-fenwick',
+    question: 'Building a BIT from an array of size N costs:',
+    options: ['O(N) with a linear build trick', 'O(N log N) always', 'O(N²)', 'O(log N)'],
+    correctAnswerIndex: 0,
+    explanation: 'Adding arr[i] into tree[i] and its ancestors once each totals O(N).',
+    hint: 'Each index propagates once per level.'
+  },
+  {
+    id: 'q27-fenwick-8',
+    levelId: 'level-27-fenwick',
+    question: 'The index you add to when updating position i is:',
+    options: ['i += lowbit(i)', 'i *= 2', 'i -= lowbit(i)', 'i = i + 1 only'],
+    correctAnswerIndex: 0,
+    explanation: 'Updates climb: i → i + lowbit(i) until past N.',
+    hint: 'Opposite direction of the query walk.'
+  },
+  {
+    id: 'q27-fenwick-9',
+    levelId: 'level-27-fenwick',
+    question: 'Can a Fenwick tree be extended to answer range minimum queries?',
+    options: ['Only with restrictions (no overlap-safe), unlike segment trees', 'Yes, exactly like sums', 'No, impossible ever', 'Only for sorted arrays'],
+    correctAnswerIndex: 0,
+    explanation: 'Min is not invertible, so BIT min-queries need careful overlap handling; segment trees are preferred.',
+    hint: 'Subtraction works for sums, not min.'
+  },
+  {
+    id: 'q27-fenwick-10',
+    levelId: 'level-27-fenwick',
+    question: 'An application of Fenwick trees is:',
+    options: ['Counting inversions in O(N log N)', 'Pattern matching in O(1)', 'Sorting in O(N)', 'Finding cycles'],
+    correctAnswerIndex: 0,
+    explanation: 'Scan left to right, using BIT prefix counts to count greater elements before each item.',
+    hint: 'Inversion = greater element earlier in the array.'
+  },
+  {
+    id: 'q28-editdistance-1',
+    levelId: 'level-28-editdistance',
+    question: 'What is the edit distance between "cat" and "car"?',
+    options: ['1 (substitute t → r)', '2', '3', '0'],
+    correctAnswerIndex: 0,
+    explanation: 'Only the last character differs, so one substitution suffices.',
+    hint: 'Compare the strings position by position.'
+  },
+  {
+    id: 'q28-editdistance-2',
+    levelId: 'level-28-editdistance',
+    question: 'The three allowed operations in Levenshtein distance are:',
+    options: ['Insert, delete, substitute', 'Swap, reverse, sort', 'Rotate, shift, merge', 'Encode, decode, compress'],
+    correctAnswerIndex: 0,
+    explanation: 'Insertion, deletion, and substitution (each costing 1) define Levenshtein distance.',
+    hint: 'Two are length-changing, one is not.'
+  },
+  {
+    id: 'q28-editdistance-3',
+    levelId: 'level-28-editdistance',
+    question: 'If S1[i] == S2[j], the DP cell is:',
+    options: ['dp[i-1][j-1] (no extra cost)', '1 + dp[i-1][j-1]', 'dp[i][j-1] + 1', 'min of all plus 1'],
+    correctAnswerIndex: 0,
+    explanation: 'Matching characters cost nothing; the answer inherits the diagonal subproblem.',
+    hint: 'Equal characters are free.'
+  },
+  {
+    id: 'q28-editdistance-4',
+    levelId: 'level-28-editdistance',
+    question: 'For mismatched characters the recurrence is:',
+    options: ['1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])', 'dp[i-1][j] only', 'dp[i-1][j-1] * 2', 'max(dp[i-1][j], dp[i][j-1])'],
+    correctAnswerIndex: 0,
+    explanation: 'Delete, insert, or substitute — the cheapest of the three plus one.',
+    hint: 'Take the minimum of three neighbors.'
+  },
+  {
+    id: 'q28-editdistance-5',
+    levelId: 'level-28-editdistance',
+    question: 'The time and space complexity of the classic 2D edit distance DP is:',
+    options: ['O(N·M) time, O(N·M) space', 'O(N) time, O(1) space', 'O(N log M)', 'O(N²·M²)'],
+    correctAnswerIndex: 0,
+    explanation: 'Filling an N×M grid gives quadratic time; the full grid needs quadratic space.',
+    hint: 'Two strings of lengths N and M.'
+  },
+  {
+    id: 'q28-editdistance-6',
+    levelId: 'level-28-editdistance',
+    question: 'Space can be reduced to O(min(N, M)) by:',
+    options: ['Keeping only the previous DP row', 'Sorting both strings', 'Hashing substrings', 'Using a trie'],
+    correctAnswerIndex: 0,
+    explanation: 'Each row depends only on the previous row, so rolling arrays suffice.',
+    hint: 'Drop older rows.'
+  },
+  {
+    id: 'q28-editdistance-7',
+    levelId: 'level-28-editdistance',
+    question: 'Edit distance between "" (empty) and "abc" is:',
+    options: ['3 (three insertions)', '0', '1', '6'],
+    correctAnswerIndex: 0,
+    explanation: 'Every character of "abc" must be inserted, costing 3.',
+    hint: 'Base case: empty prefix needs full length insertions.'
+  },
+  {
+    id: 'q28-editdistance-8',
+    levelId: 'level-28-editdistance',
+    question: 'A real-world use of edit distance is:',
+    options: ['Spell-check suggestions', 'Image compression', 'Database indexing', 'CPU scheduling'],
+    correctAnswerIndex: 0,
+    explanation: 'Spell checkers rank corrections by edit distance from the misspelled word.',
+    hint: 'Which word is closest?'
+  },
+  {
+    id: 'q28-editdistance-9',
+    levelId: 'level-28-editdistance',
+    question: 'If substitution costs 2 instead of 1, the variant is called:',
+    options: ['OSA-style with weighted costs', 'LCS with substitution', 'Hamming distance', 'Needleman-Wunsch'],
+    correctAnswerIndex: 0,
+    explanation: 'Weighted edit distance generalizes Levenshtein by assigning arbitrary costs per operation.',
+    hint: 'Weights per operation.'
+  },
+  {
+    id: 'q28-editdistance-10',
+    levelId: 'level-28-editdistance',
+    question: 'LCS (Longest Common Subsequence) relates to edit distance by allowing:',
+    options: ['Only insertions and deletions, no substitutions', 'Only substitutions', 'Reversals', 'Any combination of two ops'],
+    correctAnswerIndex: 0,
+    explanation: 'Without substitution, edit distance = N + M - 2·LCS length.',
+    hint: 'What can you build with only insert/delete?'
+  },
+  {
+    id: 'q29-bitmaskdp-1',
+    levelId: 'level-29-bitmaskdp',
+    question: 'What is the complexity of Held-Karp (bitmask TSP) for N cities?',
+    options: ['O(2^N · N²)', 'O(N!)', 'O(N³)', 'O(2^N · N)'],
+    correctAnswerIndex: 0,
+    explanation: 'There are 2^N subsets and N endpoints, each transitioned over N predecessors: O(2^N · N²).',
+    hint: 'Subsets times endpoints times predecessors.'
+  },
+  {
+    id: 'q29-bitmaskdp-2',
+    levelId: 'level-29-bitmaskdp',
+    question: 'In bitmask DP, a subset of N items is represented by:',
+    options: ['An N-bit integer where bit i marks inclusion', 'A string of N characters', 'A sorted array', 'A polynomial'],
+    correctAnswerIndex: 0,
+    explanation: 'State (mask, i) stores the optimal value of visiting exactly the set mask ending at i.',
+    hint: 'Binary representation of a number.'
+  },
+  {
+    id: 'q29-bitmaskdp-3',
+    levelId: 'level-29-bitmaskdp',
+    question: 'Setting bit j in mask is done by:',
+    options: ['mask | (1 << j)', 'mask & (1 << j)', 'mask ^ j', 'mask + j'],
+    correctAnswerIndex: 0,
+    explanation: 'OR-ing with 1 << j switches bit j on without touching others.',
+    hint: 'Bitwise OR.'
+  },
+  {
+    id: 'q29-bitmaskdp-4',
+    levelId: 'level-29-bitmaskdp',
+    question: 'Testing whether city j is already visited in mask is:',
+    options: ['(mask >> j) & 1 === 1', 'mask % j === 0', 'mask === j', 'mask * j > 0'],
+    correctAnswerIndex: 0,
+    explanation: 'Shift bit j to position 0 and AND with 1.',
+    hint: 'Shift right then mask.'
+  },
+  {
+    id: 'q29-bitmaskdp-5',
+    levelId: 'level-29-bitmaskdp',
+    question: 'Why is Held-Karp dramatically faster than brute-force TSP for N = 20?',
+    options: ['2^20·20² ≈ 400M vs 20! ≈ 2.4·10^18', 'It is exponential too but smaller exponent', 'It is polynomial', 'It skips cities'],
+    correctAnswerIndex: 0,
+    explanation: 'Brute force explores (N-1)! permutations; Held-Karp collapses permutations into subset states.',
+    hint: 'Compare orders of magnitude.'
+  },
+  {
+    id: 'q29-bitmaskdp-6',
+    levelId: 'level-29-bitmaskdp',
+    question: 'Subset-sum DP with N items and target T using bitmasks needs:',
+    options: ['2^N states (or O(N·T) with sums)', 'T² states', 'N! states', 'No states'],
+    correctAnswerIndex: 0,
+    explanation: 'Mask tracks which items are used; alternative is classic O(N·T) DP on sums.',
+    hint: 'Either masks or target values.'
+  },
+  {
+    id: 'q29-bitmaskdp-7',
+    levelId: 'level-29-bitmaskdp',
+    question: 'A typical bitmask DP transition adds:',
+    options: ['One item per step, extending mask with the item\u2019s bit', 'Two items at once', 'No changes to mask', 'Random bits'],
+    correctAnswerIndex: 0,
+    explanation: 'Transitions grow the subset one element at a time: newMask = mask | (1 << next).',
+    hint: 'Grow the set incrementally.'
+  },
+  {
+    id: 'q29-bitmaskdp-8',
+    levelId: 'level-29-bitmaskdp',
+    question: 'N = 30 with 2^N states is usually:',
+    options: ['Too large (~10^9 states) for typical time limits', 'Trivial', 'Optimal', 'Impossible to code'],
+    correctAnswerIndex: 0,
+    explanation: 'About a billion states is infeasible; N ≤ 20 is the practical bound for bitmask DP.',
+    hint: 'Count the states.'
+  },
+  {
+    id: 'q29-bitmaskdp-9',
+    levelId: 'level-29-bitmaskdp',
+    question: 'The classic NP-Hard problem solved by Held-Karp bitmask DP is:',
+    options: ['Travelling Salesman Problem', 'Binary search', 'MST', 'KMP'],
+    correctAnswerIndex: 0,
+    explanation: 'Held-Karp gives the exact TSP in O(2^N · N²) instead of factorial time.',
+    hint: 'Tour through all cities.'
+  },
+  {
+    id: 'q29-bitmaskdp-10',
+    levelId: 'level-29-bitmaskdp',
+    question: 'In bitmask DP for matching problems, a full mask (1 << N) - 1 means:',
+    options: ['All N items are selected', 'No items selected', 'Half selected', 'An error'],
+    correctAnswerIndex: 0,
+    explanation: 'N ones in binary — the complete subset used to collect the final answer.',
+    hint: 'All bits set.'
+  },
+  {
+    id: 'q30-maxflow-1',
+    levelId: 'level-30-maxflow',
+    question: 'What does the Max-Flow Min-Cut theorem state?',
+    options: ['Max flow equals min cut capacity', 'Max flow equals graph density', 'Min cut equals number of edges', 'Flow can exceed cut capacity'],
+    correctAnswerIndex: 0,
+    explanation: 'The maximum amount of flow from source to sink equals the capacity of the smallest cut separating them.',
+    hint: 'The bottleneck cut bounds the flow.'
+  },
+  {
+    id: 'q30-maxflow-2',
+    levelId: 'level-30-maxflow',
+    question: 'An augmenting path is:',
+    options: ['A path from source to sink with remaining capacity on every edge', 'The longest path in the graph', 'Any cycle', 'A cut'],
+    correctAnswerIndex: 0,
+    explanation: 'Augmenting paths push more flow along edges with unused capacity (in the residual graph).',
+    hint: 'Unsaturated path to the sink.'
+  },
+  {
+    id: 'q30-maxflow-3',
+    levelId: 'level-30-maxflow',
+    question: 'A residual edge of capacity 0 means:',
+    options: ['The edge is saturated; flow may only be canceled, not added', 'The edge has infinite capacity', 'The edge is deleted', 'The edge reverses direction permanently'],
+    correctAnswerIndex: 0,
+    explanation: 'Zero residual capacity means no more forward flow; only backward cancellation is possible.',
+    hint: 'Fully used capacity.'
+  },
+  {
+    id: 'q30-maxflow-4',
+    levelId: 'level-30-maxflow',
+    question: 'Ford-Fulkerson using BFS for augmenting paths is called:',
+    options: ['Edmonds-Karp', 'Kruskal', 'Bellman-Ford', 'Floyd-Warshall'],
+    correctAnswerIndex: 0,
+    explanation: 'BFS (shortest augmenting path) gives the Edmonds-Karp bound of O(V·E²).',
+    hint: 'Name of the BFS variant.'
+  },
+  {
+    id: 'q30-maxflow-5',
+    levelId: 'level-30-maxflow',
+    question: 'The flow conservation property states:',
+    options: ['For every internal vertex, inflow = outflow', 'Inflow > outflow always', 'Flow must be integer', 'Each edge carries max capacity'],
+    correctAnswerIndex: 0,
+    explanation: 'Internal nodes neither produce nor consume flow.',
+    hint: 'Mass conservation.'
+  },
+  {
+    id: 'q30-maxflow-6',
+    levelId: 'level-30-maxflow',
+    question: 'A cut (S, T) is:',
+    options: ['A partition of vertices with source in S and sink in T', 'A single edge', 'A cycle', 'A path'],
+    correctAnswerIndex: 0,
+    explanation: 'Cuts separate source and sink; cut capacity is the sum of capacities from S to T.',
+    hint: 'Partition the graph in two.'
+  },
+  {
+    id: 'q30-maxflow-7',
+    levelId: 'level-30-maxflow',
+    question: 'Maximum Bipartite Matching can be solved as:',
+    options: ['Max flow with unit-capacity edges and a super source/sink', 'A shortest path problem', 'A sorting problem', 'An MST problem'],
+    correctAnswerIndex: 0,
+    explanation: 'Connect a source to left nodes, left to right, right to a sink; max flow = max matching.',
+    hint: 'Unit capacities.'
+  },
+  {
+    id: 'q30-maxflow-8',
+    levelId: 'level-30-maxflow',
+    question: 'The complexity of Edmonds-Karp is:',
+    options: ['O(V·E²)', 'O(V²)', 'O(E log V)', 'O(V·E)'],
+    correctAnswerIndex: 0,
+    explanation: 'O(E) BFS per augmentation, at most O(V·E) augmentations.',
+    hint: 'V times E BFS each costing E.'
+  },
+  {
+    id: 'q30-maxflow-9',
+    levelId: 'level-30-maxflow',
+    question: 'If no augmenting path exists in the residual graph, then:',
+    options: ['The current flow is maximal', 'Add more capacity', 'Remove edges', 'Restart the algorithm'],
+    correctAnswerIndex: 0,
+    explanation: 'No augmenting path implies a saturated cut — flow equals cut capacity, hence maximum.',
+    hint: 'Termination condition.'
+  },
+  {
+    id: 'q30-maxflow-10',
+    levelId: 'level-30-maxflow',
+    question: 'Project selection and network reliability are applications of:',
+    options: ['Max flow / min cut', 'Hash tables', 'Radix sort', 'Splay trees'],
+    correctAnswerIndex: 0,
+    explanation: 'Both reduce to cut problems: choosing projects vs. identifying the weakest edges.',
+    hint: 'Which tool handles capacities?'
+  },
+  {
+    id: 'q31-skiplist-1',
+    levelId: 'level-31-skiplist',
+    question: 'What is the expected search complexity in a Skip List with p = 1/2 promotion?',
+    options: ['O(log N)', 'O(N)', 'O(1)', 'O(N log N)'],
+    correctAnswerIndex: 0,
+    explanation: 'With roughly log N levels, each level halves the search space, giving O(log N) expected time.',
+    hint: 'Level count is logarithmic.'
+  },
+  {
+    id: 'q31-skiplist-2',
+    levelId: 'level-31-skiplist',
+    question: 'A skip list is built on top of:',
+    options: ['Sorted linked lists with extra "express" levels', 'A binary tree', 'An unsorted array', 'A hash table'],
+    correctAnswerIndex: 0,
+    explanation: 'Base level holds all elements sorted; higher levels skip over subranges.',
+    hint: 'Express lanes over local lanes.'
+  },
+  {
+    id: 'q31-skiplist-3',
+    levelId: 'level-31-skiplist',
+    question: 'The height of a new node is decided by:',
+    options: ['Flipping coins (random promotion)', 'The node value', 'Insertion order only', 'The table size'],
+    correctAnswerIndex: 0,
+    explanation: 'Each node is promoted to the next level with probability p, giving randomized height.',
+    hint: 'Randomized algorithm.'
+  },
+  {
+    id: 'q31-skiplist-4',
+    levelId: 'level-31-skiplist',
+    question: 'A skip list with p = 1/2 has approximately how many levels for N elements?',
+    options: ['log₂ N', 'N', 'N²', 'sqrt(N)'],
+    correctAnswerIndex: 0,
+    explanation: 'Expected level count is log₁/ₚ N, i.e., log₂ N for p = 1/2.',
+    hint: 'Exponential decay of node counts per level.'
+  },
+  {
+    id: 'q31-skiplist-5',
+    levelId: 'level-31-skiplist',
+    question: 'The expected space usage of a skip list is:',
+    options: ['O(N) (2N total pointers on average)', 'O(N²)', 'O(N log N)', 'O(2^N)'],
+    correctAnswerIndex: 0,
+    explanation: 'Each node averages 1/(1-p) = 2 pointers for p = 1/2.',
+    hint: 'Sum of a geometric series.'
+  },
+  {
+    id: 'q31-skiplist-6',
+    levelId: 'level-31-skiplist',
+    question: 'Compared to a balanced BST, a skip list\u2019s main practical advantage is:',
+    options: ['Simplicity and easy lock-based concurrency', 'Guaranteed O(1) search', 'Deterministic height', 'Smaller asymptotics'],
+    correctAnswerIndex: 0,
+    explanation: 'No rotations needed; levels are just pointers, and range queries are trivial to implement.',
+    hint: 'Implementation effort.'
+  },
+  {
+    id: 'q31-skiplist-7',
+    levelId: 'level-31-skiplist',
+    question: 'Deletion in a skip list:',
+    options: ['Unlinks the node at every level it appears', 'Rebuilds the whole list', 'Shifts all elements left', 'Uses rotations'],
+    correctAnswerIndex: 0,
+    explanation: 'The node\u2019s predecessors at each level skip over it — O(log N) expected.',
+    hint: 'Fix all pointers pointing to it.'
+  },
+  {
+    id: 'q31-skiplist-8',
+    levelId: 'level-31-skiplist',
+    question: 'Searching a skip list starts:',
+    options: ['At the top-left and moves down/right', 'At the bottom-left only', 'At random nodes', 'From the end'],
+    correctAnswerIndex: 0,
+    explanation: 'Start at the highest level and descend whenever the next node exceeds the target.',
+    hint: 'Top-down approach.'
+  },
+  {
+    id: 'q31-skiplist-9',
+    levelId: 'level-31-skiplist',
+    question: 'What is the expected insertion complexity?',
+    options: ['O(log N)', 'O(N)', 'O(1)', 'O(N log N)'],
+    correctAnswerIndex: 0,
+    explanation: 'Search for position plus constant pointer rewiring at each of O(log N) levels.',
+    hint: 'Search dominates.'
+  },
+  {
+    id: 'q31-skiplist-10',
+    levelId: 'level-31-skiplist',
+    question: 'A real system that famously used skip lists is:',
+    options: ['Redis (sorted sets)', 'MySQL (B-tree only)', 'Git', 'Linux scheduler only'],
+    correctAnswerIndex: 0,
+    explanation: 'Redis implements Sorted Sets with skip lists for O(log N) rank operations.',
+    hint: 'In-memory key-value store.'
+  },
+  {
+    id: 'q32-splay-1',
+    levelId: 'level-32-splay',
+    question: 'What is the amortized complexity of each operation in a Splay tree?',
+    options: ['O(log N) amortized', 'O(N) worst case only', 'O(1) always', 'O(N log N) amortized'],
+    correctAnswerIndex: 0,
+    explanation: 'Splay trees guarantee O(log N) amortized via the potential method, despite O(N) worst-case single ops.',
+    hint: 'Amortized vs worst case.'
+  },
+  {
+    id: 'q32-splay-2',
+    levelId: 'level-32-splay',
+    question: 'After accessing a node in a splay tree, the node:',
+    options: ['Becomes the new root', 'Stays in place', 'Is deleted', 'Moves to the deepest leaf'],
+    correctAnswerIndex: 0,
+    explanation: 'Splaying rotates the accessed node to the root, speeding up future accesses to it.',
+    hint: 'Self-adjusting behavior.'
+  },
+  {
+    id: 'q32-splay-3',
+    levelId: 'level-32-splay',
+    question: 'The zig-zig rotation is applied when:',
+    options: ['Node and its parent are both left (or both right) children', 'Node is left, parent is right', 'Node is the root', 'Tree is empty'],
+    correctAnswerIndex: 0,
+    explanation: 'Two consecutive single rotations in the same direction (LL or RR pattern).',
+    hint: 'Same-direction grandparent-parent-child.'
+  },
+  {
+    id: 'q32-splay-4',
+    levelId: 'level-32-splay',
+    question: 'Zig-zag rotation handles which shape?',
+    options: ['Node and parent are in opposite directions (LR or RL)', 'LL shape', 'RR shape', 'A straight chain'],
+    correctAnswerIndex: 0,
+    explanation: 'Double rotation in opposite directions, like an AVL double rotation.',
+    hint: 'Opposite-side children.'
+  },
+  {
+    id: 'q32-splay-5',
+    levelId: 'level-32-splay',
+    question: 'A plain zig (single rotation) is used when:',
+    options: ['The node\u2019s parent is the root', 'The tree is deeper than 2', 'The node is a leaf', 'The node is the root'],
+    correctAnswerIndex: 0,
+    explanation: 'One rotation suffices to bring the node to the root.',
+    hint: 'Parent is the root.'
+  },
+  {
+    id: 'q32-splay-6',
+    levelId: 'level-32-splay',
+    question: 'Why is a splay tree called "self-adjusting"?',
+    options: ['It reorganizes itself based on access patterns', 'It auto-sorts values', 'It fixes hash collisions', 'It compresses itself'],
+    correctAnswerIndex: 0,
+    explanation: 'Frequently accessed nodes rise to the top, adapting to the access distribution.',
+    hint: 'It learns what you access often.'
+  },
+  {
+    id: 'q32-splay-7',
+    levelId: 'level-32-splay',
+    question: 'Splay trees can maintain which operations in O(log N) amortized?',
+    options: ['Search, insert, delete, and split/merge', 'Only search', 'Only min extraction', 'Only range queries with lazy tags'],
+    correctAnswerIndex: 0,
+    explanation: 'All BST operations plus split/merge, making them versatile for dynamic sequences.',
+    hint: 'Full BST toolkit.'
+  },
+  {
+    id: 'q32-splay-8',
+    levelId: 'level-32-splay',
+    question: 'Inserting into a splay tree:',
+    options: ['Inserts normally then splays the new node', 'Rebuilds the tree', 'Ignores order', 'Requires rebalancing via colors'],
+    correctAnswerIndex: 0,
+    explanation: 'Standard BST insert followed by splay brings the inserted key to the root.',
+    hint: 'BST insert + splay.'
+  },
+  {
+    id: 'q32-splay-9',
+    levelId: 'level-32-splay',
+    question: 'A single worst-case splay operation can cost:',
+    options: ['O(N)', 'O(1)', 'O(log N) always', 'O(N log N)'],
+    correctAnswerIndex: 0,
+    explanation: 'A skewed tree can force a deep rotation chain — but amortized across operations it is O(log N).',
+    hint: 'Worst case, not amortized.'
+  },
+  {
+    id: 'q32-splay-10',
+    levelId: 'level-32-splay',
+    question: 'Splaying a missing key during search splays:',
+    options: ['The last node visited before failure', 'The root', 'Nothing', 'The leftmost leaf'],
+    correctAnswerIndex: 0,
+    explanation: 'The final node on the failed search path is splayed to root, keeping locality benefits.',
+    hint: 'Splay the deepest touched node.'
+  },
+  {
+    id: 'q33-radixsort-1',
+    levelId: 'level-33-radixsort',
+    question: 'What is the time complexity of Radix Sort on N numbers with d digits?',
+    options: ['O(d · N)', 'O(N log N)', 'O(N²)', 'O(d² · N)'],
+    correctAnswerIndex: 0,
+    explanation: 'Each of the d digit passes is a linear counting sort over N elements.',
+    hint: 'Linear passes times digits.'
+  },
+  {
+    id: 'q33-radixsort-2',
+    levelId: 'level-33-radixsort',
+    question: 'Radix sort processes digits in which order?',
+    options: ['Least significant digit first (LSD)', 'Most significant first always', 'Random order', 'No order matters'],
+    correctAnswerIndex: 0,
+    explanation: 'LSD radix sort uses stable passes so later passes override earlier ones correctly.',
+    hint: 'Stable LSD passes.'
+  },
+  {
+    id: 'q33-radixsort-3',
+    levelId: 'level-33-radixsort',
+    question: 'Each radix pass relies on which underlying stable sort?',
+    options: ['Counting sort', 'Insertion sort', 'Quick sort', 'Merge sort'],
+    correctAnswerIndex: 0,
+    explanation: 'Counting sort over a small digit range (0–9 or 0–255) is linear per pass.',
+    hint: 'Linear by digit range.'
+  },
+  {
+    id: 'q33-radixsort-4',
+    levelId: 'level-33-radixsort',
+    question: 'Why must each pass be stable?',
+    options: ['To preserve previous-digit ordering', 'To save memory', 'To avoid comparisons', 'To be in-place'],
+    correctAnswerIndex: 0,
+    explanation: 'Stability carries the ordering from earlier digits into later passes.',
+    hint: 'Order must survive across passes.'
+  },
+  {
+    id: 'q33-radixsort-5',
+    levelId: 'level-33-radixsort',
+    question: 'Counting sort runs in O(N + k) where k is:',
+    options: ['The range of key values', 'The number of digits', 'The number of passes', 'The array size squared'],
+    correctAnswerIndex: 0,
+    explanation: 'k = max value range; a count array of size k is scanned linearly.',
+    hint: 'Size of the count array.'
+  },
+  {
+    id: 'q33-radixsort-6',
+    levelId: 'level-33-radixsort',
+    question: 'Radix sort is best when:',
+    options: ['Keys have few digits and a small digit range', 'Keys are huge floating points', 'N is tiny', 'Comparison is cheap and range huge'],
+    correctAnswerIndex: 0,
+    explanation: 'A small fixed number of passes makes radix sort beat comparison sorts.',
+    hint: 'Few passes over small buckets.'
+  },
+  {
+    id: 'q33-radixsort-7',
+    levelId: 'level-33-radixsort',
+    question: 'Radix sort cannot directly sort which kind of data without preprocessing?',
+    options: ['Negative numbers / floats', 'Strings', 'Small integers', 'Pairs of integers'],
+    correctAnswerIndex: 0,
+    explanation: 'Sign and mantissa layouts require offsetting or bit manipulation first.',
+    hint: 'Sign bit handling.'
+  },
+  {
+    id: 'q33-radixsort-8',
+    levelId: 'level-33-radixsort',
+    question: 'For 32-bit integers with 8-bit passes, the number of passes is:',
+    options: ['4', '32', '8', '16'],
+    correctAnswerIndex: 0,
+    explanation: '32 bits / 8 bits per pass = 4 counting-sort passes.',
+    hint: 'Divide bit width by pass width.'
+  },
+  {
+    id: 'q33-radixsort-9',
+    levelId: 'level-33-radixsort',
+    question: 'The space complexity of counting sort is:',
+    options: ['O(k) auxiliary (plus output array)', 'O(1)', 'O(N log N)', 'O(k²)'],
+    correctAnswerIndex: 0,
+    explanation: 'The count array of size k plus the output array of size N.',
+    hint: 'Count buckets + output.'
+  },
+  {
+    id: 'q33-radixsort-10',
+    levelId: 'level-33-radixsort',
+    question: 'Which comparison-based lower bound does radix sort bypass?',
+    options: ['Ω(N log N)', 'Ω(N²)', 'Ω(N)', 'Ω(2^N)'],
+    correctAnswerIndex: 0,
+    explanation: 'Radix sort is not comparison-based, so the N log N decision-tree bound does not apply.',
+    hint: 'Information-theoretic bound.'
+  },
+  {
+    id: 'q34-zalgo-1',
+    levelId: 'level-34-zalgo',
+    question: 'What does Z[i] represent in the Z-array of a string?',
+    options: ['Length of longest substring starting at i that is also a prefix', 'Number of occurrences of char i', 'Length of the string', 'Suffix array position'],
+    correctAnswerIndex: 0,
+    explanation: 'Z[i] = longest common prefix length between the string and its suffix starting at i.',
+    hint: 'Prefix-suffix overlap at i.'
+  },
+  {
+    id: 'q34-zalgo-2',
+    levelId: 'level-34-zalgo',
+    question: 'The Z-array is computed in:',
+    options: ['O(N) using the [l, r] window trick', 'O(N²)', 'O(N log N)', 'O(M·N)'],
+    correctAnswerIndex: 0,
+    explanation: 'The maintained Z-box [l, r] lets later values copy earlier ones when inside the box.',
+    hint: 'Linear with a sliding window.'
+  },
+  {
+    id: 'q34-zalgo-3',
+    levelId: 'level-34-zalgo',
+    question: 'For pattern matching, the Z-algorithm concatenates:',
+    options: ['pattern + "$" + text', 'text + "$" + pattern', 'pattern + pattern', 'text + text'],
+    correctAnswerIndex: 0,
+    explanation: 'A separator (not in the alphabet) prevents cross-boundary matches; Z[i] = M marks a match.',
+    hint: 'Separator char.'
+  },
+  {
+    id: 'q34-zalgo-4',
+    levelId: 'level-34-zalgo',
+    question: 'In the concatenated string, a match occurs wherever:',
+    options: ['Z[i] == length(pattern)', 'Z[i] == 0', 'Z[i] == 1', 'Z[i] == i'],
+    correctAnswerIndex: 0,
+    explanation: 'A prefix-length match starting at i means the pattern appears at that offset.',
+    hint: 'Compare against pattern length.'
+  },
+  {
+    id: 'q34-zalgo-5',
+    levelId: 'level-34-zalgo',
+    question: 'If S = "aaaaa", what is Z[2]?',
+    options: ['3 (the suffix "aaa" matches the prefix)', '2', '0', '5'],
+    correctAnswerIndex: 0,
+    explanation: 'Suffix starting at index 2 is "aaa", sharing length 3 with the prefix.',
+    hint: 'Count the overlap.'
+  },
+  {
+    id: 'q34-zalgo-6',
+    levelId: 'level-34-zalgo',
+    question: 'When i is inside the Z-box [l, r], Z[i] is initialized to:',
+    options: ['min(Z[i - l], r - i + 1)', '0', 'Z[l]', 'r'],
+    correctAnswerIndex: 0,
+    explanation: 'Mirroring the value at i - l, capped by the remaining box width.',
+    hint: 'Mirror index capped by box.'
+  },
+  {
+    id: 'q34-zalgo-7',
+    levelId: 'level-34-zalgo',
+    question: 'The Z-algorithm finds all occurrences of a pattern in time:',
+    options: ['O(N + M)', 'O(N·M)', 'O(N log M)', 'O(M²)'],
+    correctAnswerIndex: 0,
+    explanation: 'Linear Z-array computation over the concatenated string of length N + M + 1.',
+    hint: 'Linear overall.'
+  },
+  {
+    id: 'q34-zalgo-8',
+    levelId: 'level-34-zalgo',
+    question: 'What is Z[0] conventionally set to?',
+    options: ['0 (or the full length by definition)', 'The string length', '1', 'Undefined error'],
+    correctAnswerIndex: 0,
+    explanation: 'The whole string trivially matches itself, so Z[0] is defined as 0 for convenience.',
+    hint: 'Exclude self-match.'
+  },
+  {
+    id: 'q34-zalgo-9',
+    levelId: 'level-34-zalgo',
+    question: 'Which algorithm is functionally similar to the Z-algorithm?',
+    options: ['KMP with its LPS array', 'Binary search', 'Boyer-Moore only', 'Radix sort'],
+    correctAnswerIndex: 0,
+    explanation: 'Both precompute prefix-overlap information to skip redundant comparisons.',
+    hint: 'LPS vs Z-array.'
+  },
+  {
+    id: 'q34-zalgo-10',
+    levelId: 'level-34-zalgo',
+    question: 'The Z-box [l, r] tracks:',
+    options: ['The rightmost prefix-matching segment found so far', 'The longest suffix', 'All palindromes', 'Character frequencies'],
+    correctAnswerIndex: 0,
+    explanation: 'l and r bound the farthest-reaching prefix match, enabling O(1) copying.',
+    hint: 'Farthest match boundary.'
+  },
+  {
+    id: 'q35-manacher-1',
+    levelId: 'level-35-manacher',
+    question: "What is the time complexity of Manacher's algorithm?",
+    options: ['O(N)', 'O(N²)', 'O(N log N)', 'O(N³)'],
+    correctAnswerIndex: 0,
+    explanation: 'The palindrome radius array is built with linear amortized work per character.',
+    hint: 'Linear time palindrome finder.'
+  },
+  {
+    id: 'q35-manacher-2',
+    levelId: 'level-35-manacher',
+    question: "Manacher's algorithm finds:",
+    options: ['The longest palindromic substring in linear time', 'All anagrams', 'The shortest path', 'The longest repeated sequence'],
+    correctAnswerIndex: 0,
+    explanation: 'It computes palindrome radii around every center in O(N) total.',
+    hint: 'Palindromes in a string.'
+  },
+  {
+    id: 'q35-manacher-3',
+    levelId: 'level-35-manacher',
+    question: 'To handle even-length palindromes, Manacher:',
+    options: ['Inserts separators between characters', 'Reverses the string', 'Sorts characters', 'Splits at every center'],
+    correctAnswerIndex: 0,
+    explanation: 'A transformed string with sentinels (e.g., "#") makes every palindrome have a single center.',
+    hint: 'Sentinel characters.'
+  },
+  {
+    id: 'q35-manacher-4',
+    levelId: 'level-35-manacher',
+    question: 'The mirror of index i inside the current palindrome is:',
+    options: ['2·center - i', 'center + i', 'i - center', 'center - i'],
+    correctAnswerIndex: 0,
+    explanation: 'Mirroring across the current center reuses already-computed radii.',
+    hint: 'Symmetric reflection.'
+  },
+  {
+    id: 'q35-manacher-5',
+    levelId: 'level-35-manacher',
+    question: 'The answer radius R in the transformed string maps to a real palindrome length of:',
+    options: ['R (or 2R per definition variant)', 'R/2', '2R + 1 always', 'R + 1'],
+    correctAnswerIndex: 0,
+    explanation: 'With the "#" transformation, the radius in the transformed string equals the substring length of the palindrome.',
+    hint: 'Radius equals real length.'
+  },
+  {
+    id: 'q35-manacher-6',
+    levelId: 'level-35-manacher',
+    question: 'The center C and right boundary R are maintained because:',
+    options: ['Radii inside [C-R, C+R] can be copied via mirrors', 'They sort the array', 'They track hash values', 'They count characters'],
+    correctAnswerIndex: 0,
+    explanation: 'Inside the current palindrome, every center\u2019s radius mirrors the opposite side.',
+    hint: 'Reuse computed work.'
+  },
+  {
+    id: 'q35-manacher-7',
+    levelId: 'level-35-manacher',
+    question: 'A naive expansion around each center costs:',
+    options: ['O(N²) total', 'O(N)', 'O(N log N)', 'O(N³)'],
+    correctAnswerIndex: 0,
+    explanation: 'N centers each expanding O(N) gives quadratic time; Manacher avoids re-expansion.',
+    hint: 'Before optimization.'
+  },
+  {
+    id: 'q35-manacher-8',
+    levelId: 'level-35-manacher',
+    question: 'Manacher works on which input type?',
+    options: ['Any string (and can be adapted to arrays)', 'Only numbers', 'Only sorted strings', 'Only lowercase letters'],
+    correctAnswerIndex: 0,
+    explanation: 'It only needs equality comparisons, so any sequence works.',
+    hint: 'Equality is enough.'
+  },
+  {
+    id: 'q35-manacher-9',
+    levelId: 'level-35-manacher',
+    question: 'A common interview application of Manacher is:',
+    options: ['Counting all palindromic substrings in linear time', 'Detecting cycles', 'Topological ordering', 'Computing hashes'],
+    correctAnswerIndex: 0,
+    explanation: 'Summing the radii gives the exact count of distinct palindromes centered per index.',
+    hint: 'Sum the radii.'
+  },
+  {
+    id: 'q35-manacher-10',
+    levelId: 'level-35-manacher',
+    question: 'The space complexity of Manacher\u2019s algorithm is:',
+    options: ['O(N) for the radius array', 'O(1)', 'O(N²)', 'O(log N)'],
+    correctAnswerIndex: 0,
+    explanation: 'One radius array of length 2N+1 over the transformed string.',
+    hint: 'Linear auxiliary space.'
+  },
+  {
+    id: 'q36-bloomfilter-1',
+    levelId: 'level-36-bloomfilter',
+    question: 'What is the key property of a Bloom filter answer?',
+    options: ['No false negatives, possible false positives', 'No false positives, possible false negatives', 'Always exact', 'Only works for numbers'],
+    correctAnswerIndex: 0,
+    explanation: 'Bloom filters never say "not present" for an inserted item, but may claim an absent item is present.',
+    hint: 'One-sided error.'
+  },
+  {
+    id: 'q36-bloomfilter-2',
+    levelId: 'level-36-bloomfilter',
+    question: 'A Bloom filter is implemented with:',
+    options: ['A bit array and k hash functions', 'A balanced tree', 'A sorted array', 'A single hash table'],
+    correctAnswerIndex: 0,
+    explanation: 'Insertion sets k bits; membership checks all k bits.',
+    hint: 'Bits + hashes.'
+  },
+  {
+    id: 'q36-bloomfilter-3',
+    levelId: 'level-36-bloomfilter',
+    question: 'The false-positive probability grows with:',
+    options: ['More items inserted (higher occupancy)', 'Fewer items', 'More bits per item', 'Fewer hash functions always'],
+    correctAnswerIndex: 0,
+    explanation: 'As more bits turn to 1, random checks increasingly collide.',
+    hint: 'Occupancy matters.'
+  },
+  {
+    id: 'q36-bloomfilter-4',
+    levelId: 'level-36-bloomfilter',
+    question: 'The optimal number of hash functions k for m bits and n items is:',
+    options: ['(m/n) · ln 2', 'n/m', 'm', '1 always'],
+    correctAnswerIndex: 0,
+    explanation: 'This minimizes the false-positive rate for a fixed m/n ratio.',
+    hint: 'Minimizes the error formula.'
+  },
+  {
+    id: 'q36-bloomfilter-5',
+    levelId: 'level-36-bloomfilter',
+    question: 'Can elements be removed from a standard Bloom filter?',
+    options: ['No, without risk of breaking other entries', 'Yes, always', 'Only even ones', 'Yes, if reinserted'],
+    correctAnswerIndex: 0,
+    explanation: 'Clearing bits could destroy evidence of other elements; counting filters fix this.',
+    hint: 'Shared bits.'
+  },
+  {
+    id: 'q36-bloomfilter-6',
+    levelId: 'level-36-bloomfilter',
+    question: 'A Counting Bloom filter replaces bits with:',
+    options: ['Counters (allowing deletion)', 'Pointers', 'Strings', 'Secondary filters'],
+    correctAnswerIndex: 0,
+    explanation: 'Each slot counts how many elements set it; decrementing safely deletes.',
+    hint: 'Decrement to delete.'
+  },
+  {
+    id: 'q36-bloomfilter-7',
+    levelId: 'level-36-bloomfilter',
+    question: 'The space benefit of Bloom filters over hash sets is:',
+    options: ['Constant bits per item regardless of key size', 'Zero bits', 'N² bits', 'It stores full keys'],
+    correctAnswerIndex: 0,
+    explanation: 'Only hash-derived bits are stored, not the keys themselves.',
+    hint: 'Keys never stored.'
+  },
+  {
+    id: 'q36-bloomfilter-8',
+    levelId: 'level-36-bloomfilter',
+    question: 'A classic use of Bloom filters is:',
+    options: ['Database cache "maybe present" checks', 'Sorting numbers', 'Finding cycles', 'Computing GCD'],
+    correctAnswerIndex: 0,
+    explanation: 'Caches and spell checkers use them to avoid expensive lookups for definitely-absent keys.',
+    hint: 'Fast pre-check before disk I/O.'
+  },
+  {
+    id: 'q36-bloomfilter-9',
+    levelId: 'level-36-bloomfilter',
+    question: 'The false-positive rate formula for optimal k is approximately:',
+    options: ['(1 - e^(-kn/m))^k', 'k/m', 'n/k', '1/n'],
+    correctAnswerIndex: 0,
+    explanation: 'The standard probability model of k independent hash probes.',
+    hint: 'Exponential occupancy model.'
+  },
+  {
+    id: 'q36-bloomfilter-10',
+    levelId: 'level-36-bloomfilter',
+    question: 'When a Bloom filter answers "definitely no", it means:',
+    options: ['The item was never inserted', 'The item may still exist', 'An error occurred', 'The filter is full'],
+    correctAnswerIndex: 0,
+    explanation: 'If any required bit is 0, the item cannot have been inserted.',
+    hint: 'Certainty of absence.'
+  },
+  {
+    id: 'q37-sparsetable-1',
+    levelId: 'level-37-sparsetable',
+    question: 'What are the build and query complexities of a Sparse Table?',
+    options: ['Build O(N log N), query O(1)', 'Build O(N), query O(log N)', 'Build O(N log N), query O(log N)', 'Build O(N²), query O(1)'],
+    correctAnswerIndex: 0,
+    explanation: 'N log N intervals are precomputed, and overlapping two intervals answers any range in O(1).',
+    hint: 'Power-of-two intervals.'
+  },
+  {
+    id: 'q37-sparsetable-2',
+    levelId: 'level-37-sparsetable',
+    question: 'A sparse table only works when:',
+    options: ['The array is static (no updates)', 'Updates are frequent', 'Values are strings', 'N is tiny'],
+    correctAnswerIndex: 0,
+    explanation: 'Recomputing after updates would break the O(1) query advantage, so it suits immutable data.',
+    hint: 'Immutable input.'
+  },
+  {
+    id: 'q37-sparsetable-3',
+    levelId: 'level-37-sparsetable',
+    question: 'The idempotent requirement means the operation must satisfy:',
+    options: ['f(f(a,b), b) = f(a,b) (e.g., min, max, gcd)', 'f(a,b) != f(b,a)', 'f has inverses', 'f is non-associative'],
+    correctAnswerIndex: 0,
+    explanation: 'Overlapping intervals are allowed only for idempotent operations like min/max/gcd.',
+    hint: 'Overlap safety.'
+  },
+  {
+    id: 'q37-sparsetable-4',
+    levelId: 'level-37-sparsetable',
+    question: 'For query [l, r], the two overlapping intervals are:',
+    options: ['Both of length 2^k where k = floor(log2(r - l + 1))', 'One of length r', 'Arbitrary lengths', 'None'],
+    correctAnswerIndex: 0,
+    explanation: 'Intervals [l, l+2^k) and [r-2^k+1, r] fully cover [l, r].',
+    hint: 'Two maximal power-of-two spans.'
+  },
+  {
+    id: 'q37-sparsetable-5',
+    levelId: 'level-37-sparsetable',
+    question: 'Range sum queries on a sparse table:',
+    options: ['Need log N time (sum is not idempotent)', 'Are also O(1)', 'Are impossible', 'Take O(N²)'],
+    correctAnswerIndex: 0,
+    explanation: 'Sum cannot overlap intervals, so queries decompose into O(log N) disjoint segments.',
+    hint: 'Overlap would double-count.'
+  },
+  {
+    id: 'q37-sparsetable-6',
+    levelId: 'level-37-sparsetable',
+    question: 'The value st[i][k] stores:',
+    options: ['The aggregate of the interval [i, i + 2^k - 1]', 'The aggregate of [0, k]', 'The k-th smallest', 'The sum of the whole array'],
+    correctAnswerIndex: 0,
+    explanation: 'Each cell represents a power-of-two length interval starting at i.',
+    hint: 'Length 2^k from i.'
+  },
+  {
+    id: 'q37-sparsetable-7',
+    levelId: 'level-37-sparsetable',
+    question: 'The recurrence building the table is:',
+    options: ['st[i][k] = min(st[i][k-1], st[i + 2^(k-1)][k-1])', 'st[i][k] = st[i][k-1] + 1', 'st[i][k] = st[i-1][k]', 'st[i][k] = k'],
+    correctAnswerIndex: 0,
+    explanation: 'Halve each interval and combine the two halves.',
+    hint: 'Split in half.'
+  },
+  {
+    id: 'q37-sparsetable-8',
+    levelId: 'level-37-sparsetable',
+    question: 'The total memory of a sparse table is:',
+    options: ['O(N log N)', 'O(N)', 'O(log N)', 'O(N²)'],
+    correctAnswerIndex: 0,
+    explanation: 'N rows × log N levels of power-of-two intervals.',
+    hint: 'Row times levels.'
+  },
+  {
+    id: 'q37-sparsetable-9',
+    levelId: 'level-37-sparsetable',
+    question: 'Common applications of sparse tables include:',
+    options: ['Static RMQ, LCA via Euler tour, and GCD queries', 'Dynamic updates', 'Persistent databases', 'Pattern matching'],
+    correctAnswerIndex: 0,
+    explanation: 'Any idempotent static range query benefits from O(1) lookup.',
+    hint: 'Static range problems.'
+  },
+  {
+    id: 'q37-sparsetable-10',
+    levelId: 'level-37-sparsetable',
+    question: 'LCA on a tree uses a sparse table over which array?',
+    options: ['The Euler tour (first occurrences + RMQ)', 'The inorder traversal', 'The sorted values', 'The edge weights'],
+    correctAnswerIndex: 0,
+    explanation: 'The Euler tour turns LCA into an RMQ over depths, answered in O(1).',
+    hint: 'Tour + depth min.'
+  },
+  {
+    id: 'q38-nqueens-1',
+    levelId: 'level-38-nqueens',
+    question: 'How many solutions exist for the 4-Queens problem?',
+    options: ['2', '4', '8', '1'],
+    correctAnswerIndex: 0,
+    explanation: 'The 4x4 board admits exactly 2 distinct solution placements.',
+    hint: 'Try placing queens row by row.'
+  },
+  {
+    id: 'q38-nqueens-2',
+    levelId: 'level-38-nqueens',
+    question: 'N-Queens is a classic example of which technique?',
+    options: ['Backtracking with pruning', 'Divide and conquer only', 'Greedy only', 'Dynamic programming only'],
+    correctAnswerIndex: 0,
+    explanation: 'It explores partial placements and abandons (prunes) conflicts early.',
+    hint: 'Undo and retry.'
+  },
+  {
+    id: 'q38-nqueens-3',
+    levelId: 'level-38-nqueens',
+    question: 'Two queens attack along the same diagonal when:',
+    options: ['|row1 - row2| == |col1 - col2|', 'row1 == row2', 'col1 == col2', 'row1 + col1 == 0'],
+    correctAnswerIndex: 0,
+    explanation: 'Diagonal conflict means equal row and column differences.',
+    hint: 'Slope of ±1.'
+  },
+  {
+    id: 'q38-nqueens-4',
+    levelId: 'level-38-nqueens',
+    question: 'The most efficient pruning tracks attacks using:',
+    options: ['Booleans for columns and the two diagonals (r+c, r-c)', 'A full N×N grid scan', 'Sorting queens', 'A priority queue'],
+    correctAnswerIndex: 0,
+    explanation: 'O(1) conflict checks: col[c], diag1[r+c], diag2[r-c+N-1].',
+    hint: 'Constant-time checks.'
+  },
+  {
+    id: 'q38-nqueens-5',
+    levelId: 'level-38-nqueens',
+    question: 'The worst-case time complexity of N-Queens is:',
+    options: ['Exponential (O(N!) with pruning)', 'O(N²)', 'O(N log N)', 'O(N³)'],
+    correctAnswerIndex: 0,
+    explanation: 'Branching factor shrinks as rows fill, but worst case remains factorial without strong pruning.',
+    hint: 'Permutations of columns.'
+  },
+  {
+    id: 'q38-nqueens-6',
+    levelId: 'level-38-nqueens',
+    question: 'Each row gets exactly how many queens in any valid N-Queens solution?',
+    options: ['One', 'Two', 'Zero or one', 'N'],
+    correctAnswerIndex: 0,
+    explanation: 'Two queens per row would attack horizontally, so each row holds exactly one.',
+    hint: 'Row constraint.'
+  },
+  {
+    id: 'q38-nqueens-7',
+    levelId: 'level-38-nqueens',
+    question: 'The key idea of backtracking is:',
+    options: ['Undo the last choice when it leads to a dead end', 'Never undo', 'Always pick the first option', 'Randomly restart'],
+    correctAnswerIndex: 0,
+    explanation: 'Explore, and on conflict, revert to the previous state and try the next option.',
+    hint: 'Back up and branch again.'
+  },
+  {
+    id: 'q38-nqueens-8',
+    levelId: 'level-38-nqueens',
+    question: 'How many solutions does the 8-Queens problem have?',
+    options: ['92', '8', '64', '1024'],
+    correctAnswerIndex: 0,
+    explanation: 'The classic 8x8 board has exactly 92 distinct solutions.',
+    hint: 'Famous number.'
+  },
+  {
+    id: 'q38-nqueens-9',
+    levelId: 'level-38-nqueens',
+    question: 'Backtracking is best suited for problems with:',
+    options: ['A search space with many partial solutions and cheap conflict checks', 'Only one solution', 'Small input always', 'No constraints'],
+    correctAnswerIndex: 0,
+    explanation: 'Pruning early invalid branches is what makes backtracking practical.',
+    hint: 'Prune early.'
+  },
+  {
+    id: 'q38-nqueens-10',
+    levelId: 'level-38-nqueens',
+    question: 'Besides N-Queens, backtracking classically solves:',
+    options: ['Sudoku, Hamiltonian paths, and maze solving', 'Only sorting', 'Only shortest paths', 'Only matrix ops'],
+    correctAnswerIndex: 0,
+    explanation: 'Constraint satisfaction problems are its natural home.',
+    hint: 'Constraint puzzles.'
   }
 ];
-
-export function getQuizQuestionsForLevel(levelId?: string): QuizQuestion[] {
-  if (!levelId) return QUIZ_QUESTIONS;
-  const filtered = QUIZ_QUESTIONS.filter(q => q.levelId === levelId);
-  return filtered.length > 0 ? filtered : QUIZ_QUESTIONS;
-}
 
 export const TREE_BALANCE_PUZZLES: TreeBalancePuzzle[] = [
   {
@@ -2249,3 +3575,9 @@ export const TREE_BALANCE_PUZZLES: TreeBalancePuzzle[] = [
     explanation: 'RL case: rotate right at 80, then left at 40. 60 becomes the new root with 40 and 80 as children.',
   },
 ];
+
+export function getQuizQuestionsForLevel(levelId?: string): QuizQuestion[] {
+  if (!levelId) return QUIZ_QUESTIONS;
+  const filtered = QUIZ_QUESTIONS.filter(q => q.levelId === levelId);
+  return filtered.length > 0 ? filtered : QUIZ_QUESTIONS;
+}

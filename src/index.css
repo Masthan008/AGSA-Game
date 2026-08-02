@@ -534,3 +534,76 @@ input:focus, textarea:focus, select:focus {
     display: none !important;
   }
 }
+/* ===== RotationTreeCanvas (Arena puzzles) ===== */
+.rot-canvas {
+  border-radius: 16px;
+  border: 1px solid #E3E9F2;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 10px 24px rgba(30, 41, 59, 0.08);
+  background: linear-gradient(180deg, #FFFFFF, #EEF2F8);
+}
+.rot-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.rot-glide {
+  transition: transform 0.55s cubic-bezier(0.33, 1, 0.68, 1), opacity 0.35s ease;
+}
+.rot-edge {
+  stroke-dasharray: 900;
+  stroke-dashoffset: 900;
+  animation: rot-draw 0.6s ease forwards;
+}
+.rot-node {
+  animation: rot-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.rot-node-error {
+  animation: rot-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both, rot-pulse 1.6s ease-in-out infinite 0.5s;
+}
+.rot-node-warn {
+  animation: rot-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.rot-node-ok {
+  animation: rot-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both, rot-breath 2.2s ease-in-out infinite 0.6s;
+}
+.rot-halo {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rot-halo 1.8s ease-out infinite;
+}
+.rot-badge {
+  animation: rot-badge-pop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+@keyframes rot-draw { to { stroke-dashoffset: 0; } }
+@keyframes rot-pop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.14); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+@keyframes rot-badge-pop {
+  0% { transform: translateY(-8px) scale(0.5); opacity: 0; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes rot-halo {
+  0% { transform: scale(1); opacity: 0.65; }
+  70% { transform: scale(1.6); opacity: 0; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes rot-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.07); }
+}
+@keyframes rot-breath {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+.rot-shake {
+  animation: rot-shake 0.55s ease;
+}
+@keyframes rot-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-7px); }
+  40% { transform: translateX(7px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(4px); }
+}

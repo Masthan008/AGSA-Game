@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { TreeBalancePuzzle, LevelTopic } from '../../types';
 import { TREE_BALANCE_PUZZLES } from '../../data/quizData';
-import { TreeSvgCanvas } from '../Visualizer/TreeSvgCanvas';
+import { RotationTreeCanvas } from './RotationTreeCanvas';
 import { applyRotationToTree, RotationResult, RotationType } from '../../algorithms/puzzleRotation';
 import { fetchUserCompletions, recordCompletion } from '../../services/api';
-import { CheckCircle2, XCircle, RefreshCw, Sparkles, Info, HelpCircle, RotateCcw, Wand2, Lock, PartyPopper } from 'lucide-react';
+import { CheckCircle2, XCircle, RefreshCw, Sparkles, Info, HelpCircle, RotateCcw, Wand2, Lock, PartyPopper, Trophy, Target } from 'lucide-react';
+import confetti from 'canvas-confetti';
 
 interface TreeBalanceGameProps {
   currentLevel?: LevelTopic;
@@ -19,11 +20,18 @@ const ROTATION_GUIDE = [
 ];
 
 const LEGEND = [
-  { color: 'var(--accent-red)', label: 'Unbalanced node (|BF| > 1)' },
-  { color: 'var(--accent-amber)', label: 'Heavy child — shows which side caused it' },
-  { color: 'var(--accent-green)', label: 'Balanced / newly inserted node' },
-  { color: '#007AFF', label: 'Active / being examined' },
+  { color: '#FF3B30', label: 'Unbalanced (|BF| > 1)' },
+  { color: '#FF9500', label: 'Heavy child' },
+  { color: '#34C759', label: 'Balanced' },
+  { color: '#1C1C1E', label: 'Normal node' },
 ];
+
+const ROT_META: Record<RotationType, { label: string; color: string; bg: string }> = {
+  LL: { label: 'LL', color: '#007AFF', bg: 'rgba(0,122,255,0.1)' },
+  RR: { label: 'RR', color: '#AF52DE', bg: 'rgba(175,82,222,0.1)' },
+  LR: { label: 'LR', color: '#FF9500', bg: 'rgba(255,149,0,0.12)' },
+  RL: { label: 'RL', color: '#FF3B30', bg: 'rgba(255,59,48,0.1)' },
+};
 
 export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, userId }) => {
   const [currentPuzzleIndex, setCurrentPuzzleIndex] = useState(0);
@@ -98,7 +106,12 @@ export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, 
         setCompletedIds(prev => (prev.includes(puzzle.id) ? prev : [...prev, puzzle.id]));
       });
     }
-    if (!correct) setShakeKey(k => k + 1);
+    if (correct) {
+      confetti({ particleCount: 130, spread: 80, origin: { y: 0.55 }, colors: ['#34C759', '#007AFF', '#FFCC00', '#FF9500'] });
+      setTimeout(() => confetti({ particleCount: 60, spread: 55, origin: { y: 0.4 }, colors: ['#34C759', '#007AFF'] }), 300);
+    } else {
+      setShakeKey(k => k + 1);
+    }
   };
 
   const handleNextPuzzle = () => {
@@ -114,6 +127,11 @@ export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, 
 
   const currentNodes = applied ? applied.nodes : initialNodes;
   const currentEdges = applied ? applied.edges : initialEdges;
+  const canvasVariant = isCompleted && !isSubmitted
+    ? 'solved'
+    : applied
+      ? (applied.balanced ? 'solved' : 'unbalanced')
+      : 'unbalanced';
 
   return (
     <div className="card-light" style={{ padding: 24, borderRadius: 'var(--radius-lg)', position: 'relative', overflow: 'hidden' }}>
@@ -143,22 +161,31 @@ export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, 
         </div>
       ) : (
         <>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.72rem', fontWeight: 800, color: 'var(--accent-red)', textTransform: 'uppercase', marginBottom: 6 }}>
-            <Sparkles size={14} /> INTERACTIVE TREE ROTATION PUZZLE • {puzzle.id.replace('puzzle-', 'PUZZLE ')}
+          {/* Header */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.7rem', fontWeight: 800, color: 'var(--accent-red)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              <Sparkles size={14} /> Puzzle {currentPuzzleIndex + 1} of {puzzles.length}
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <span style={{
+                fontSize: '0.72rem', fontWeight: 800, background: ROT_META[target].bg, color: ROT_META[target].color,
+                padding: '4px 12px', borderRadius: 100, display: 'inline-flex', alignItems: 'center', gap: 5, border: `1px solid ${ROT_META[target].color}33`,
+              }}>
+                <Target size={12} /> Expected: {ROT_META[target].label}
+              </span>
+              <span style={{
+                fontSize: '0.75rem', fontWeight: 800, background: '#000', color: '#fff',
+                padding: '5px 12px', borderRadius: 100, whiteSpace: 'nowrap'
+              }}>
+                {completedCount} / {puzzles.length} solved
+              </span>
+            </div>
           </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12, flexWrap: 'wrap' }}>
-            <h3 style={{ fontSize: '1.3rem', fontWeight: 900, marginBottom: 8, color: '#000000' }}>
-              {puzzle.title}
-            </h3>
-            <span style={{
-              fontSize: '0.75rem', fontWeight: 800, background: '#000', color: '#fff',
-              padding: '5px 12px', borderRadius: 100, whiteSpace: 'nowrap'
-            }}>
-              {completedCount} / {puzzles.length} solved
-            </span>
-          </div>
-          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: 16 }}>
-            {puzzle.description || puzzle.explanation}
+          <h3 style={{ fontSize: '1.35rem', fontWeight: 900, marginBottom: 4, color: '#000000' }}>
+            {puzzle.title}
+          </h3>
+          <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', marginBottom: 14, lineHeight: 1.5 }}>
+            {puzzle.explanation}
           </p>
 
           {/* Progress dots */}
@@ -172,10 +199,11 @@ export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, 
                   onClick={() => { if (!done && !isSubmitted) resetRound(i); }}
                   aria-label={`Puzzle ${i + 1}`}
                   style={{
-                    width: 14, height: 14, borderRadius: '50%', padding: 0, cursor: done || isSubmitted ? 'default' : 'pointer',
-                    background: active ? '#000000' : (done ? 'var(--accent-green)' : 'var(--bg-light)'),
-                    border: active ? 'none' : `1.5px solid ${done ? 'var(--accent-green)' : 'var(--border-hairline)'}`,
+                    width: 16, height: 16, borderRadius: '50%', padding: 0, cursor: done || isSubmitted ? 'default' : 'pointer',
+                    background: active ? '#000000' : (done ? 'var(--accent-green)' : '#fff'),
+                    border: active ? '2px solid #000' : `1.5px solid ${done ? 'var(--accent-green)' : 'var(--border-hairline)'}`,
                     display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+                    boxShadow: active ? '0 0 0 3px rgba(0,0,0,0.12)' : (done ? '0 0 0 2px rgba(52,199,89,0.2)' : 'none'),
                     transition: 'all 0.25s ease'
                   }}
                 />
@@ -186,36 +214,32 @@ export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, 
             </span>
           </div>
 
-          {/* How to solve */}
-          <div style={{ marginBottom: 14 }}>
+          {/* Guide + Legend */}
+          <div style={{ display: 'flex', gap: 10, marginBottom: 14, flexWrap: 'wrap', alignItems: 'center' }}>
             <button
               onClick={() => setShowGuide(g => !g)}
               style={{ background: 'none', border: 'none', padding: 0, fontSize: '0.78rem', fontWeight: 800, color: '#007AFF', cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5, textDecoration: 'underline' }}
             >
               <HelpCircle size={14} /> {showGuide ? 'Hide' : 'How to solve'} — rotation guide
             </button>
-            {showGuide && (
-              <div style={{ marginTop: 8, padding: '12px 14px', background: 'rgba(0,122,255,0.06)', border: '1px solid rgba(0,122,255,0.18)', borderRadius: 'var(--radius-md)' }}>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 8 }}>
-                  {ROTATION_GUIDE.map(g => (
-                    <div key={g.rot} style={{ fontSize: '0.78rem', lineHeight: 1.45, color: 'var(--text-secondary)' }}>
-                      <strong style={{ color: '#000000', fontFamily: 'var(--font-code)' }}>{g.rot}</strong> — {g.name}: {g.when}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Color legend */}
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 14, marginBottom: 14, padding: '10px 14px', background: 'var(--bg-light)', borderRadius: 'var(--radius-md)' }}>
             {LEGEND.map(item => (
-              <span key={item.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
-                <span style={{ width: 12, height: 12, borderRadius: '50%', background: item.color, display: 'inline-block' }} />
+              <span key={item.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 6, fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-secondary)' }}>
+                <span style={{ width: 11, height: 11, borderRadius: '50%', background: item.color, display: 'inline-block' }} />
                 {item.label}
               </span>
             ))}
           </div>
+          {showGuide && (
+            <div className="fade-in-up" style={{ marginBottom: 14, padding: '12px 14px', background: 'rgba(0,122,255,0.06)', border: '1px solid rgba(0,122,255,0.18)', borderRadius: 'var(--radius-md)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 8 }}>
+                {ROTATION_GUIDE.map(g => (
+                  <div key={g.rot} style={{ fontSize: '0.78rem', lineHeight: 1.45, color: 'var(--text-secondary)' }}>
+                    <strong style={{ color: ROT_META[g.rot].color, fontFamily: 'var(--font-code)' }}>{g.rot}</strong> — {g.name}: {g.when}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {levelPuzzles.length === 0 && (
             <div style={{
@@ -228,9 +252,9 @@ export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, 
             </div>
           )}
 
-          {/* Completed banner for this puzzle */}
+          {/* Completed banner */}
           {isCompleted && !isSubmitted && (
-            <div style={{
+            <div className="fade-in-up" style={{
               display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', marginBottom: 14,
               background: 'rgba(52,199,89,0.1)', border: '1px solid rgba(52,199,89,0.35)',
               borderRadius: 'var(--radius-md)', fontSize: '0.85rem', color: '#1B7F37', fontWeight: 700,
@@ -239,23 +263,27 @@ export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, 
             </div>
           )}
 
-          {/* Canvases: current state + expected result */}
-          <div style={{ display: 'flex', gap: 16, marginBottom: 10, flexWrap: 'wrap' }}>
-            <div style={{ flex: '1 1 260px', minWidth: 240, opacity: isCompleted && !isSubmitted ? 0.55 : 1 }}>
-              <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: applied ? '#007AFF' : 'var(--accent-red)', marginBottom: 4 }}>
-                {isCompleted && !isSubmitted ? '✓ Solved tree' : (applied ? '↻ After your rotation' : '⚠ Unbalanced tree')}
+          {/* Canvases */}
+          <div style={{ display: 'flex', gap: 16, marginBottom: 12, flexWrap: 'wrap' }}>
+            <div style={{ flex: '1 1 280px', minWidth: 250, opacity: isCompleted && !isSubmitted ? 0.6 : 1 }}>
+              <div style={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.07em', color: isCompleted && !isSubmitted ? 'var(--accent-green)' : applied ? '#007AFF' : '#FF3B30', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                {isCompleted && !isSubmitted ? <><CheckCircle2 size={13} /> Solved tree</> : applied ? <><Wand2 size={13} /> After your rotation</> : <><XCircle size={13} /> Unbalanced tree</>}
               </div>
               <div key={`canvas-${puzzle.id}-${applied ? applied.rootValue : 'init'}-${shakeKey}`}
-                className={isSubmitted && !isCorrect ? 'shake-wrong' : undefined}
-                style={{ height: 240, overflow: 'hidden' }}>
-                <TreeSvgCanvas nodes={isCompleted && !isSubmitted ? puzzle.rotatedTreeNodes || initialNodes : currentNodes}
+                className={isSubmitted && !isCorrect ? 'rot-shake' : undefined}
+                style={{ height: 250, overflow: 'hidden', borderRadius: 16, border: isCompleted && !isSubmitted ? '2px solid rgba(52,199,89,0.55)' : '1px solid #E3E9F2' }}>
+                <RotationTreeCanvas
+                  nodes={isCompleted && !isSubmitted ? puzzle.rotatedTreeNodes || initialNodes : currentNodes}
                   edges={isCompleted && !isSubmitted ? puzzle.rotatedEdges || initialEdges : currentEdges}
-                  minHeight={240} />
+                  variant={canvasVariant}
+                  animateKey={`main-${puzzle.id}-${applied ? applied.rootValue : 'init'}-${shakeKey}`}
+                  height={250}
+                />
               </div>
               {applied && !isSubmitted && !isCompleted && (
-                <div className="fade-in-up" style={{ marginTop: 6, textAlign: 'center' }}>
+                <div className="pop-in" style={{ marginTop: 8, textAlign: 'center' }}>
                   <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 12px', borderRadius: 100,
+                    display: 'inline-flex', alignItems: 'center', gap: 6, padding: '6px 14px', borderRadius: 100,
                     fontSize: '0.78rem', fontWeight: 800,
                     background: applied.balanced ? 'rgba(52,199,89,0.12)' : 'rgba(255,59,48,0.1)',
                     color: applied.balanced ? 'var(--accent-green)' : 'var(--accent-red)',
@@ -268,15 +296,17 @@ export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, 
               )}
             </div>
             {isSubmitted && (
-              <div style={{ flex: '1 1 260px', minWidth: 240 }} className="fade-in-up">
-                <div style={{ fontSize: '0.7rem', fontWeight: 800, textTransform: 'uppercase', color: isCorrect ? 'var(--accent-green)' : 'var(--accent-amber)', marginBottom: 4 }}>
-                  {isCorrect ? '✓ Balanced after rotation' : '✗ Expected result'}
+              <div style={{ flex: '1 1 280px', minWidth: 250 }} className="fade-in-up">
+                <div style={{ fontSize: '0.68rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.07em', color: isCorrect ? 'var(--accent-green)' : 'var(--accent-amber)', marginBottom: 6, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {isCorrect ? <><Trophy size={13} /> Balanced after rotation</> : <><XCircle size={13} /> Expected result</>}
                 </div>
-                <div style={{ height: 240, overflow: 'hidden' }}>
-                  <TreeSvgCanvas
-                    nodes={puzzle.rotatedTreeNodes || puzzle.initialTreeNodes || []}
-                    edges={puzzle.rotatedEdges || puzzle.initialEdges || []}
-                    minHeight={240}
+                <div style={{ height: 250, overflow: 'hidden', borderRadius: 16, border: isCorrect ? '2px solid rgba(52,199,89,0.55)' : '2px solid rgba(255,204,0,0.5)' }}>
+                  <RotationTreeCanvas
+                    nodes={isCorrect && applied ? applied.nodes : (puzzle.rotatedTreeNodes || puzzle.initialTreeNodes || [])}
+                    edges={isCorrect && applied ? applied.edges : (puzzle.rotatedEdges || puzzle.initialEdges || [])}
+                    variant="solved"
+                    animateKey={`result-${puzzle.id}-${isCorrect ? 'ok' : 'expected'}`}
+                    height={250}
                   />
                 </div>
               </div>
@@ -300,28 +330,32 @@ export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, 
             </div>
           )}
 
-          {/* Rotation Option Pills + Apply */}
+          {/* Rotation pills */}
           {!isCompleted && (
             <div>
               <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 10, alignItems: 'center' }}>
-                {(['LL', 'RR', 'LR', 'RL'] as const).map(rot => (
-                <button
-                  key={rot}
-                  onClick={() => handleSelectRotation(rot)}
-                  disabled={isSubmitted}
-                  style={{
-                    padding: '10px 24px', borderRadius: '100px', fontSize: '0.9rem', fontWeight: 800,
-                    background: selectedRotation === rot ? '#000000' : 'var(--bg-light)',
-                    color: selectedRotation === rot ? '#FFFFFF' : '#000000',
-                    border: selectedRotation === rot ? '2px solid #000000' : '1.5px solid var(--border-hairline)',
-                    cursor: isSubmitted ? 'default' : 'pointer', fontFamily: 'var(--font-code)', transition: 'all 0.2s ease',
-                    opacity: isSubmitted ? (rot === target ? 1 : 0.45) : 1,
-                    boxShadow: selectedRotation === rot ? '0 4px 14px rgba(0,0,0,0.15)' : 'none',
-                  }}
-                >
-                  {rot} Rotation
-                </button>
-              ))}
+                {(['LL', 'RR', 'LR', 'RL'] as const).map(rot => {
+                  const selected = selectedRotation === rot;
+                  return (
+                    <button
+                      key={rot}
+                      onClick={() => handleSelectRotation(rot)}
+                      disabled={isSubmitted}
+                      style={{
+                        padding: '10px 22px', borderRadius: '100px', fontSize: '0.9rem', fontWeight: 800,
+                        background: selected ? ROT_META[rot].color : '#fff',
+                        color: selected ? '#fff' : ROT_META[rot].color,
+                        border: selected ? `2px solid ${ROT_META[rot].color}` : `2px solid ${ROT_META[rot].color}55`,
+                        cursor: isSubmitted ? 'default' : 'pointer', fontFamily: 'var(--font-code)', transition: 'all 0.2s ease',
+                        opacity: isSubmitted ? (rot === target ? 1 : 0.4) : 1,
+                        boxShadow: selected ? `0 6px 16px ${ROT_META[rot].color}40` : 'none',
+                        transform: selected ? 'translateY(-1px)' : 'none',
+                      }}
+                    >
+                      {rot} Rotation
+                    </button>
+                  );
+                })}
               </div>
               <p style={{ textAlign: 'center', fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: 12 }}>
                 Any rotation that balances the tree is accepted — Apply Rotation previews the result first.
@@ -332,24 +366,32 @@ export const TreeBalanceGame: React.FC<TreeBalanceGameProps> = ({ currentLevel, 
           {/* Submit / Feedback */}
           <div style={{ textAlign: 'center' }}>
             {isCompleted && !isSubmitted ? (
-              <button className="btn btn-primary" onClick={handleNextPuzzle} style={{ gap: 6 }}>
+              <button className="btn btn-primary" onClick={handleNextPuzzle} style={{ gap: 6, background: 'linear-gradient(135deg, #1B7F37, #34C759)', border: 'none' }}>
                 {allCompleted ? 'Finish' : 'Next Puzzle'} <RefreshCw size={14} />
               </button>
             ) : !isSubmitted ? (
               <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
-                <button className="btn btn-secondary" onClick={handleApplyRotation} disabled={!selectedRotation} style={{ gap: 6 }}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={handleApplyRotation}
+                  disabled={!selectedRotation}
+                  style={{ gap: 6, transition: 'transform 0.15s ease, box-shadow 0.15s ease', border: 'none', background: 'linear-gradient(135deg, #007AFF, #5AC8FA)', color: '#fff', fontWeight: 800 }}
+                  onMouseDown={e => { e.currentTarget.style.transform = 'scale(0.96)'; }}
+                  onMouseUp={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; }}
+                >
                   <Wand2 size={15} /> Apply Rotation
                 </button>
-                <button className="btn btn-primary" onClick={handleSubmit} disabled={!selectedRotation}>
+                <button className="btn btn-primary" onClick={handleSubmit} disabled={!selectedRotation} style={{ gap: 6, transition: 'transform 0.15s ease' }}>
                   Submit Balance Fix
                 </button>
               </div>
             ) : (
               <div>
-                <div style={{
-                  display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 16px', borderRadius: '100px',
-                  background: isCorrect ? 'var(--accent-green)' : 'var(--accent-red)', color: '#FFFFFF',
-                  fontWeight: 800, fontSize: '0.9rem', marginBottom: 10
+                <div className="pop-in" style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 6, padding: '8px 18px', borderRadius: '100px',
+                  background: isCorrect ? 'linear-gradient(135deg, #1B7F37, #34C759)' : 'linear-gradient(135deg, #D92B21, #FF3B30)', color: '#FFFFFF',
+                  fontWeight: 800, fontSize: '0.9rem', marginBottom: 10, boxShadow: isCorrect ? '0 6px 20px rgba(52,199,89,0.35)' : '0 6px 20px rgba(255,59,48,0.3)'
                 }}>
                   {isCorrect ? <CheckCircle2 size={18} /> : <XCircle size={18} />}
                   {isCorrect ? 'Correct! The tree is balanced — puzzle solved.' : `Not quite — that rotation didn't balance the tree. Expected ${target}.`}

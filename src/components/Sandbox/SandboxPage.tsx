@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Play, RotateCcw, Terminal, Code2, Shuffle, Info } from 'lucide-react';
+import { Play, RotateCcw, Terminal, Code2, Shuffle, Info, ChevronDown, ChevronUp, FileCode2 } from 'lucide-react';
 import { TreeSvgCanvas } from '../Visualizer/TreeSvgCanvas';
 import { DpMatrixCanvas } from '../Visualizer/DpMatrixCanvas';
 import { ExplanationPanel } from '../Visualizer/ExplanationPanel';
@@ -11,18 +11,255 @@ import { generateKnapsackFrames } from '../../algorithms/knapsackEngine';
 import { generateTrieFrames } from '../../algorithms/trieEngine';
 import { generateSegmentTreeFrames } from '../../algorithms/segmentTreeEngine';
 import { generateKMPFrames } from '../../algorithms/kmpEngine';
+import { generateBTreeFrames } from '../../algorithms/bTreeEngine';
 
-type SandboxMode = 'avl' | 'bst' | 'dijkstra' | 'knapsack' | 'trie' | 'segment' | 'kmp';
+type SandboxMode = 'avl' | 'bst' | 'dijkstra' | 'knapsack' | 'trie' | 'segment' | 'kmp' | 'btree';
 
 const MODES: { key: SandboxMode; label: string; description: string }[] = [
   { key: 'avl', label: 'AVL Tree', description: 'Insert numbers one-by-one and watch rotations balance the tree.' },
   { key: 'bst', label: 'BST Insert', description: 'Insert numbers into a plain Binary Search Tree.' },
+  { key: 'btree', label: 'B-Tree', description: 'Multi-way nodes with median splits — the database workhorse.' },
   { key: 'dijkstra', label: 'Dijkstra', description: 'Watch shortest distances relax edge by edge from source A.' },
   { key: 'knapsack', label: 'Knapsack', description: 'Fill the DP table cell by cell to find max profit.' },
   { key: 'trie', label: 'Trie', description: 'Insert words character by character into a prefix tree.' },
   { key: 'segment', label: 'Segment Tree', description: 'Build the range-sum tree node by node.' },
   { key: 'kmp', label: 'KMP String', description: 'Scan the text pointer step-by-step with LPS fallback.' },
 ];
+
+const CODE_SNIPPETS: Record<SandboxMode, { lang: string; code: string }> = {
+  avl: {
+    lang: 'cpp',
+    code: `// AVL Insert — rotations keep height O(log N)
+int height(Node* n) { return n ? n->h : 0; }
+int balance(Node* n) { return n ? height(n->left) - height(n->right) : 0; }
+
+Node* rotateLeft(Node* x) {
+  Node* y = x->right;
+  x->right = y->left;
+  y->left = x;
+  x->h = 1 + max(height(x->left), height(x->right));
+  y->h = 1 + max(height(y->left), height(y->right));
+  return y;
+}
+
+Node* insert(Node* n, int key) {
+  if (!n) return new Node(key);
+  if (key < n->key) n->left = insert(n->left, key);
+  else if (key > n->key) n->right = insert(n->right, key);
+  else return n;
+
+  n->h = 1 + max(height(n->left), height(n->right));
+  int bf = balance(n);
+  // LL / RR / LR / RL cases
+  if (bf > 1 && key < n->left->key)  return rotateRight(n);
+  if (bf < -1 && key > n->right->key) return rotateLeft(n);
+  if (bf > 1 && key > n->left->key) {
+    n->left = rotateLeft(n->left);
+    return rotateRight(n);
+  }
+  if (bf < -1 && key < n->right->key) {
+    n->right = rotateRight(n->right);
+    return rotateLeft(n);
+  }
+  return n;
+}`,
+  },
+  bst: {
+    lang: 'cpp',
+    code: `// BST Insert — no balancing (can degrade to O(N))
+struct Node { int key; Node* left; Node* right; };
+
+Node* insert(Node* root, int key) {
+  if (!root) return new Node{key, nullptr, nullptr};
+  if (key < root->key)
+    root->left = insert(root->left, key);
+  else if (key > root->key)
+    root->right = insert(root->right, key);
+  return root;  // duplicates ignored
+}
+
+bool search(Node* root, int key) {
+  while (root) {
+    if (key == root->key) return true;
+    root = (key < root->key) ? root->left : root->right;
+  }
+  return false;
+}`,
+  },
+  btree: {
+    lang: 'cpp',
+    code: `// B-Tree Insert (order m = 2t) — split on overflow, promote median
+const int MAX_KEYS = 2 * t - 1;   // keys per node
+const int MIN_KEYS = t - 1;
+
+void splitChild(Node* parent, int i) {       // parent->children[i] is full
+  Node* child = parent->children[i];
+  Node* right = new Node;
+  int mid = t - 1;
+  for (int j = 0; j < t - 1; j++)
+    right->keys[j] = child->keys[j + t];
+  if (!child->leaf)
+    for (int j = 0; j < t; j++)
+      right->children[j] = child->children[j + t];
+  // promote median child->keys[mid] into parent
+  for (int j = parent->n; j > i; j--)
+    parent->children[j + 1] = parent->children[j];
+  parent->children[i + 1] = right;
+  for (int j = parent->n - 1; j >= i; j--)
+    parent->keys[j + 1] = parent->keys[j];
+  parent->keys[i] = child->keys[mid];
+  child->n = t - 1; right->n = t - 1;
+  parent->n++;
+}
+
+void insertNonFull(Node* n, int key) {
+  int i = n->n - 1;
+  if (n->leaf) {
+    while (i >= 0 && key < n->keys[i])
+      { n->keys[i + 1] = n->keys[i]; i--; }
+    n->keys[i + 1] = key; n->n++;
+  } else {
+    while (i >= 0 && key < n->keys[i]) i--;
+    if (n->children[i + 1]->n == MAX_KEYS) {
+      splitChild(n, i + 1);
+      if (key > n->keys[i + 1]) i++;
+    }
+    insertNonFull(n->children[i + 1], key);
+  }
+}
+
+void insert(int key) {
+  if (root->n == MAX_KEYS) {          // grow the tree one level
+    Node* s = new Node;
+    s->children[0] = root;
+    splitChild(s, 0);
+    root = s;
+  }
+  insertNonFull(root, key);
+}`,
+  },
+  dijkstra: {
+    lang: 'cpp',
+    code: `// Dijkstra — non-negative weights, priority queue
+vector<long long> dijkstra(int src, int n, vector<vector<pair<int,int>>>& g) {
+  vector<long long> dist(n, INF);
+  priority_queue<pair<long long,int>,
+                 vector<pair<long long,int>>, greater<>> pq;
+  dist[src] = 0;
+  pq.push({0, src});
+
+  while (!pq.empty()) {
+    auto [d, u] = pq.top(); pq.pop();
+    if (d > dist[u]) continue;           // stale entry — skip
+    for (auto [v, w] : g[u])
+      if (dist[u] + w < dist[v]) {       // relax edge (u → v)
+        dist[v] = dist[u] + w;
+        pq.push({dist[v], v});
+      }
+  }
+  return dist;
+}`,
+  },
+  knapsack: {
+    lang: 'cpp',
+    code: `// 0/1 Knapsack — bottom-up DP
+// dp[i][w] = max profit using first i items, capacity w
+int knapsack(int W, vector<int>& wt, vector<int>& val) {
+  int n = wt.size();
+  vector<vector<int>> dp(n + 1, vector<int>(W + 1, 0));
+
+  for (int i = 1; i <= n; i++) {
+    for (int w = 0; w <= W; w++) {
+      if (wt[i - 1] <= w)
+        dp[i][w] = max(dp[i - 1][w],
+                       val[i - 1] + dp[i - 1][w - wt[i - 1]]);
+      else
+        dp[i][w] = dp[i - 1][w];
+    }
+  }
+  return dp[n][W];
+}
+
+// Reconstruct chosen items by walking back from dp[n][W].`,
+  },
+  trie: {
+    lang: 'cpp',
+    code: `// Trie — insert words character by character
+struct TrieNode {
+  TrieNode* next[26] = {};
+  bool end = false;
+};
+
+void insert(TrieNode* root, const string& word) {
+  TrieNode* n = root;
+  for (char c : word) {
+    int i = c - 'a';
+    if (!n->next[i]) n->next[i] = new TrieNode();
+    n = n->next[i];          // descend one level per char
+  }
+  n->end = true;             // mark word boundary
+}
+
+bool search(TrieNode* root, const string& word) {
+  TrieNode* n = root;
+  for (char c : word) {
+    int i = c - 'a';
+    if (!n->next[i]) return false;
+    n = n->next[i];
+  }
+  return n && n->end;
+}`,
+  },
+  segment: {
+    lang: 'cpp',
+    code: `// Segment Tree — build, update, range query in O(log N)
+vector<int> tree;
+
+void build(int node, int lo, int hi, vector<int>& a) {
+  if (lo == hi) { tree[node] = a[lo]; return; }
+  int mid = (lo + hi) / 2;
+  build(2 * node, lo, mid, a);
+  build(2 * node + 1, mid + 1, hi, a);
+  tree[node] = tree[2 * node] + tree[2 * node + 1];  // merge
+}
+
+int query(int node, int lo, int hi, int l, int r) {
+  if (r < lo || hi < l) return 0;         // disjoint
+  if (l <= lo && hi <= r) return tree[node];  // fully inside
+  int mid = (lo + hi) / 2;
+  return query(2 * node, lo, mid, l, r)
+       + query(2 * node + 1, mid + 1, hi, l, r);
+}`,
+  },
+  kmp: {
+    lang: 'cpp',
+    code: `// KMP — LPS array avoids re-scanning matched text
+vector<int> buildLPS(const string& pat) {
+  int m = pat.size();
+  vector<int> lps(m);
+  for (int i = 1, len = 0; i < m; ) {
+    if (pat[i] == pat[len]) lps[i++] = ++len;
+    else if (len) len = lps[len - 1];
+    else lps[i++] = 0;
+  }
+  return lps;
+}
+
+int kmpSearch(const string& text, const string& pat) {
+  vector<int> lps = buildLPS(pat);
+  int i = 0, j = 0;
+  while (i < (int)text.size()) {
+    if (text[i] == pat[j]) { i++; j++; }
+    if (j == (int)pat.size()) return i - j;  // match found
+    else if (i < (int)text.size() && text[i] != pat[j]) {
+      j = j ? lps[j - 1] : 0;   // shift pattern by lps
+      if (!j) i++;
+    }
+  }
+  return -1;
+}`,
+  },
+};
 
 const parseNumbers = (input: string): number[] =>
   input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
@@ -39,6 +276,9 @@ export const SandboxPage: React.FC = () => {
   const [segmentArray, setSegmentArray] = useState('1, 3, 5, 7, 9, 11');
   const [kmpText, setKmpText] = useState('ABABDABACDABABCABAB');
   const [kmpPattern, setKmpPattern] = useState('ABABCABAB');
+  const [btreeKeys, setBtreeKeys] = useState('10, 20, 30, 40, 50, 25');
+  const [btreeDegree, setBtreeDegree] = useState('2');
+  const [showCode, setShowCode] = useState(false);
 
   // Execution state
   const [frames, setFrames] = useState<AnimationFrame[]>([]);
@@ -123,6 +363,11 @@ export const SandboxPage: React.FC = () => {
         const pat = kmpPattern.trim() || 'ABABCABAB';
         return generateKMPFrames(text, pat);
       }
+      case 'btree': {
+        const nums = parseNumbers(btreeKeys);
+        const t = parseInt(btreeDegree) || 2;
+        return generateBTreeFrames(t, nums.length > 0 ? nums : [10, 20, 30, 40, 50, 25]);
+      }
     }
   };
 
@@ -152,6 +397,11 @@ export const SandboxPage: React.FC = () => {
       const pats = ['ABABCABAB', 'ABA', 'ABCDABD'];
       setKmpText(texts[Math.floor(Math.random() * texts.length)]);
       setKmpPattern(pats[Math.floor(Math.random() * pats.length)]);
+    } else if (mode === 'btree') {
+      const count = 5 + Math.floor(Math.random() * 5);
+      const nums = Array.from({ length: count }, () => Math.floor(Math.random() * 90) + 10);
+      setBtreeKeys(nums.join(', '));
+      setBtreeDegree(String(2 + Math.floor(Math.random() * 2)));
     } else {
       const count = 5 + Math.floor(Math.random() * 4);
       const nums = Array.from({ length: count }, () => Math.floor(Math.random() * 90) + 10);
@@ -196,7 +446,7 @@ export const SandboxPage: React.FC = () => {
         <span style={{ fontSize: '0.85rem', color: '#007AFF', fontWeight: 600 }}>{modeInfo.description}</span>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1fr) minmax(340px, 1.6fr)', gap: 20 }}>
+      <div key={mode} className="cmp-fade-up" style={{ display: 'grid', gridTemplateColumns: 'minmax(260px, 1fr) minmax(340px, 1.6fr)', gap: 20 }}>
         {/* Left Column: Input Config + Play */}
         <div className="card-light" style={{ padding: 20, display: 'flex', flexDirection: 'column' }}>
           <h3 style={{ fontSize: '1.02rem', fontWeight: 800, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -250,6 +500,22 @@ export const SandboxPage: React.FC = () => {
             </div>
           )}
 
+          {mode === 'btree' && (
+            <div style={{ marginBottom: 14 }}>
+              <div style={{ marginBottom: 10 }}>
+                <label style={{ fontSize: '0.78rem', fontWeight: 700, display: 'block', marginBottom: 4 }}>Keys (Comma Separated)</label>
+                <input type="text" value={btreeKeys} onChange={e => setBtreeKeys(e.target.value)} style={{ width: '100%', padding: '8px 12px', fontSize: '0.85rem' }} />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.78rem', fontWeight: 700, display: 'block', marginBottom: 4 }}>Min Degree t (order m = 2t)</label>
+                <input type="number" min={2} max={6} value={btreeDegree} onChange={e => setBtreeDegree(e.target.value)} style={{ width: '100%', padding: '8px 12px', fontSize: '0.85rem' }} />
+              </div>
+              <p style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 6 }}>
+                Each node holds t−1 to 2t−1 keys. Overflowing nodes split: the median key rises to the parent, and all leaves stay on the same level.
+              </p>
+            </div>
+          )}
+
           <div style={{ marginTop: 'auto', paddingTop: 14, display: 'flex', gap: 10 }}>
             <button className="btn btn-secondary" style={{ gap: 6 }} onClick={handleRandomize} title="Randomize Input">
               <Shuffle size={16} /> Random
@@ -262,10 +528,10 @@ export const SandboxPage: React.FC = () => {
 
         {/* Right Column: Animation Canvas */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <div style={{ height: 400 }}>
+          <div style={{ height: 520 }}>
             {frames.length === 0 ? (
               <div style={{
-                width: '100%', height: '100%', minHeight: 380, background: '#FAFAFA',
+                width: '100%', height: '100%', minHeight: 500, background: '#FAFAFA',
                 borderRadius: 'var(--radius-lg)', border: '1.5px dashed var(--border-hairline)',
                 display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8,
                 color: 'var(--text-muted)', textAlign: 'center', padding: 20
@@ -273,6 +539,7 @@ export const SandboxPage: React.FC = () => {
                 <Play size={32} color="var(--text-muted)" />
                 <p style={{ fontSize: '0.95rem', fontWeight: 700, color: '#000' }}>Canvas is ready for {modeInfo.label}</p>
                 <p style={{ fontSize: '0.8rem' }}>Enter your input and press <strong>Play Step-by-Step</strong> to start the animation.</p>
+                <p style={{ fontSize: '0.72rem' }}>The canvas auto-fits any tree size — deep BSTs, wide tries and B-trees never clip.</p>
               </div>
             ) : isMatrixMode ? (
               <DpMatrixCanvas key={`dp-${runIdRef.current}`} dpMatrix={currentFrame?.dpMatrix} />
@@ -290,6 +557,32 @@ export const SandboxPage: React.FC = () => {
             onReset={() => { setStepIndex(0); setIsPlaying(false); }}
             onSpeedChange={setSpeed}
           />
+
+          {/* Code Drawer */}
+          <div className="card-light" style={{ padding: 0, overflow: 'hidden' }}>
+            <button
+              onClick={() => setShowCode(!showCode)}
+              style={{
+                width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '12px 16px', background: 'transparent', border: 'none', cursor: 'pointer',
+                fontFamily: 'var(--font-main)', fontWeight: 800, fontSize: '0.9rem', color: 'var(--text-primary)'
+              }}
+            >
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <FileCode2 size={16} color="#9B51E0" /> {modeInfo.label} — C++ Implementation
+              </span>
+              {showCode ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
+            </button>
+            {showCode && (
+              <pre className="cmp-fade-in" style={{
+                margin: 0, padding: '14px 18px', background: '#0D0D0F', color: '#D4D4D8',
+                fontFamily: 'var(--font-code)', fontSize: '0.78rem', lineHeight: 1.6,
+                maxHeight: 420, overflowY: 'auto', borderTop: '1px solid var(--border-hairline)'
+              }}>
+                {CODE_SNIPPETS[mode].code}
+              </pre>
+            )}
+          </div>
         </div>
       </div>
 

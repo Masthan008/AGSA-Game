@@ -56,6 +56,7 @@ export interface NodePosition {
   color?: string;
   height?: number;
   balanceFactor?: number;
+  keys?: (string | number)[];
 }
 
 export interface EdgeConnection {

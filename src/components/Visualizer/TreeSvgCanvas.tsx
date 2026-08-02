@@ -46,13 +46,29 @@ export const TreeSvgCanvas: React.FC<TreeSvgCanvasProps> = ({ nodes, edges = [],
   const rootBF = root ? (root.balanceFactor || 0) : (bfNodes[0]?.balanceFactor || 0);
   const bubbleOffset = Math.max(-30, Math.min(30, rootBF * -13));
 
-  // Calculate SVG ViewBox based on Zoom & Pan
-  const baseW = 600;
-  const baseH = 400;
+  // Auto-fit ViewBox: bounds the actual node layout with padding, so heavy
+  // inputs (deep BSTs, long KMP strings, wide tries) never clip or overflow.
+  const PAD = 60;
+  let baseW = 600;
+  let baseH = 400;
+  let fitCx = 300;
+  let fitCy = 200;
+  if (nodes.length > 0) {
+    const xs = nodes.map(n => n.x);
+    const ys = nodes.map(n => n.y);
+    const minX = Math.min(...xs);
+    const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    baseW = Math.max(320, maxX - minX + PAD * 2);
+    baseH = Math.max(240, maxY - minY + PAD * 2);
+    fitCx = (minX + maxX) / 2;
+    fitCy = (minY + maxY) / 2;
+  }
   const vW = baseW / zoomLevel;
   const vH = baseH / zoomLevel;
-  const vX = -pan.x / zoomLevel;
-  const vY = -pan.y / zoomLevel;
+  const vX = fitCx - vW / 2 - pan.x / zoomLevel;
+  const vY = fitCy - vH / 2 - pan.y / zoomLevel;
   const viewBoxStr = `${vX} ${vY} ${vW} ${vH}`;
 
   return (
@@ -181,9 +197,48 @@ export const TreeSvgCanvas: React.FC<TreeSvgCanvasProps> = ({ nodes, edges = [],
             const isError = node.state === 'error';
             const isWarning = node.state === 'warning';
             const isComparing = node.state === 'comparing';
+            const isPivot = node.state === 'pivot';
 
-            const fill = isError ? '#FF3B30' : isActive ? '#000000' : isSuccess ? '#34C759' : isWarning ? '#FF9500' : isComparing ? '#007AFF' : '#1A1A1A';
-            const stroke = isError ? '#FF3B30' : isActive ? '#007AFF' : isSuccess ? '#2DA44E' : isComparing ? '#007AFF' : '#000000';
+            // Multi-key node (B-Tree, 2-3-4 tree …) — wide rounded cell row
+            const nodeKeys = node.keys;
+            if (nodeKeys && nodeKeys.length > 0) {
+              const keyW = 34;
+              const w = nodeKeys.length * keyW + 10;
+              const fill = isError ? '#FF3B30' : isActive ? '#000000' : isSuccess ? '#34C759' : isWarning ? '#FF9500' : isPivot ? '#9B51E0' : isComparing ? '#007AFF' : '#1A1A1A';
+              const stroke = isError ? '#FF3B30' : isActive ? '#007AFF' : isSuccess ? '#2DA44E' : isPivot ? '#9B51E0' : isComparing ? '#007AFF' : '#000000';
+              return (
+                <g key={`n-${node.id}`} className="tree-node" style={{ transform: `translate(${node.x}px, ${node.y}px)` }}>
+                  <g className={isActive ? 'node-active' : undefined} style={{ transformBox: 'fill-box', transformOrigin: 'center' }}>
+                    <rect x={-w / 2} y={-18} width={w} height={36} rx={10} fill={fill} stroke={stroke} strokeWidth={isActive || isPivot ? 2.5 : 1.5} />
+                    {nodeKeys.map((k, ki) => (
+                      <g key={ki}>
+                        <text
+                          x={-w / 2 + keyW * ki + keyW / 2} y={5.5}
+                          fill="#fff" fontSize="13.5" fontWeight="800" textAnchor="middle" fontFamily="var(--font-main)"
+                        >
+                          {k}
+                        </text>
+                        {ki < nodeKeys.length - 1 && (
+                          <line
+                            x1={-w / 2 + keyW * (ki + 1)} y1={-10}
+                            x2={-w / 2 + keyW * (ki + 1)} y2={10}
+                            stroke="rgba(255,255,255,0.35)" strokeWidth="1"
+                          />
+                        )}
+                      </g>
+                    ))}
+                    {node.label && (
+                      <text x={0} y={-24} fill="#8A8A93" fontSize="9.5" fontWeight="700" textAnchor="middle" fontFamily="var(--font-code)">
+                        {node.label}
+                      </text>
+                    )}
+                  </g>
+                </g>
+              );
+            }
+
+            const fill = isError ? '#FF3B30' : isActive ? '#000000' : isSuccess ? '#34C759' : isWarning ? '#FF9500' : isPivot ? '#9B51E0' : isComparing ? '#007AFF' : '#1A1A1A';
+            const stroke = isError ? '#FF3B30' : isActive ? '#007AFF' : isSuccess ? '#2DA44E' : isPivot ? '#9B51E0' : isComparing ? '#007AFF' : '#000000';
 
             return (
               // Outer <g> owns the position transform (inline CSS so the glide

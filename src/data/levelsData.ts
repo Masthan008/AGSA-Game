@@ -2,22 +2,22 @@ import { LevelTopic } from '../types';
 
 export const LEVEL_TOPICS: LevelTopic[] = [
   {
-    id: 'level-1-bst',
+    id: 'level-1-avl',
     levelNumber: 1,
-    title: 'BST Basics & Insertions',
+    title: 'AVL Trees — Concepts & Self-Balancing',
     category: 'Trees',
-    description: 'Learn Binary Search Tree (BST) ordering property: Left < Node < Right.',
-    algorithmKey: 'bst',
+    description: 'Learn AVL Trees: balance factor, height rule and the four rotations that keep search at O(log N).',
+    algorithmKey: 'avl',
     difficulty: 'Easy',
-    estimatedMinutes: 5,
+    estimatedMinutes: 6,
     defaultInput: [15, 10, 20, 8, 12, 17, 25],
     quizQuestions: [
       {
         id: 'q1',
-        question: 'Which traversal of a BST outputs elements in sorted ascending order?',
-        options: ['Pre-order', 'In-order', 'Post-order', 'Level-order'],
-        correctAnswerIndex: 1,
-        explanation: 'In-order traversal visits (Left, Root, Right), which outputs keys in strictly sorted order.'
+        question: 'What is the balance factor constraint for every node in an AVL tree?',
+        options: ['Height(left) − Height(right) ∈ {−1, 0, 1}', 'Height <= 5', 'Left child count = Right child count', 'Balance Factor = 0 strictly'],
+        correctAnswerIndex: 0,
+        explanation: 'AVL trees enforce |Balance Factor| ≤ 1 across all nodes.'
       }
     ]
   },

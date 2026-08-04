@@ -134,6 +134,10 @@ export interface QuizQuestion {
   correctAnswerIndex: number;
   explanation: string;
   hint?: string;
+  difficulty?: 'beginner' | 'medium' | 'mastery';
+  xpReward?: number;
+  treeData?: { nodes: NodePosition[]; edges: EdgeConnection[] };
+  resultTree?: { nodes: NodePosition[]; edges: EdgeConnection[] };
 }
 
 export interface LeaderboardEntry {

@@ -2,8 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { QuizQuestion, LevelTopic } from '../../types';
 import { QUIZ_QUESTIONS, getQuizQuestionsForLevel } from '../../data/quizData';
 import { LEVEL_TOPICS } from '../../data/levelsData';
-import { CheckCircle2, XCircle, RotateCcw, Lightbulb, Trophy, ListOrdered, Lock, PartyPopper, Zap, Target } from 'lucide-react';
+import { CheckCircle2, XCircle, RotateCcw, Lightbulb, Trophy, ListOrdered, Lock, PartyPopper, Zap, Target, GraduationCap } from 'lucide-react';
 import { fetchUserCompletions, recordCompletion, removeCompletion } from '../../services/api';
+import { TreeSvgCanvas } from '../Visualizer/TreeSvgCanvas';
+import { LevelIntroFlow } from './LevelIntroFlow';
 import confetti from 'canvas-confetti';
 
 interface QuizArenaProps {
@@ -12,9 +14,21 @@ interface QuizArenaProps {
   levelUnlocked?: number;
   onCompleteQuiz: (earnedStars: number, earnedXp: number) => void;
   onBackToCampaign: () => void;
+  onOpenVisualizer?: () => void;
+  onOpenRotationGame?: () => void;
 }
 
-export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, levelUnlocked, onCompleteQuiz, onBackToCampaign }) => {
+const TIER_META: Record<string, { label: string; color: string; bg: string }> = {
+  beginner: { label: 'Beginner', color: '#34C759', bg: 'rgba(52,199,89,0.1)' },
+  medium: { label: 'Medium', color: '#FF9500', bg: 'rgba(255,149,0,0.1)' },
+  mastery: { label: 'Mastery', color: '#9B51E0', bg: 'rgba(155,81,224,0.1)' },
+};
+
+const TIER_ORDER = ['beginner', 'medium', 'mastery'];
+
+const isGradedQuestion = (q: QuizQuestion) => TIER_ORDER.includes(q.difficulty || '');
+
+export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, levelUnlocked, onCompleteQuiz, onBackToCampaign, onOpenVisualizer, onOpenRotationGame }) => {
   const unlockedLevels = LEVEL_TOPICS.filter(l => l.levelNumber <= (levelUnlocked ?? 1));
   const firstUnlockedId = unlockedLevels[0]?.id || LEVEL_TOPICS[0].id;
   const [topicId, setTopicId] = useState<string>(() => {
@@ -29,9 +43,13 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
   const [completedIds, setCompletedIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [justCompleted, setJustCompleted] = useState(false);
+  const [earnedXpFlash, setEarnedXpFlash] = useState(0);
+  const [introSeen, setIntroSeen] = useState(() => localStorage.getItem('adsa_arena_intro_seen_level1') === '1');
 
   const questions = getQuizQuestionsForLevel(topicId);
   const activeTopic = LEVEL_TOPICS.find(l => l.id === topicId) || LEVEL_TOPICS[0];
+  const isGraded = questions.some(isGradedQuestion);
+  const showIntro = activeTopic.id === 'level-1-avl' && isGraded && !introSeen && !quizFinished;
 
   useEffect(() => {
     const locked = LEVEL_TOPICS.find(l => l.id === topicId && l.levelNumber > (levelUnlocked ?? 1));
@@ -72,6 +90,9 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
         setCompletedIds(prev => (prev.includes(currentQ.id) ? prev : [...prev, currentQ.id]));
       });
       setJustCompleted(true);
+      if (!completedSet.has(currentQ.id)) {
+        setEarnedXpFlash(currentQ.xpReward || 0);
+      }
     }
   };
 
@@ -79,6 +100,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
     setSelectedOption(null);
     setIsAnswered(false);
     setShowHint(false);
+    setEarnedXpFlash(0);
     const wasCorrect = justCompleted;
     setJustCompleted(false);
     const remainingAfter = questions.filter(q => {
@@ -93,7 +115,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
       onCompleteQuiz(stars, 100);
       return;
     }
-    setCurrentIndex(prev => (prev + 1) % remaining.length);
+    setCurrentIndex(prev => (wasCorrect || !isGraded) ? (prev + 1) % remaining.length : prev);
   };
 
   const handleResetTopic = async () => {
@@ -115,6 +137,30 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
     );
   }
 
+  if (showIntro) {
+    return (
+      <div>
+        <div style={{ maxWidth: 780, margin: '14px auto 0', textAlign: 'center' }}>
+          <p style={{ fontSize: '0.78rem', fontWeight: 700, color: 'var(--text-secondary)', margin: 0 }}>
+            <GraduationCap size={13} style={{ verticalAlign: -2 }} /> Step 1: Learn AVL → Step 2: Practice or take the quiz — complete all 3 graded questions
+            (Beginner → Medium → Mastery) to finish Level 1 and unlock Level 2.
+          </p>
+        </div>
+        <LevelIntroFlow
+          onOpenVisualizer={() => onOpenVisualizer && onOpenVisualizer()}
+          onOpenRotationGame={() => {
+            if (onOpenRotationGame) onOpenRotationGame();
+            else document.getElementById('tree-balance-game')?.scrollIntoView({ behavior: 'smooth' });
+          }}
+          onContinue={() => {
+            setIntroSeen(true);
+            localStorage.setItem('adsa_arena_intro_seen_level1', '1');
+          }}
+        />
+      </div>
+    );
+  }
+
   if (quizFinished || allDone) {
     return (
       <div style={{ maxWidth: 550, margin: '40px auto', padding: 24 }} className="card-black fade-in-up">
@@ -127,11 +173,25 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
             <PartyPopper size={38} color="#000" />
           </div>
           <h2 style={{ fontSize: '1.6rem', fontWeight: 900, color: '#fff', marginBottom: 6, letterSpacing: '-0.03em' }}>
-            Topic Cleared!
+            {isGraded ? 'Level Cleared — All Tiers Mastered!' : 'Topic Cleared!'}
           </h2>
           <p style={{ color: 'rgba(255,255,255,0.6)', marginBottom: 6 }}>
             <strong style={{ color: '#fff' }}>{score}</strong> / {questions.length} questions mastered
           </p>
+          {isGraded && (
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+              {questions.map(q => (
+                <span key={q.id} style={{
+                  fontSize: '0.7rem', fontWeight: 800, padding: '3px 10px', borderRadius: 100,
+                  background: TIER_META[q.difficulty || 'beginner'].bg,
+                  color: TIER_META[q.difficulty || 'beginner'].color,
+                  border: `1px solid ${TIER_META[q.difficulty || 'beginner'].color}55`,
+                }}>
+                  {TIER_META[q.difficulty || 'beginner'].label} ✓
+                </span>
+              ))}
+            </div>
+          )}
           <p style={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.85rem', marginBottom: 20 }}>
             Topic: <strong style={{ color: 'var(--accent-gold)' }}>{activeTopic.title}</strong>
           </p>
@@ -215,7 +275,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
       </div>
 
       {/* Progress with mastery segments */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8, flexWrap: 'wrap', gap: 6 }}>
         <span style={{ fontSize: '0.78rem', fontWeight: 800, color: '#000', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           Question {remaining.indexOf(currentQ) + 1} / {remaining.length} remaining
         </span>
@@ -227,16 +287,30 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
         {questions.map(q => {
           const done = completedSet.has(q.id);
           const active = q.id === currentQ.id;
+          const meta = q.difficulty ? TIER_META[q.difficulty] : null;
           return (
             <div key={q.id} style={{
               flex: 1, height: 8, borderRadius: 4, overflow: 'hidden',
               background: done ? 'var(--accent-green)' : 'var(--bg-grey)',
               outline: active ? '2px solid #000' : 'none', outlineOffset: 1,
-              transition: 'all 0.3s ease',
-            }} />
+              transition: 'all 0.3s ease', position: 'relative',
+            }} title={meta ? `${meta.label} tier` : undefined}>
+              {meta && !done && (
+                <div style={{
+                  position: 'absolute', inset: 0,
+                  background: `repeating-linear-gradient(45deg, ${meta.color}40 0 4px, transparent 4px 8px)`,
+                }} />
+              )}
+            </div>
           );
         })}
       </div>
+      {isGraded && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6, fontSize: '0.72rem', fontWeight: 600, color: 'var(--text-muted)', marginBottom: 14 }}>
+          <Lock size={11} />
+          Graded level — tiers unlock in order: Beginner → Medium → Mastery. Complete all 3 to finish the level.
+        </div>
+      )}
 
       {/* Hint Toggle */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 10 }}>
@@ -260,10 +334,39 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
       {/* Question */}
       <div className="card-black fade-in-up" key={`q-${currentQ.id}`} style={{ padding: 20, marginBottom: 20, position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, height: 3, background: 'linear-gradient(90deg, #FF9500, #FFCC00)', opacity: 0.8 }} />
-        <div style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--accent-gold)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
-          Challenge {questions.findIndex(q => q.id === currentQ.id) + 1} of {questions.length}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10, flexWrap: 'wrap' }}>
+          <span style={{ fontSize: '0.68rem', fontWeight: 800, color: 'var(--accent-gold)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+            Challenge {questions.findIndex(q => q.id === currentQ.id) + 1} of {questions.length}
+          </span>
+          {currentQ.difficulty && (
+            <span style={{
+              fontSize: '0.66rem', fontWeight: 800, padding: '3px 10px', borderRadius: 100,
+              background: TIER_META[currentQ.difficulty].bg, color: TIER_META[currentQ.difficulty].color,
+              border: `1px solid ${TIER_META[currentQ.difficulty].color}55`,
+            }}>
+              {TIER_META[currentQ.difficulty].label} TIER
+            </span>
+          )}
+          {currentQ.xpReward && (
+            <span style={{
+              fontSize: '0.66rem', fontWeight: 800, padding: '3px 10px', borderRadius: 100,
+              background: 'rgba(255,204,0,0.12)', color: 'var(--accent-gold)',
+              border: '1px solid rgba(255,204,0,0.4)',
+            }}>
+              <Zap size={11} style={{ verticalAlign: -2 }} /> +{currentQ.xpReward} XP
+            </span>
+          )}
         </div>
         <h3 style={{ fontSize: '1.15rem', fontWeight: 700, lineHeight: 1.4, color: '#fff' }}>{currentQ.question}</h3>
+
+        {currentQ.treeData && (
+          <div style={{ marginTop: 14, background: '#0D0D0F', borderRadius: 'var(--radius-md)', padding: 8, border: '1px solid rgba(255,255,255,0.08)' }}>
+            <div style={{ fontSize: '0.62rem', fontWeight: 800, color: 'rgba(255,255,255,0.5)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 6px' }}>
+              Current Tree
+            </div>
+            <TreeSvgCanvas nodes={currentQ.treeData.nodes} edges={currentQ.treeData.edges} minHeight={230} />
+          </div>
+        )}
       </div>
 
       {/* Options — staggered entrance */}
@@ -298,8 +401,27 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
           padding: 14, background: 'var(--bg-light)', borderLeft: '3px solid #000',
           borderRadius: '0 8px 8px 0', marginBottom: 16, fontSize: '0.88rem', lineHeight: 1.5,
         }}>
-          <strong>{selectedOption === currentQ.correctAnswerIndex ? 'Correct! ' : 'Not quite — '}</strong>
-          {currentQ.explanation}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
+            <strong>{selectedOption === currentQ.correctAnswerIndex ? 'Correct! ' : 'Not quite — '}</strong>
+            {selectedOption === currentQ.correctAnswerIndex && earnedXpFlash > 0 && (
+              <span style={{
+                fontSize: '0.75rem', fontWeight: 900, color: 'var(--accent-gold)',
+                background: 'rgba(255,204,0,0.12)', border: '1px solid rgba(255,204,0,0.4)',
+                padding: '2px 10px', borderRadius: 100, display: 'inline-flex', alignItems: 'center', gap: 4,
+              }}>
+                <Zap size={12} /> +{earnedXpFlash} XP
+              </span>
+            )}
+          </div>
+          <p style={{ margin: 0 }}>{currentQ.explanation}</p>
+          {selectedOption === currentQ.correctAnswerIndex && currentQ.resultTree && (
+            <div style={{ marginTop: 10, background: '#fff', borderRadius: 'var(--radius-md)', padding: 8, border: '1px solid var(--border-hairline)' }}>
+              <div style={{ fontSize: '0.62rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 6px' }}>
+                ✓ Balanced result — matches the question base exactly
+              </div>
+              <TreeSvgCanvas nodes={currentQ.resultTree.nodes} edges={currentQ.resultTree.edges} minHeight={200} />
+            </div>
+          )}
         </div>
       )}
 
@@ -309,7 +431,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
             <Lock size={12} /> Correct answers are saved permanently.
           </span>
           <button className="btn btn-primary" onClick={handleNextQuestion}>
-            {justCompleted && remaining.length - 1 === 0 ? 'Finish Arena' : 'Next →'}
+            {justCompleted && remaining.length === 1 ? (isGraded ? 'Finish Level →' : 'Finish Arena') : 'Next →'}
           </button>
         </div>
       )}

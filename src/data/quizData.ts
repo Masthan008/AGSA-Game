@@ -3,22 +3,122 @@ import { QuizQuestion, TreeBalancePuzzle } from '../types';
 // Every level in LEVEL_TOPICS has dedicated questions keyed by its level id.
 export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
-    id: 'q1-bst-1',
-    levelId: 'level-1-bst',
-    question: 'Which traversal of a BST outputs elements in sorted ascending order?',
-    options: ['Pre-order', 'In-order', 'Post-order', 'Level-order'],
-    correctAnswerIndex: 1,
-    explanation: 'In-order traversal visits (Left, Root, Right), which outputs keys in strictly sorted order.',
-    hint: 'Think about the ordering of Left, Root, Right.'
+    id: 'q1-avl-1',
+    levelId: 'level-1-avl',
+    difficulty: 'beginner',
+    xpReward: 20,
+    question: 'Keys 10 and 20 were inserted into an empty AVL tree (tree below). You now insert 30 — it lands as the right child of 20 and the root becomes imbalanced. Which single rotation restores balance?',
+    options: [
+      'Left Rotation (RR case)',
+      'Right Rotation (LL case)',
+      'Left-Right Double Rotation (LR case)',
+      'Right-Left Double Rotation (RL case)',
+    ],
+    correctAnswerIndex: 0,
+    explanation: 'Root 10 now has balance factor −2 (right-heavy) and 30 sits in the right-right chain 10 → 20 → 30. The RR case needs exactly ONE left rotation: 20 rises to the root, 10 drops to its left child and 30 becomes its right child. The tree stays perfectly balanced at height 2.',
+    hint: 'Check the balance factor of the root after 30 is inserted: BF = −2 means right-heavy. Which subtree did 30 enter?',
+    treeData: {
+      nodes: [
+        { id: 'q1-node-10', value: 10, x: 300, y: 50, balanceFactor: -1 },
+        { id: 'q1-node-20', value: 20, x: 420, y: 120, balanceFactor: 0 },
+      ],
+      edges: [{ from: 'q1-node-10', to: 'q1-node-20' }],
+    },
+    resultTree: {
+      nodes: [
+        { id: 'q1-r-node-20', value: 20, x: 300, y: 50, balanceFactor: 0 },
+        { id: 'q1-r-node-10', value: 10, x: 180, y: 120, balanceFactor: 0 },
+        { id: 'q1-r-node-30', value: 30, x: 420, y: 120, balanceFactor: 0 },
+      ],
+      edges: [
+        { from: 'q1-r-node-20', to: 'q1-r-node-10' },
+        { from: 'q1-r-node-20', to: 'q1-r-node-30' },
+      ],
+    },
   },
   {
-    id: 'q1-bst-2',
-    levelId: 'level-1-bst',
-    question: 'What is the worst-case time complexity of searching in a BST that has become skewed?',
-    options: ['O(1)', 'O(log N)', 'O(N)', 'O(N log N)'],
+    id: 'q1-avl-2',
+    levelId: 'level-1-avl',
+    difficulty: 'medium',
+    xpReward: 30,
+    question: 'Keys 30, 10, 20 were inserted in that order. After 20 lands, the tree below became unbalanced: node 30 has balance factor +2 but its left child 10 is right-heavy (BF = −1). Which rotation sequence rebalances the tree?',
+    options: [
+      'Single Right Rotation',
+      'Single Left Rotation',
+      'Left-Right (LR) Double Rotation',
+      'Right-Left (RL) Double Rotation',
+    ],
     correctAnswerIndex: 2,
-    explanation: 'If nodes are inserted in sorted order the BST degrades to a linked list, making search O(N).',
-    hint: 'Consider the height of a degenerate tree.'
+    explanation: 'BF = +2 at 30 means the imbalance is on the left side, but the heavy child 10 leans the OPPOSITE way (BF = −1). A single right rotation cannot fix this — rotate the child LEFT first (10 → 20), then rotate the parent RIGHT (30 → 20). This LR double rotation brings 20 to the root with 10 on the left and 30 on the right.',
+    hint: 'The parent is left-heavy (+2) but its left child is right-heavy (−1) — opposite directions always mean a double rotation.',
+    treeData: {
+      nodes: [
+        { id: 'q2-node-30', value: 30, x: 300, y: 50, balanceFactor: 2 },
+        { id: 'q2-node-10', value: 10, x: 180, y: 120, balanceFactor: -1 },
+        { id: 'q2-node-20', value: 20, x: 246, y: 190, balanceFactor: 0 },
+      ],
+      edges: [
+        { from: 'q2-node-30', to: 'q2-node-10' },
+        { from: 'q2-node-10', to: 'q2-node-20' },
+      ],
+    },
+    resultTree: {
+      nodes: [
+        { id: 'q2-r-node-20', value: 20, x: 300, y: 50, balanceFactor: 0 },
+        { id: 'q2-r-node-10', value: 10, x: 180, y: 120, balanceFactor: 0 },
+        { id: 'q2-r-node-30', value: 30, x: 420, y: 120, balanceFactor: 0 },
+      ],
+      edges: [
+        { from: 'q2-r-node-20', to: 'q2-r-node-10' },
+        { from: 'q2-r-node-20', to: 'q2-r-node-30' },
+      ],
+    },
+  },
+  {
+    id: 'q1-avl-3',
+    levelId: 'level-1-avl',
+    difficulty: 'mastery',
+    xpReward: 50,
+    question: 'Keys 10, 20, 30, 40, 50 are inserted in order. After the final insert, node 30 becomes imbalanced (BF = −2) and its right child 40 also leans right (BF = −1). Which rotation fixes node 30, and what is the resulting tree?',
+    options: [
+      'Left Rotation at 30 — 40 rises; the root stays 20 with right subtree 40 → (30, 50)',
+      'Right Rotation at 30 — the new root becomes 40',
+      'Left-Right Double Rotation at 30',
+      'Right-Left Double Rotation at 30',
+    ],
+    correctAnswerIndex: 0,
+    explanation: 'Node 30\u2019s heavy chain is right-right (30 → 40 → 50) and its child 40 leans the SAME direction (right), so a single LEFT rotation at 30 fixes it: 40 rises to 20\u2019s right child, 30 drops to 40\u2019s left child, and 50 stays on 40\u2019s right. Height stays 3 for 5 keys — O(log N) guarantees for any insert sequence.',
+    hint: 'Both node 30 and its right child lean right — a same-direction chain means a single rotation. Which direction?',
+    treeData: {
+      nodes: [
+        { id: 'q3-node-20', value: 20, x: 300, y: 50, balanceFactor: -2 },
+        { id: 'q3-node-10', value: 10, x: 180, y: 120, balanceFactor: 0 },
+        { id: 'q3-node-30', value: 30, x: 420, y: 120, balanceFactor: -2 },
+        { id: 'q3-node-40', value: 40, x: 486, y: 190, balanceFactor: -1 },
+        { id: 'q3-node-50', value: 50, x: 522.3, y: 260, balanceFactor: 0 },
+      ],
+      edges: [
+        { from: 'q3-node-20', to: 'q3-node-10' },
+        { from: 'q3-node-20', to: 'q3-node-30' },
+        { from: 'q3-node-30', to: 'q3-node-40' },
+        { from: 'q3-node-40', to: 'q3-node-50' },
+      ],
+    },
+    resultTree: {
+      nodes: [
+        { id: 'q3-r-node-20', value: 20, x: 300, y: 50, balanceFactor: -1 },
+        { id: 'q3-r-node-10', value: 10, x: 180, y: 120, balanceFactor: 0 },
+        { id: 'q3-r-node-40', value: 40, x: 420, y: 120, balanceFactor: 0 },
+        { id: 'q3-r-node-30', value: 30, x: 354, y: 190, balanceFactor: 0 },
+        { id: 'q3-r-node-50', value: 50, x: 486, y: 190, balanceFactor: 0 },
+      ],
+      edges: [
+        { from: 'q3-r-node-20', to: 'q3-r-node-10' },
+        { from: 'q3-r-node-20', to: 'q3-r-node-40' },
+        { from: 'q3-r-node-40', to: 'q3-r-node-30' },
+        { from: 'q3-r-node-40', to: 'q3-r-node-50' },
+      ],
+    },
   },
   {
     id: 'q2-avl-1',
@@ -510,78 +610,6 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     correctAnswerIndex: 0,
     explanation: 'NP-completeness means every NP problem reduces to it; one polynomial solution solves all of NP.',
     hint: 'Reductions link every NP problem to NP-complete ones.'
-  },
-  {
-    id: 'q1-bst-3',
-    levelId: 'level-1-bst',
-    question: 'Insert 50, 30, 70, 20, 40 (in that order) into an empty BST. What is the in-order traversal?',
-    options: ['20, 30, 40, 50, 70', '50, 30, 20, 40, 70', '20, 40, 30, 70, 50', '30, 20, 40, 50, 70'],
-    correctAnswerIndex: 0,
-    explanation: 'In-order visits Left, Root, Right, so a BST always yields keys in sorted order.',
-    hint: 'In-order means Left, Root, Right.'
-  },
-  {
-    id: 'q1-bst-4',
-    levelId: 'level-1-bst',
-    question: 'A BST contains keys 50, 30, 70, 20, 40. Which node holds the minimum key?',
-    options: ['20', '30', '40', '70'],
-    correctAnswerIndex: 0,
-    explanation: 'The minimum key is always the leftmost node: keep following left children from the root.',
-    hint: 'Follow left children until there is no left child.'
-  },
-  {
-    id: 'q1-bst-5',
-    levelId: 'level-1-bst',
-    question: 'The BST property says every key in a node\u2019s left subtree is...',
-    options: ['smaller than the node\u2019s key', 'larger than the node\u2019s key', 'equal to the node\u2019s key', 'stored in random order'],
-    correctAnswerIndex: 0,
-    explanation: 'Left subtree keys are strictly smaller; right subtree keys are strictly larger.',
-    hint: 'Left < Node < Right.'
-  },
-  {
-    id: 'q1-bst-6',
-    levelId: 'level-1-bst',
-    question: 'Inserting keys 1, 2, 3, 4, 5 in ascending order into an empty BST produces...',
-    options: ['a skewed right chain of height 5', 'a perfectly balanced tree of height 2', 'a full binary tree', 'an impossible insertion sequence'],
-    correctAnswerIndex: 0,
-    explanation: 'Each key becomes the right child of the previous one, creating a degenerate chain.',
-    hint: 'Every new key is larger than the last one inserted.'
-  },
-  {
-    id: 'q1-bst-7',
-    levelId: 'level-1-bst',
-    question: 'In a balanced BST with 1,000,000 keys, one search needs at most about how many comparisons?',
-    options: ['~20', '~1,000', '~500,000', '~1,000,000'],
-    correctAnswerIndex: 0,
-    explanation: 'log₂(1,000,000) ≈ 20 — the search halves the remaining range each step.',
-    hint: 'Use log base 2 of the number of keys.'
-  },
-  {
-    id: 'q1-bst-8',
-    levelId: 'level-1-bst',
-    question: 'Deleting a BST node that has two children typically replaces it with...',
-    options: ['its in-order successor (or predecessor)', 'a random node from the tree', 'its parent node', 'the leftmost leaf of the whole tree'],
-    correctAnswerIndex: 0,
-    explanation: 'The successor keeps the BST ordering intact when copied into the deleted slot.',
-    hint: 'Pick the smallest key larger than the node being deleted.'
-  },
-  {
-    id: 'q1-bst-9',
-    levelId: 'level-1-bst',
-    question: 'BST root is 50, left child is 30, and 30\u2019s right child is 40. What is the in-order successor of 40?',
-    options: ['50', '30', '40', 'none — it has no successor'],
-    correctAnswerIndex: 0,
-    explanation: 'The successor is the smallest key greater than 40 — that is the ancestor 50, since 40 has no right child.',
-    hint: 'Climb up until you take a right turn.'
-  },
-  {
-    id: 'q1-bst-10',
-    levelId: 'level-1-bst',
-    question: 'For a BST of height h, the worst-case time to search is...',
-    options: ['O(h)', 'O(log n)', 'O(n)', 'O(1)'],
-    correctAnswerIndex: 0,
-    explanation: 'Search follows one root-to-leaf path of length h; with h = n the tree is degenerate.',
-    hint: 'Express it in terms of the height, not the node count.'
   },
   {
     id: 'q3-redblack-3',

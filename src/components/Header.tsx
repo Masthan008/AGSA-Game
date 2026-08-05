@@ -1,6 +1,6 @@
 import React from 'react';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
-import { Zap, Star, Flame, User, Compass, PlayCircle, Swords, Code2, LayoutDashboard, ArrowLeftRight, FileText, Layers, Terminal } from 'lucide-react';
+import { Zap, Star, User, Compass, PlayCircle, Swords, Code2, LayoutDashboard, ArrowLeftRight, FileText, Layers, Terminal, Trophy, ClipboardList } from 'lucide-react';
 import { UserProgress } from '../types';
 
 interface HeaderProps {
@@ -12,6 +12,7 @@ interface HeaderProps {
 
 const NAV_ITEMS = [
   { key: 'campaign', label: 'Campaign', icon: Compass },
+  { key: 'assignments', label: 'Tasks', icon: ClipboardList },
   { key: 'visualizer', label: 'Visualizer', icon: PlayCircle },
   { key: 'arena', label: 'Arena', icon: Swords },
   { key: 'library', label: 'Code Hub', icon: Code2 },
@@ -19,6 +20,7 @@ const NAV_ITEMS = [
   { key: 'sandbox', label: 'Sandbox', icon: Terminal },
   { key: 'flashcards', label: 'Cards', icon: Layers },
   { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { key: 'leaderboard', label: 'Ranks', icon: Trophy },
   { key: 'compare', label: 'Compare', icon: ArrowLeftRight },
 ];
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useUser } from '@clerk/clerk-react';
+import { useAuth, useUser } from '@clerk/clerk-react';
 import { UserProgress, LevelTopic, AnimationFrame } from './types';
 import { LEVEL_TOPICS } from './data/levelsData';
 import { CODE_TEMPLATES } from './data/codeTemplates';
@@ -18,7 +18,6 @@ import { TheoryTab } from './components/Visualizer/TheoryTab';
 import { NodeControlPanel } from './components/Visualizer/NodeControlPanel';
 
 import { QuizArena } from './components/Games/QuizArena';
-import { TreeBalanceGame } from './components/Games/TreeBalanceGame';
 import { MultiLangHub } from './components/Library/MultiLangHub';
 import { ProgressDashboard } from './components/Dashboard/ProgressDashboard';
 import { AlgoCompare } from './components/Comparison/AlgoCompare';
@@ -33,13 +32,18 @@ import { ProfilePage } from './components/Profile/ProfilePage';
 import { SplashScreen } from './components/Onboarding/SplashScreen';
 import { OnboardingScreens } from './components/Onboarding/OnboardingScreens';
 import { AuthModal } from './components/Auth/AuthModal';
+import { AdminPage } from './components/Admin/AdminPage';
+import { AssignmentsPage } from './components/Assignments/AssignmentsPage';
 
-import { syncUserProfile, recordLevelCompletion } from './services/api';
+import { fetchMyProfile, syncUserProfile, recordLevelCompletion, recordCompletion, setApiTokenProvider, AccountRole } from './services/api';
 
 import { generateAVLTreeFrames } from './algorithms/avlTreeEngine';
 import { generateDijkstraFrames } from './algorithms/dijkstraEngine';
 import { generateKnapsackFrames } from './algorithms/knapsackEngine';
 import { generateTrieFrames } from './algorithms/trieEngine';
+import { generateSegmentTreeFrames } from './algorithms/segmentTreeEngine';
+import { generateKMPFrames } from './algorithms/kmpEngine';
+import { generateBTreeFrames } from './algorithms/bTreeEngine';
 import {
   generateEmptyTreeFrame,
   generateInteractiveInsertFrames,
@@ -49,10 +53,11 @@ import {
 import { resolveCodeHighlights } from './algorithms/codeLineResolver';
 import { BookOpen, PlayCircle, Code2 } from 'lucide-react';
 
-type Tab = 'campaign' | 'visualizer' | 'arena' | 'library' | 'dashboard' | 'compare' | 'notes' | 'sandbox' | 'flashcards' | 'profile';
+type Tab = 'campaign' | 'assignments' | 'visualizer' | 'arena' | 'library' | 'dashboard' | 'compare' | 'notes' | 'sandbox' | 'flashcards' | 'leaderboard' | 'profile';
 type VisualizerMode = 'canvas' | 'theory' | 'code';
 
 const TREE_LEVEL_KEYS = ['avl', 'bst', 'redblack', 'btree', 'segment', 'heap'];
+const INTERACTIVE_VISUALIZERS = new Set(['avl', 'bst', 'btree', 'segment', 'dijkstra', 'knapsack', 'trie', 'kmp']);
 
 function isTreeLevel(key: string): boolean {
   return TREE_LEVEL_KEYS.includes(key);
@@ -72,7 +77,13 @@ const DEFAULT_PROGRESS: UserProgress = {
 };
 
 export const App: React.FC = () => {
+  const { getToken } = useAuth();
   const { isLoaded, isSignedIn, user } = useUser();
+
+  useEffect(() => {
+    setApiTokenProvider(() => getToken());
+    return () => setApiTokenProvider(null);
+  }, [getToken]);
   const [activeTab, setActiveTab] = useState<Tab>('campaign');
   const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('canvas');
   const [currentLevel, setCurrentLevel] = useState<LevelTopic>(LEVEL_TOPICS[0]);
@@ -83,6 +94,25 @@ export const App: React.FC = () => {
     return !localStorage.getItem('adsa_quest_v2_onboarded');
   });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+
+  // Account role — asked at login/sign-up (Student vs Teacher/Admin).
+  // Persisted locally; synced to the backend so the admin dashboard can
+  // recognize the admin account alongside the ADMIN_EMAILS allow-list.
+  const [accountRole, setAccountRole] = useState<AccountRole>(() =>
+    localStorage.getItem('adsa_quest_v2_role') === 'admin' ? 'admin' : 'student'
+  );
+  const handleRoleChange = (role: AccountRole) => {
+    setAccountRole(role);
+    localStorage.setItem('adsa_quest_v2_role', role);
+  };
+
+  // Admin route — reachable ONLY via the direct URL /#/admin (no nav link).
+  const [isAdminRoute, setIsAdminRoute] = useState(() => window.location.hash === '#/admin');
+  useEffect(() => {
+    const onHash = () => setIsAdminRoute(window.location.hash === '#/admin');
+    window.addEventListener('hashchange', onHash);
+    return () => window.removeEventListener('hashchange', onHash);
+  }, []);
 
   // Progress — localStorage & Live PostgreSQL Sync
   const [userProgress, setUserProgress] = useState<UserProgress>(() => {
@@ -110,11 +140,37 @@ export const App: React.FC = () => {
     }
   }, [isLoaded, isSignedIn, user]);
 
-  // Sync with backend API on progress change
+  // Keep a local offline snapshot. Server progress remains authoritative for
+  // authenticated learners and is hydrated after Clerk identity is ready.
   useEffect(() => {
     localStorage.setItem('adsa_quest_v2_progress', JSON.stringify(userProgress));
-    syncUserProfile(userProgress);
   }, [userProgress]);
+
+  useEffect(() => {
+    if (!isLoaded || !isSignedIn || !user) return;
+    let active = true;
+    syncUserProfile(userProgress, user.primaryEmailAddress?.emailAddress, accountRole)
+      .then(() => fetchMyProfile())
+      .then(profile => {
+        if (!active || !profile) return;
+        const starsPerLevel = Object.fromEntries(profile.progress.map((item: any) => [item.levelId, item.stars]));
+        setUserProgress(prev => ({
+          ...prev,
+          username: profile.username || prev.username,
+          xp: profile.xp,
+          streakDays: profile.streakDays,
+          levelUnlocked: profile.levelUnlocked,
+          starsPerLevel,
+          completedLevels: profile.progress.map((item: any) => item.levelId),
+        }));
+      });
+    return () => { active = false; };
+  }, [isLoaded, isSignedIn, user?.id, accountRole]);
+
+  // Code-practice session tracker (shown in the admin dashboard)
+  const recordPracticeSession = (kind: string) => {
+    recordCompletion(userProgress.username || 'Student', `practice-${kind}-${Date.now()}`, 'practice');
+  };
 
   // Animation State
   const [frames, setFrames] = useState<AnimationFrame[]>([]);
@@ -150,20 +206,35 @@ export const App: React.FC = () => {
     animGenRef.current += 1;
     let generated: AnimationFrame[] = [];
     const key = currentLevel.algorithmKey;
-    if (isTreeLevel(key)) {
+    if (key === 'avl' || key === 'bst') {
       setTreeValues([]);
       generated = [generateEmptyTreeFrame(currentLevel.title)];
-    } else if (key === 'dijkstra' || key === 'bellmanford' || key === 'mst' || key === 'tarjan' || key === 'bfsdfs' || key === 'floydwarshall') {
+    } else if (key === 'btree') {
+      generated = generateBTreeFrames(2, currentLevel.defaultInput as number[]);
+    } else if (key === 'segment') {
+      generated = generateSegmentTreeFrames(currentLevel.defaultInput as number[]);
+    } else if (key === 'dijkstra') {
       generated = generateDijkstraFrames();
-    } else if (key === 'knapsack' || key === 'lcs' || key === 'matrixchain') {
+    } else if (key === 'knapsack') {
       generated = generateKnapsackFrames();
-    } else if (key === 'trie' || key === 'kmp' || key === 'suffixarray') {
+    } else if (key === 'trie') {
       const words = Array.isArray(currentLevel.defaultInput) && typeof currentLevel.defaultInput[0] === 'string'
         ? currentLevel.defaultInput as string[]
         : ['cat', 'car', 'dot'];
       generated = generateTrieFrames(words);
+    } else if (key === 'kmp') {
+      const input = typeof currentLevel.defaultInput === 'string' ? currentLevel.defaultInput : 'ABABDABACDABABCABAB';
+      generated = generateKMPFrames(input, 'ABABCABAB');
     } else {
-      generated = generateAVLTreeFrames([15, 25, 35, 45]);
+      generated = [{
+        stepIndex: 1, totalSteps: 1,
+        title: `${currentLevel.title}: guided concept mode`,
+        explanation: {
+          action: 'Study the theory and code before the interactive lab is published.',
+          reason: 'ADSA Quest never substitutes an unrelated algorithm animation. This topic remains fully available in Theory, Code, and Quiz modes.',
+        },
+        nodes: [], edges: [],
+      }];
     }
     setFrames(generated);
     setStepIndex(0);
@@ -215,6 +286,7 @@ export const App: React.FC = () => {
     setFrames(newFrames);
     setStepIndex(0);
     setIsPlaying(true);
+    recordPracticeSession('visualizer-insert');
   };
 
   const handleDeleteNode = (val: number) => {
@@ -245,6 +317,7 @@ export const App: React.FC = () => {
     setFrames(buildTreeDemoFrames(currentLevel.algorithmKey, input));
     setStepIndex(0);
     setIsPlaying(true);
+    recordPracticeSession('visualizer-sample');
   };
 
   const handleRandomizeTree = () => {
@@ -276,7 +349,7 @@ export const App: React.FC = () => {
     setActiveTab('arena');
   };
 
-  const handleCompleteQuiz = (earnedStars: number, earnedXp: number) => {
+  const handleCompleteQuiz = async (earnedStars: number, earnedXp: number) => {
     setUserProgress(prev => ({
       ...prev,
       xp: prev.xp + earnedXp,
@@ -289,7 +362,18 @@ export const App: React.FC = () => {
     }));
 
     // Record in backend database
-    recordLevelCompletion(userProgress.username || 'Student', currentLevel.id, earnedStars, earnedXp);
+    const result = await recordLevelCompletion(userProgress.username || 'Student', currentLevel.id, earnedStars, earnedXp);
+    if (result?.user) {
+      const starsPerLevel = Object.fromEntries(result.user.progress.map((item: any) => [item.levelId, item.stars]));
+      setUserProgress(prev => ({
+        ...prev,
+        xp: result.user.xp,
+        streakDays: result.user.streakDays,
+        levelUnlocked: result.user.levelUnlocked,
+        starsPerLevel,
+        completedLevels: result.user.progress.map((item: any) => item.levelId),
+      }));
+    }
   };
 
   const handleUpdateUsername = (name: string) => {
@@ -308,6 +392,15 @@ export const App: React.FC = () => {
     setShowOnboarding(false);
   };
 
+  // Admin console renders standalone (no header/bottom-nav) — direct URL only.
+  if (isAdminRoute) {
+    return (
+      <div style={{ minHeight: '100vh', background: '#fff' }}>
+        <AdminPage />
+      </div>
+    );
+  }
+
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#fff' }}>
       {/* 1. Splash Screen Overlay */}
@@ -325,6 +418,8 @@ export const App: React.FC = () => {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onLoginAsGuest={handleUpdateUsername}
+        role={accountRole}
+        onRoleChange={handleRoleChange}
       />
 
       {/* 4. Main App Navigation & Pages */}
@@ -340,6 +435,8 @@ export const App: React.FC = () => {
         {activeTab === 'campaign' && (
           <LevelMap userProgress={userProgress} onSelectLevel={handleSelectLevel} onStartQuiz={handleStartQuiz} />
         )}
+
+        {activeTab === 'assignments' && <AssignmentsPage onStartLevel={handleSelectLevel} />}
 
         {/* VISUALIZER & THEORY */}
         {activeTab === 'visualizer' && (
@@ -411,6 +508,14 @@ export const App: React.FC = () => {
             {/* VIEW 3: CANVAS & INTERACTIVE NODE CONTROLS */}
             {visualizerMode === 'canvas' && (
               <div>
+                {!INTERACTIVE_VISUALIZERS.has(currentLevel.algorithmKey) && (
+                  <div role="status" className="card-light" style={{ padding: '16px 18px', marginBottom: 16, borderLeft: '4px solid #007AFF' }}>
+                    <strong style={{ display: 'block', marginBottom: 4 }}>Guided concept mode</strong>
+                    <span style={{ color: 'var(--text-secondary)', fontSize: '0.86rem', lineHeight: 1.55 }}>
+                      This topic’s dedicated interactive lab is being validated. Use Pin-to-Pin Theory, the 8-language Code Tracer, and the Challenge Arena now—an unrelated animation will never be shown in its place.
+                    </span>
+                  </div>
+                )}
                 {/* Node Insert / Delete Control Bar */}
                 {(currentLevel.category === 'Trees' || currentLevel.algorithmKey === 'avl' || currentLevel.algorithmKey === 'bst') && (
                   <NodeControlPanel
@@ -460,8 +565,7 @@ export const App: React.FC = () => {
               <h2 className="section-title">Challenge Arena</h2>
               <p className="section-subtitle">Test your knowledge with quizzes and interactive puzzles.</p>
             </div>
-            <QuizArena currentLevel={currentLevel} userId={userProgress.username || 'Student'} levelUnlocked={userProgress.levelUnlocked} onCompleteQuiz={handleCompleteQuiz} onBackToCampaign={() => setActiveTab('campaign')} onOpenVisualizer={() => setActiveTab('visualizer')} onOpenRotationGame={() => document.getElementById('tree-balance-game')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} />
-            <div style={{ marginTop: 32 }} id="tree-balance-game"><TreeBalanceGame currentLevel={currentLevel} userId={userProgress.username || 'Student'} /></div>
+            <QuizArena currentLevel={currentLevel} userId={userProgress.username || 'Student'} levelUnlocked={userProgress.levelUnlocked} onCompleteQuiz={handleCompleteQuiz} onBackToCampaign={() => setActiveTab('campaign')} onOpenVisualizer={() => setActiveTab('visualizer')} />
           </div>
         )}
 
@@ -472,13 +576,16 @@ export const App: React.FC = () => {
         {activeTab === 'notes' && <NotesPage userProgress={userProgress} />}
 
         {/* CODE SANDBOX */}
-        {activeTab === 'sandbox' && <SandboxPage />}
+        {activeTab === 'sandbox' && <SandboxPage userId={userProgress.username || 'Student'} />}
 
         {/* ADSA FLASHCARDS */}
         {activeTab === 'flashcards' && <FlashcardPage userId={userProgress.username || 'Student'} />}
 
         {/* DASHBOARD */}
         {activeTab === 'dashboard' && <ProgressDashboard userProgress={userProgress} />}
+
+        {/* LIVE LEADERBOARD */}
+        {activeTab === 'leaderboard' && <Leaderboard userProgress={userProgress} onUpdateUsername={handleUpdateUsername} />}
 
         {/* COMPARE */}
         {activeTab === 'compare' && <AlgoCompare />}

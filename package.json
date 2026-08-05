@@ -5,13 +5,16 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "typecheck": "tsc --noEmit",
     "build": "tsc && vite build",
+    "validate:content": "node scripts/validate-content.mjs",
+    "check": "npm run validate:content && npm run typecheck && npm run build && npm --prefix backend run build",
     "preview": "vite preview",
     "cap:sync": "npm run build && npx cap sync",
     "cap:open:android": "npx cap open android"
   },
   "dependencies": {
-    "@capacitor/android": "^8.5.0",
+    "@capacitor/android": "^6.2.1",
     "@capacitor/app": "^6.0.0",
     "@capacitor/core": "^6.1.0",
     "@capacitor/splash-screen": "^6.0.0",

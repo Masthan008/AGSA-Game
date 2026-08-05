@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Play, Puzzle, Rocket, GraduationCap, ArrowRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, Rocket, GraduationCap, ArrowRight } from 'lucide-react';
 
 // ============================================================================
 // Level 1 — AVL Trees: pictorial + theory introduction
-// Four slides teach the concepts visually, then the player can practice
-// (visualizer / rotation puzzles) or jump straight into the graded quiz.
+// Four slides teach the concepts visually, then the player can practice in
+// the visualizer or jump straight into the graded quiz.
 // ============================================================================
 
 interface MiniTreeProps {
@@ -76,7 +76,6 @@ const RotationDiagram: React.FC<RotationDiagramProps> = ({ label, before, after,
 
 interface LevelIntroFlowProps {
   onOpenVisualizer: () => void;
-  onOpenRotationGame: () => void;
   onContinue: () => void;
 }
 
@@ -88,7 +87,7 @@ interface Slide {
   body: React.ReactNode;
 }
 
-export const LevelIntroFlow: React.FC<LevelIntroFlowProps> = ({ onOpenVisualizer, onOpenRotationGame, onContinue }) => {
+export const LevelIntroFlow: React.FC<LevelIntroFlowProps> = ({ onOpenVisualizer, onContinue }) => {
   const [slide, setSlide] = useState(0);
 
   const slides: Slide[] = [
@@ -281,9 +280,6 @@ export const LevelIntroFlow: React.FC<LevelIntroFlowProps> = ({ onOpenVisualizer
           <div style={{ display: 'flex', gap: 10, justifyContent: 'center', flexWrap: 'wrap' }}>
             <button className="btn btn-secondary" onClick={onOpenVisualizer} style={{ gap: 6 }}>
               <Play size={16} /> Practice in Visualizer
-            </button>
-            <button className="btn btn-secondary" onClick={onOpenRotationGame} style={{ gap: 6 }}>
-              <Puzzle size={16} /> Rotation Puzzle Game
             </button>
           </div>
           <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', textAlign: 'center' }}>

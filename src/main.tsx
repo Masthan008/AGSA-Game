@@ -4,7 +4,11 @@ import { ClerkProvider } from '@clerk/clerk-react';
 import { App } from './App';
 import './index.css';
 
-const PUBLISHABLE_KEY = (import.meta as any).env?.VITE_CLERK_PUBLISHABLE_KEY || 'pk_test_d2VhbHRoeS10YWRwb2xlLTUzLmNsZXJrLmFjY291bnRzLmRldiQ';
+const PUBLISHABLE_KEY = (import.meta as any).env?.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!PUBLISHABLE_KEY) {
+  throw new Error('Missing VITE_CLERK_PUBLISHABLE_KEY. Copy .env.example to .env and configure Clerk.');
+}
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

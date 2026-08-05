@@ -12,8 +12,12 @@ model User {
   email         String?         @unique
   username      String
   imageUrl      String?
+  role          String          @default("student") // student | admin
   xp            Int             @default(0)
   streakDays    Int             @default(1)
+  longestStreak Int             @default(1)
+  lastActiveAt  DateTime?
+  timezone      String          @default("UTC")
   levelUnlocked Int             @default(1)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -22,13 +26,14 @@ model User {
   bookmarks     Bookmark[]
   notes         UserNote[]
   completions   PuzzleCompletion[]
+  tasks         Task[]
 }
 
 model PuzzleCompletion {
   id          String   @id @default(uuid())
   userId      String
   puzzleId    String
-  puzzleType  String   @default("rotation") // rotation | quiz | flashcard
+  puzzleType  String   @default("quiz") // quiz | flashcard
   completedAt DateTime @default(now())
 
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -68,4 +73,18 @@ model UserNote {
   updatedAt  DateTime @updatedAt
 
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Tasks = levels assigned to a student by the admin (teacher). A task is
+// auto-completed when the student records progress on that level.
+model Task {
+  id          String   @id @default(uuid())
+  userId      String
+  levelId     String
+  assignedAt  DateTime @default(now())
+  completedAt DateTime?
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, levelId])
 }

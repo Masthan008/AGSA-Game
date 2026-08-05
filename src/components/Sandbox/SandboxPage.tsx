@@ -12,6 +12,7 @@ import { generateTrieFrames } from '../../algorithms/trieEngine';
 import { generateSegmentTreeFrames } from '../../algorithms/segmentTreeEngine';
 import { generateKMPFrames } from '../../algorithms/kmpEngine';
 import { generateBTreeFrames } from '../../algorithms/bTreeEngine';
+import { recordCompletion } from '../../services/api';
 
 type SandboxMode = 'avl' | 'bst' | 'dijkstra' | 'knapsack' | 'trie' | 'segment' | 'kmp' | 'btree';
 
@@ -264,7 +265,7 @@ int kmpSearch(const string& text, const string& pat) {
 const parseNumbers = (input: string): number[] =>
   input.split(',').map(s => parseInt(s.trim())).filter(n => !isNaN(n));
 
-export const SandboxPage: React.FC = () => {
+export const SandboxPage: React.FC<{ userId?: string }> = ({ userId }) => {
   const [mode, setMode] = useState<SandboxMode>('avl');
 
   // Inputs
@@ -381,6 +382,9 @@ export const SandboxPage: React.FC = () => {
       `[SYSTEM] Generated ${generated.length} animation steps for ${modeInfo.label}.`,
       `[RUN] ${generated[0]?.title || 'Execution started'}`
     ]);
+    if (userId) {
+      recordCompletion(userId, `practice-sandbox-${mode}-${Date.now()}`, 'practice');
+    }
   };
 
   const handleRandomize = () => {

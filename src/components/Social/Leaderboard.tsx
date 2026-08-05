@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { LeaderboardEntry, UserProgress } from '../../types';
 import { Trophy, Medal, Award } from 'lucide-react';
+import { fetchLeaderboard } from '../../services/api';
 
 interface LeaderboardProps {
   userProgress: UserProgress;
@@ -10,18 +11,22 @@ interface LeaderboardProps {
 export const Leaderboard: React.FC<LeaderboardProps> = ({ userProgress, onUpdateUsername }) => {
   const [editingName, setEditingName] = useState(false);
   const [nameInput, setNameInput] = useState(userProgress.username || 'Student');
+  const [remoteEntries, setRemoteEntries] = useState<LeaderboardEntry[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Simulated leaderboard (local + sample data)
   const totalStars = Object.values(userProgress.starsPerLevel).reduce((a, b) => a + b, 0);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    fetchLeaderboard().then(rows => {
+      if (active) setRemoteEntries(rows);
+    }).finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, []);
 
-  const entries: LeaderboardEntry[] = [
-    { username: userProgress.username || 'Student', xp: userProgress.xp, rank: 0, stars: totalStars },
-    { username: 'AlgoMaster', xp: 1200, rank: 0, stars: 28 },
-    { username: 'TreeWizard', xp: 980, rank: 0, stars: 22 },
-    { username: 'DPKnight', xp: 750, rank: 0, stars: 18 },
-    { username: 'GraphRunner', xp: 600, rank: 0, stars: 14 },
-    { username: 'CodeNewbie', xp: 200, rank: 0, stars: 5 },
-  ].sort((a, b) => b.xp - a.xp).map((e, i) => ({ ...e, rank: i + 1 }));
+  const entries = remoteEntries.length > 0
+    ? remoteEntries
+    : [{ username: userProgress.username || 'Student', xp: userProgress.xp, rank: 1, stars: totalStars }];
 
   const RANK_ICON: Record<number, React.ReactNode> = {
     1: <Trophy size={20} color="var(--accent-gold)" />,
@@ -38,6 +43,7 @@ export const Leaderboard: React.FC<LeaderboardProps> = ({ userProgress, onUpdate
     <div style={{ maxWidth: 600, margin: '0 auto', padding: '24px 16px' }}>
       <h2 className="section-title" style={{ marginBottom: 4 }}>Leaderboard</h2>
       <p className="section-subtitle" style={{ marginBottom: 20 }}>Compete for the top spot.</p>
+      {loading && <p role="status" style={{ textAlign: 'center', color: 'var(--text-muted)' }}>Loading live rankings…</p>}
 
       {/* Username Editor */}
       <div className="card-light" style={{ padding: 16, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12 }}>

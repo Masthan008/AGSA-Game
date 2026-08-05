@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { SignIn, SignUp, useUser } from '@clerk/clerk-react';
-import { X, Shield, User as UserIcon } from 'lucide-react';
+import { X, Shield, User as UserIcon, GraduationCap } from 'lucide-react';
+import { AccountRole } from '../../services/api';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
   onLoginAsGuest: (name: string) => void;
+  role: AccountRole;
+  onRoleChange: (role: AccountRole) => void;
 }
 
-export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginAsGuest }) => {
+export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginAsGuest, role, onRoleChange }) => {
   const [mode, setMode] = useState<'signin' | 'signup' | 'guest'>('signin');
   const [guestName, setGuestName] = useState('');
   const { isSignedIn, user } = useUser();
@@ -84,6 +87,46 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginAs
           <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', marginTop: 2 }}>
             Real-time Clerk Auth for Web & Android
           </p>
+        </div>
+
+        {/* Account Type — the sign-up/login flow asks who you are */}
+        <div style={{ marginBottom: 18 }}>
+          <div style={{ fontSize: '0.72rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-secondary)', marginBottom: 7, textAlign: 'center' }}>
+            I am signing in as a…
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <button
+              onClick={() => onRoleChange('student')}
+              style={{
+                padding: '10px 12px', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontFamily: 'var(--font-main)',
+                border: role === 'student' ? '2px solid #000' : '1.5px solid var(--border-hairline)',
+                background: role === 'student' ? '#000' : '#fff',
+                color: role === 'student' ? '#fff' : 'var(--text-body)',
+                display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center',
+                fontSize: '0.8rem', fontWeight: 700, transition: 'all 0.12s ease',
+              }}
+            >
+              <UserIcon size={15} /> Student
+            </button>
+            <button
+              onClick={() => onRoleChange('admin')}
+              style={{
+                padding: '10px 12px', borderRadius: 'var(--radius-md)', cursor: 'pointer', fontFamily: 'var(--font-main)',
+                border: role === 'admin' ? '2px solid #FF3B30' : '1.5px solid var(--border-hairline)',
+                background: role === 'admin' ? '#FF3B30' : '#fff',
+                color: role === 'admin' ? '#fff' : 'var(--text-body)',
+                display: 'flex', alignItems: 'center', gap: 8, justifyContent: 'center',
+                fontSize: '0.8rem', fontWeight: 700, transition: 'all 0.12s ease',
+              }}
+            >
+              <GraduationCap size={15} /> Teacher / Admin
+            </button>
+          </div>
+          {role === 'admin' && (
+            <p style={{ fontSize: '0.72rem', color: '#FF3B30', textAlign: 'center', marginTop: 7, fontWeight: 600 }}>
+              Admin access is granted to allow-listed e-mails (see your teacher). The dashboard lives at /#/admin.
+            </p>
+          )}
         </div>
 
         {/* Mode Selector Tabs */}

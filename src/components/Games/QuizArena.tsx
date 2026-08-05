@@ -15,7 +15,6 @@ interface QuizArenaProps {
   onCompleteQuiz: (earnedStars: number, earnedXp: number) => void;
   onBackToCampaign: () => void;
   onOpenVisualizer?: () => void;
-  onOpenRotationGame?: () => void;
 }
 
 const TIER_META: Record<string, { label: string; color: string; bg: string }> = {
@@ -28,7 +27,7 @@ const TIER_ORDER = ['beginner', 'medium', 'mastery'];
 
 const isGradedQuestion = (q: QuizQuestion) => TIER_ORDER.includes(q.difficulty || '');
 
-export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, levelUnlocked, onCompleteQuiz, onBackToCampaign, onOpenVisualizer, onOpenRotationGame }) => {
+export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, levelUnlocked, onCompleteQuiz, onBackToCampaign, onOpenVisualizer }) => {
   const unlockedLevels = LEVEL_TOPICS.filter(l => l.levelNumber <= (levelUnlocked ?? 1));
   const firstUnlockedId = unlockedLevels[0]?.id || LEVEL_TOPICS[0].id;
   const [topicId, setTopicId] = useState<string>(() => {
@@ -148,10 +147,6 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
         </div>
         <LevelIntroFlow
           onOpenVisualizer={() => onOpenVisualizer && onOpenVisualizer()}
-          onOpenRotationGame={() => {
-            if (onOpenRotationGame) onOpenRotationGame();
-            else document.getElementById('tree-balance-game')?.scrollIntoView({ behavior: 'smooth' });
-          }}
           onContinue={() => {
             setIntroSeen(true);
             localStorage.setItem('adsa_arena_intro_seen_level1', '1');

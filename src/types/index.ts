@@ -148,20 +148,3 @@ export interface LeaderboardEntry {
   completedCount?: number;
   rank: number;
 }
-
-export interface TreeBalancePuzzle {
-  id: string;
-  levelId?: string;
-  title: string;
-  description?: string;
-  unbalancedNodes?: NodePosition[];
-  initialTreeNodes?: NodePosition[];
-  initialEdges?: EdgeConnection[];
-  rotatedTreeNodes?: NodePosition[];
-  rotatedEdges?: EdgeConnection[];
-  unbalancedNodeValue?: number;
-  targetRotation?: 'LL' | 'RR' | 'LR' | 'RL';
-  correctRotation?: 'LL' | 'RR' | 'LR' | 'RL';
-  explanation?: string;
-  hint?: string;
-}

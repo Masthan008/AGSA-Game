@@ -5,6 +5,7 @@ import { GRAPH_SNIPPETS } from './graphs';
 import { DP_SNIPPETS } from './dp';
 import { STRING_SNIPPETS } from './strings';
 import { ADVANCED_SNIPPETS } from './advanced';
+import { CURRICULUM_EXPANSION_SNIPPETS } from './curriculumExpansion';
 
 export const CODE_TEMPLATES: Record<string, CodeSnippet> = {
   ...TREE_SNIPPETS,
@@ -13,4 +14,5 @@ export const CODE_TEMPLATES: Record<string, CodeSnippet> = {
   ...DP_SNIPPETS,
   ...STRING_SNIPPETS,
   ...ADVANCED_SNIPPETS,
+  ...CURRICULUM_EXPANSION_SNIPPETS,
 };

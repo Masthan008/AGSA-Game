@@ -12,6 +12,8 @@ export interface TopicTheory {
   edgeCases: string[];
 }
 
+import { ADVANCED_THEORY_EXPANSION } from './advancedTheoryExpansion';
+
 export const THEORY_DATA: Record<string, TopicTheory> = {
   bst: {
     topicKey: 'bst',
@@ -744,5 +746,6 @@ export const THEORY_DATA: Record<string, TopicTheory> = {
       'Modulus arithmetic with negative intermediate values',
       'Adversarial collisions if the base/modulus are known'
     ]
-  }
+  },
+  ...ADVANCED_THEORY_EXPANSION,
 };

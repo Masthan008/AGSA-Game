@@ -9,7 +9,10 @@ const warnings = [];
 
 const levelsSource = read('src/data/levelsData.ts');
 const quizSource = read('src/data/quizData.ts');
-const theorySource = read('src/data/theoryData.ts');
+const theorySource = readdirSync(join(root, 'src/data'))
+  .filter(name => name.endsWith('.ts'))
+  .map(name => read(`src/data/${name}`))
+  .join('\n');
 const templateDir = join(root, 'src/data/codeTemplates');
 const templateSource = readdirSync(templateDir)
   .filter(name => name.endsWith('.ts'))

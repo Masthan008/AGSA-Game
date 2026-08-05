@@ -113,7 +113,10 @@ export function generateSegmentTreeFrames(values: number[] = [1, 3, 5, 7, 9, 11]
     return node;
   }
 
-  build(0, n - 1);
+  const builtRoot = build(0, n - 1);
+  // Recursive construction temporarily points at the active subtree. Restore
+  // the real root before the final query so the learner sees the complete tree.
+  rootRef.current = builtRoot;
 
   // Range query demonstration: full range and a sub-range
   frames.push(snapshot(

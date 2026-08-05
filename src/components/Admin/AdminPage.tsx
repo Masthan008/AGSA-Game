@@ -3,6 +3,7 @@ import { useUser, SignIn, UserButton } from '@clerk/clerk-react';
 import { Users, CheckCircle2, Circle, BookOpen, Zap, GraduationCap, Swords, ShieldCheck, ShieldAlert, ChevronDown, ChevronUp, Search, Trash2, ListChecks, BarChart3 } from 'lucide-react';
 import { fetchAdminStudents, assignTasks, removeTask } from '../../services/api';
 import { LEVEL_TOPICS } from '../../data/levelsData';
+import { ClassroomPanel } from './ClassroomPanel';
 
 // ============================================================================
 // ADMIN DASHBOARD — reachable ONLY via the direct URL: /#/admin
@@ -262,6 +263,8 @@ export const AdminPage: React.FC = () => {
           </div>
         ))}
       </div>
+
+      <ClassroomPanel students={data.students.map(student => ({ id: student.id, username: student.username }))} />
 
       {/* Assign tasks */}
       <div className="card-light" style={{ padding: 20, marginBottom: 20 }}>

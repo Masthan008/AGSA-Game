@@ -9,6 +9,8 @@ interface Assignment {
   levelId: string;
   assignedAt: string;
   completedAt: string | null;
+  dueAt?: string | null;
+  instructions?: string | null;
 }
 
 interface AssignmentsPageProps {
@@ -67,8 +69,9 @@ export const AssignmentsPage: React.FC<AssignmentsPageProps> = ({ onStartLevel }
                   <div style={{ fontSize: '0.7rem', fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Level {level.levelNumber} · {level.category}</div>
                   <h3 style={{ fontSize: '1rem', margin: '3px 0' }}>{level.title}</h3>
                   <span style={{ fontSize: '0.76rem', color: 'var(--text-muted)', display: 'inline-flex', gap: 5, alignItems: 'center' }}>
-                    <Clock3 size={12} /> {done ? `Completed ${new Date(task.completedAt!).toLocaleDateString()}` : `Assigned ${new Date(task.assignedAt).toLocaleDateString()}`}
+                    <Clock3 size={12} /> {done ? `Completed ${new Date(task.completedAt!).toLocaleDateString()}` : task.dueAt ? `Due ${new Date(task.dueAt).toLocaleDateString()}` : `Assigned ${new Date(task.assignedAt).toLocaleDateString()}`}
                   </span>
+                  {task.instructions && <p style={{ margin: '6px 0 0', fontSize: '.78rem', color: 'var(--text-secondary)' }}>{task.instructions}</p>}
                 </div>
                 <button className={done ? 'btn btn-secondary btn-sm' : 'btn btn-primary btn-sm'} onClick={() => onStartLevel(level)}>
                   <PlayCircle size={15} /> {done ? 'Review' : 'Start'}

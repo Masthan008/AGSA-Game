@@ -18,6 +18,7 @@ model User {
   longestStreak Int             @default(1)
   lastActiveAt  DateTime?
   timezone      String          @default("UTC")
+  guestMigratedAt DateTime?
   levelUnlocked Int             @default(1)
   createdAt     DateTime        @default(now())
   updatedAt     DateTime        @updatedAt
@@ -26,7 +27,88 @@ model User {
   bookmarks     Bookmark[]
   notes         UserNote[]
   completions   PuzzleCompletion[]
-  tasks         Task[]
+  tasks         Task[]          @relation("StudentTasks")
+  assignedTasks Task[]          @relation("AssignedTasks")
+  achievements  UserAchievement[]
+  classroomsTeaching Classroom[] @relation("TeacherClassrooms")
+  classroomMemberships ClassroomMember[]
+  quizAttempts  QuizAttempt[]
+  flashcardReviews FlashcardReview[]
+  idempotencyRecords IdempotencyRecord[]
+  auditEvents   AuditLog[]       @relation("AuditActor")
+}
+
+model IdempotencyRecord {
+  id           String   @id @default(uuid())
+  userId       String
+  key          String
+  operation    String
+  responseJson Json?
+  statusCode   Int      @default(200)
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@index([expiresAt])
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  actorId      String
+  action       String
+  targetType   String
+  targetId     String?
+  metadata     Json?
+  createdAt    DateTime @default(now())
+
+  actor        User     @relation("AuditActor", fields: [actorId], references: [id], onDelete: Cascade)
+
+  @@index([actorId, createdAt])
+  @@index([targetType, targetId])
+}
+
+model FlashcardReview {
+  id           String   @id @default(uuid())
+  userId       String
+  cardId       String
+  intervalDays Int      @default(0)
+  ease         Float    @default(2.5)
+  nextReviewAt DateTime @default(now())
+  reviewedAt   DateTime @default(now())
+  lastRating   String   @default("new")
+
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, cardId])
+  @@index([userId, nextReviewAt])
+}
+
+model QuizAttempt {
+  id            String   @id @default(uuid())
+  userId        String
+  puzzleId      String
+  levelId       String
+  selectedIndex Int
+  correct       Boolean
+  hintUsed      Boolean  @default(false)
+  attemptedAt   DateTime @default(now())
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, attemptedAt])
+}
+
+model UserAchievement {
+  id         String   @id @default(uuid())
+  userId     String
+  badgeKey   String
+  unlockedAt DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeKey])
 }
 
 model PuzzleCompletion {
@@ -83,8 +165,38 @@ model Task {
   levelId     String
   assignedAt  DateTime @default(now())
   completedAt DateTime?
+  assignedById String?
+  classroomId String?
+  dueAt       DateTime?
+  instructions String?
 
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User     @relation("StudentTasks", fields: [userId], references: [id], onDelete: Cascade)
+  assignedBy  User?    @relation("AssignedTasks", fields: [assignedById], references: [id], onDelete: SetNull)
+  classroom   Classroom? @relation(fields: [classroomId], references: [id], onDelete: SetNull)
 
   @@unique([userId, levelId])
+}
+
+model Classroom {
+  id          String   @id @default(uuid())
+  name        String
+  joinCode    String   @unique
+  teacherId   String
+  createdAt   DateTime @default(now())
+
+  teacher     User     @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
+  members     ClassroomMember[]
+  tasks       Task[]
+}
+
+model ClassroomMember {
+  id          String   @id @default(uuid())
+  classroomId String
+  userId      String
+  joinedAt    DateTime @default(now())
+
+  classroom   Classroom @relation(fields: [classroomId], references: [id], onDelete: Cascade)
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([classroomId, userId])
 }

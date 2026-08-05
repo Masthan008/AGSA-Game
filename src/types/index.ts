@@ -11,7 +11,8 @@ export type AlgorithmKey =
   | 'floydwarshall' | 'lcs' | 'matrixchain' | 'kmp' | 'suffixarray'
   | 'toposort' | 'hashing' | 'fenwick' | 'editdistance' | 'bitmaskdp'
   | 'maxflow' | 'skiplist' | 'splay' | 'radixsort' | 'zalgo'
-  | 'manacher' | 'bloomfilter' | 'sparsetable' | 'nqueens';
+  | 'manacher' | 'bloomfilter' | 'sparsetable' | 'nqueens'
+  | 'amortized' | 'fibonacci' | 'rabinkarp' | 'convexhull' | 'npcomplete';
 
 export interface CodeSnippet {
   title: string;

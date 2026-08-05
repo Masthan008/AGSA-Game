@@ -14,6 +14,7 @@ const theorySource = readdirSync(join(root, 'src/data'))
   .map(name => read(`src/data/${name}`))
   .join('\n');
 const templateDir = join(root, 'src/data/codeTemplates');
+const visualizerRegistrySource = read('src/algorithms/visualizerRegistry.ts');
 const templateSource = readdirSync(templateDir)
   .filter(name => name.endsWith('.ts'))
   .map(name => read(`src/data/codeTemplates/${name}`))
@@ -53,6 +54,7 @@ for (const level of levelBlocks) {
   const keyPattern = new RegExp(`\\b${level.algorithmKey}\\s*:`);
   if (!keyPattern.test(theorySource)) warnings.push(`${level.algorithmKey}: theory uses a fallback or is absent.`);
   if (!keyPattern.test(templateSource)) warnings.push(`${level.algorithmKey}: code templates use a fallback or are absent.`);
+  if (!keyPattern.test(visualizerRegistrySource)) fail(`${level.algorithmKey}: no dedicated visualizer registry entry.`);
 }
 
 const mojibakePattern = /(?:â€|â†|âˆ|Ã.|ðŸ|Â·|â˜)/;

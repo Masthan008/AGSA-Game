@@ -8,6 +8,15 @@ interface ProfilePageProps {
   onResetProgress: () => void;
 }
 
+const BADGE_LABELS: Record<string, { title: string; description: string }> = {
+  'first-lesson': { title: 'First Step', description: 'Completed the first lesson' },
+  'perfect-score': { title: 'Perfect Mind', description: 'Earned three stars' },
+  'five-levels': { title: 'Momentum', description: 'Completed five levels' },
+  'ten-levels': { title: 'Algorithm Explorer', description: 'Completed ten levels' },
+  'three-day-streak': { title: 'On Fire', description: 'Learned three days in a row' },
+  'week-warrior': { title: 'Week Warrior', description: 'Learned seven days in a row' },
+};
+
 export const ProfilePage: React.FC<ProfilePageProps> = ({ userProgress, onOpenAuthModal, onResetProgress }) => {
   const totalStars = Object.values(userProgress.starsPerLevel).reduce((a, b) => a + b, 0);
 
@@ -87,7 +96,7 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userProgress, onOpenAu
 
         <div className="card-light" style={{ textAlign: 'center', padding: 20 }}>
           <Trophy size={22} color="var(--accent-green)" style={{ marginBottom: 8 }} />
-          <div className="stat-value">{userProgress.completedLevels.length} / 20</div>
+          <div className="stat-value">{userProgress.completedLevels.length} / 38</div>
           <div className="stat-label">Levels Solved</div>
         </div>
       </div>
@@ -103,10 +112,10 @@ export const ProfilePage: React.FC<ProfilePageProps> = ({ userProgress, onOpenAu
             Complete levels in Campaign Mode to earn achievement badges!
           </div>
         ) : (
-          userProgress.badges.map((b, idx) => (
-            <div key={idx} className="card-light" style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px' }}>
+          userProgress.badges.map(b => (
+            <div key={b} className="card-light" title={BADGE_LABELS[b]?.description} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 16px' }}>
               <Award size={18} color="var(--accent-gold)" />
-              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#000000' }}>{b}</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 700, color: '#000000' }}>{BADGE_LABELS[b]?.title || b}</span>
             </div>
           ))
         )}

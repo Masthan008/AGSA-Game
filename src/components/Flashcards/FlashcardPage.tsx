@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { CheckCircle2, ChevronRight, ChevronLeft, HelpCircle, Sparkles, Filter, Shuffle } from 'lucide-react';
-import { fetchUserCompletions, recordCompletion, removeCompletion } from '../../services/api';
+import { fetchFlashcardReviews, fetchUserCompletions, rateFlashcard, recordCompletion, removeCompletion } from '../../services/api';
 
 interface FlashcardPageProps {
   userId?: string;
@@ -304,11 +304,13 @@ export const FlashcardPage: React.FC<FlashcardPageProps> = ({ userId }) => {
   const [masteredIds, setMasteredIds] = useState<string[]>([]);
   const [order, setOrder] = useState<Flashcard[]>(CARDS);
   const [loading, setLoading] = useState(true);
+  const [reviews, setReviews] = useState<any[]>([]);
 
   useEffect(() => {
     if (userId) {
-      fetchUserCompletions(userId, 'flashcard').then(cs => {
+      Promise.all([fetchUserCompletions(userId, 'flashcard'), fetchFlashcardReviews()]).then(([cs, schedule]) => {
         setMasteredIds(cs.map((c: any) => c.puzzleId));
+        setReviews(schedule.reviews || []);
         setLoading(false);
       });
     } else {
@@ -322,6 +324,20 @@ export const FlashcardPage: React.FC<FlashcardPageProps> = ({ userId }) => {
 
   const card = filteredCards[currentIndex % filteredCards.length] || CARDS[0];
   const isMastered = masteredIds.includes(card.id);
+  const dueCount = CARDS.filter(item => {
+    const review = reviews.find(entry => entry.cardId === item.id);
+    return !review || new Date(review.nextReviewAt) <= new Date();
+  }).length;
+
+  const handleRating = async (rating: 'again'|'hard'|'good'|'easy') => {
+    const review = await rateFlashcard(card.id, rating);
+    if (review) setReviews(previous => [review, ...previous.filter(item => item.cardId !== card.id)]);
+    if ((rating === 'good' || rating === 'easy') && userId && !isMastered) {
+      await recordCompletion(userId, card.id, 'flashcard');
+      setMasteredIds(previous => previous.includes(card.id) ? previous : [...previous, card.id]);
+    }
+    handleNext();
+  };
 
   const handleNext = () => {
     setIsFlipped(false);
@@ -358,7 +374,8 @@ export const FlashcardPage: React.FC<FlashcardPageProps> = ({ userId }) => {
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
         <h2 className="section-title">ADSA Memory Flashcards ({CARDS.length} Cards)</h2>
-        <p className="section-subtitle">Space-repetition memory review for complexities, formulas, and rotation rules.</p>
+        <p className="section-subtitle">Spaced-repetition memory review for complexities, formulas, and rotation rules.</p>
+        <span style={{ display: 'inline-block', marginTop: 8, padding: '4px 10px', borderRadius: 100, background: 'rgba(255,149,0,.12)', color: '#B45F00', fontSize: '.75rem', fontWeight: 800 }}>{dueCount} due now</span>
       </div>
 
       {/* Category Filter Pills */}
@@ -513,6 +530,12 @@ export const FlashcardPage: React.FC<FlashcardPageProps> = ({ userId }) => {
           Next <ChevronRight size={18} />
         </button>
       </div>
+      {isFlipped && <div aria-label="Rate recall quality" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 7, marginTop: 12 }}>
+        <button className="btn btn-secondary btn-sm" onClick={() => handleRating('again')}>Again · 10m</button>
+        <button className="btn btn-secondary btn-sm" onClick={() => handleRating('hard')}>Hard · 1d</button>
+        <button className="btn btn-secondary btn-sm" onClick={() => handleRating('good')}>Good · 2d+</button>
+        <button className="btn btn-primary btn-sm" onClick={() => handleRating('easy')}>Easy · 4d+</button>
+      </div>}
     </div>
   );
 };

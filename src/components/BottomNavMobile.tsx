@@ -1,5 +1,5 @@
 import React from 'react';
-import { Map, PlayCircle, Swords, Code2, LayoutDashboard, FileText, User } from 'lucide-react';
+import { Map, PlayCircle, Swords, LayoutDashboard, ClipboardList, RefreshCcw, User } from 'lucide-react';
 
 interface BottomNavMobileProps {
   activeTab: string;
@@ -8,10 +8,10 @@ interface BottomNavMobileProps {
 
 const TABS = [
   { key: 'campaign', label: 'Campaign', Icon: Map },
+  { key: 'assignments', label: 'Tasks', Icon: ClipboardList },
+  { key: 'review', label: 'Review', Icon: RefreshCcw },
   { key: 'visualizer', label: 'Visualizer', Icon: PlayCircle },
   { key: 'arena', label: 'Arena', Icon: Swords },
-  { key: 'library', label: 'Code', Icon: Code2 },
-  { key: 'notes', label: 'Notes', Icon: FileText },
   { key: 'dashboard', label: 'Dashboard', Icon: LayoutDashboard },
   { key: 'profile', label: 'Profile', Icon: User },
 ];

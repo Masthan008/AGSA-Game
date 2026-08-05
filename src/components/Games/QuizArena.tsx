@@ -3,7 +3,7 @@ import { QuizQuestion, LevelTopic } from '../../types';
 import { QUIZ_QUESTIONS, getQuizQuestionsForLevel } from '../../data/quizData';
 import { LEVEL_TOPICS } from '../../data/levelsData';
 import { CheckCircle2, XCircle, RotateCcw, Lightbulb, Trophy, ListOrdered, Lock, PartyPopper, Zap, Target, GraduationCap } from 'lucide-react';
-import { fetchUserCompletions, recordCompletion, removeCompletion } from '../../services/api';
+import { fetchUserCompletions, recordCompletion, recordQuizAttempt, removeCompletion } from '../../services/api';
 import { TreeSvgCanvas } from '../Visualizer/TreeSvgCanvas';
 import { LevelIntroFlow } from './LevelIntroFlow';
 import confetti from 'canvas-confetti';
@@ -43,6 +43,9 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
   const [loading, setLoading] = useState(true);
   const [justCompleted, setJustCompleted] = useState(false);
   const [earnedXpFlash, setEarnedXpFlash] = useState(0);
+  const [mistakeCount, setMistakeCount] = useState(0);
+  const [hintCount, setHintCount] = useState(0);
+  const [resultStars, setResultStars] = useState(3);
   const [introSeen, setIntroSeen] = useState(() => localStorage.getItem('adsa_arena_intro_seen_level1') === '1');
 
   const questions = getQuizQuestionsForLevel(topicId);
@@ -62,6 +65,8 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
     setIsAnswered(false);
     setShowHint(false);
     setJustCompleted(false);
+    setMistakeCount(0);
+    setHintCount(0);
     if (userId) {
       fetchUserCompletions(userId, 'quiz').then(cs => {
         setCompletedIds(cs.map((c: any) => c.puzzleId));
@@ -84,6 +89,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
     if (isAnswered) return;
     setSelectedOption(idx);
     setIsAnswered(true);
+    recordQuizAttempt({ puzzleId: currentQ.id, levelId: activeTopic.id, selectedIndex: idx, correct: idx === currentQ.correctAnswerIndex, hintUsed: showHint });
     if (idx === currentQ.correctAnswerIndex && userId) {
       recordCompletion(userId, currentQ.id, 'quiz').then(() => {
         setCompletedIds(prev => (prev.includes(currentQ.id) ? prev : [...prev, currentQ.id]));
@@ -92,6 +98,8 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
       if (!completedSet.has(currentQ.id)) {
         setEarnedXpFlash(currentQ.xpReward || 0);
       }
+    } else if (idx !== currentQ.correctAnswerIndex) {
+      setMistakeCount(count => count + 1);
     }
   };
 
@@ -108,7 +116,9 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
     });
     if (remainingAfter.length === 0) {
       setQuizFinished(true);
-      const stars = 3;
+      const penalties = mistakeCount + hintCount;
+      const stars = penalties === 0 ? 3 : penalties <= Math.max(1, Math.ceil(questions.length / 3)) ? 2 : 1;
+      setResultStars(stars);
       confetti({ particleCount: 140, spread: 90, origin: { y: 0.6 } });
       setTimeout(() => confetti({ particleCount: 80, spread: 60, origin: { y: 0.4 } }), 350);
       onCompleteQuiz(stars, 100);
@@ -125,6 +135,8 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
     setCompletedIds([]);
     setCurrentIndex(0);
     setQuizFinished(false);
+    setMistakeCount(0);
+    setHintCount(0);
   };
 
   if (loading) {
@@ -193,7 +205,7 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
           <div style={{ display: 'flex', justifyContent: 'center', gap: 10, marginBottom: 24 }}>
             {[1, 2, 3].map(s => (
               <span key={s} style={{
-                fontSize: '2rem', color: s <= 3 ? 'var(--accent-gold)' : 'rgba(255,255,255,0.2)',
+                fontSize: '2rem', color: s <= resultStars ? 'var(--accent-gold)' : 'rgba(255,255,255,0.2)',
                 filter: 'drop-shadow(0 0 6px rgba(255,215,0,0.5))',
               }}>★</span>
             ))}
@@ -312,7 +324,10 @@ export const QuizArena: React.FC<QuizArenaProps> = ({ currentLevel, userId, leve
         <button style={{
           background: 'none', border: 'none', color: 'var(--accent-orange)', cursor: 'pointer',
           display: 'flex', alignItems: 'center', gap: 4, fontSize: '0.82rem', fontWeight: 600, fontFamily: 'var(--font-main)',
-        }} onClick={() => setShowHint(!showHint)}>
+        }} onClick={() => {
+          if (!showHint) setHintCount(count => count + 1);
+          setShowHint(!showHint);
+        }}>
           <Lightbulb size={15} /> {showHint ? 'Hide Hint' : 'Hint'}
         </button>
       </div>

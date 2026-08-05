@@ -1,211 +1,69 @@
-import React, { useState } from 'react';
-import { PlayCircle, Code2, ArrowRight, CheckCircle2, ChevronRight, Award } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ArrowLeft, ArrowRight, Award, CheckCircle2, Code2, PlayCircle, Sparkles } from 'lucide-react';
 
-interface OnboardingScreensProps {
-  onComplete: () => void;
-}
+interface OnboardingScreensProps { onComplete: () => void; }
 
 const SLIDES = [
-  {
-    id: 'slide-1',
-    badge: 'PROGRESSIVE CAMPAIGN',
-    title: 'Master 20 ADSA Levels',
-    subtitle: 'From AVL Trees and Red-Black Trees to Dijkstra Shortest Path and 0/1 Knapsack DP.',
-    description: 'Unlock levels sequentially, earn up to 3 stars per topic, collect XP points, and track your daily learning streak.',
-    icon: Award,
-    color: '#000000',
-    highlightStats: ['20 Levels', '3-Star System', 'Streak Tracker']
-  },
-  {
-    id: 'slide-2',
-    badge: 'ANIMATED VISUALIZER',
-    title: 'Pin-to-Pin Clear Explanations',
-    subtitle: 'Watch tree rotations, graph edge relaxations, and DP table populating step-by-step.',
-    description: 'Control speed, step backward or forward, and read pin-to-pin mathematical formulas for every single step.',
-    icon: PlayCircle,
-    color: '#000000',
-    highlightStats: ['Step Forward/Back', 'Live Formula Trace', 'Variable Watch']
-  },
-  {
-    id: 'slide-3',
-    badge: 'MULTI-LANGUAGE & ARENA',
-    title: 'Code Tracing & Quizzes',
-    subtitle: 'Study clean code snippets in C++, Java, Python, and JavaScript.',
-    description: 'Test your understanding with conceptual quizzes, interactive tree rotation puzzles, side-by-side algorithm comparison, and custom practice playground.',
-    icon: Code2,
-    color: '#000000',
-    highlightStats: ['4 Languages', 'Algorithm Compare', 'Custom Playground']
-  }
-];
+  { eyebrow: 'YOUR LEARNING PATH', title: 'Turn complex algorithms into clear, visible steps.', description: 'Follow 38 guided levels from core data structures to advanced graph, string, and dynamic-programming techniques.', icon: Sparkles, accent: '#635BFF', stats: ['38 guided levels', 'Progress that follows you', 'Clear prerequisites'] },
+  { eyebrow: 'INTERACTIVE VISUALIZERS', title: 'See every comparison, update, and decision.', description: 'Play, pause, rewind, and inspect the exact state behind tree rotations, graph relaxations, DP tables, and string scans.', icon: PlayCircle, accent: '#007AFF', stats: ['Semantic step playback', 'Live variable watch', 'Code-line highlights'] },
+  { eyebrow: 'PRACTISE WITH PURPOSE', title: 'Move from watching to solving.', description: 'Use quizzes, flashcards, assignments, the sandbox, and mistake review to build recall—not just familiarity.', icon: Award, accent: '#FF7A00', stats: ['373 focused questions', 'Spaced repetition', 'Mistake review'] },
+  { eyebrow: 'CODE WITH CONTEXT', title: 'Connect the concept to real implementation.', description: 'Compare language-specific code with theory, complexity analysis, worked examples, and a visual trace of the same algorithm.', icon: Code2, accent: '#20A464', stats: ['8-language code hub', 'Complexity breakdowns', 'Teacher-ready workflows'] },
+] as const;
 
 export const OnboardingScreens: React.FC<OnboardingScreensProps> = ({ onComplete }) => {
   const [currentSlide, setCurrentSlide] = useState(0);
-
   const slide = SLIDES[currentSlide];
-  const IconComponent = slide.icon;
+  const Icon = slide.icon;
+  const last = currentSlide === SLIDES.length - 1;
 
-  const handleNext = () => {
-    if (currentSlide + 1 < SLIDES.length) {
-      setCurrentSlide(prev => prev + 1);
-    } else {
-      onComplete();
-    }
-  };
+  const next = () => last ? onComplete() : setCurrentSlide(value => value + 1);
+  const previous = () => setCurrentSlide(value => Math.max(0, value - 1));
+
+  useEffect(() => {
+    const handleKey = (event: KeyboardEvent) => {
+      if (event.key === 'ArrowRight' || event.key === 'Enter') next();
+      if (event.key === 'ArrowLeft') previous();
+      if (event.key === 'Escape') onComplete();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [currentSlide]);
 
   return (
-    <div style={{
-      position: 'fixed',
-      inset: 0,
-      zIndex: 9990,
-      background: '#FFFFFF',
-      display: 'flex',
-      flexDirection: 'column',
-      justifyContent: 'space-between',
-      padding: '24px 20px 36px',
-      maxWidth: 600,
-      margin: '0 auto',
-      fontFamily: 'var(--font-main)'
-    }}>
-      {/* Top Bar: Logo & Skip Button */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <div style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            background: '#000000',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#FFFFFF',
-            fontWeight: 800,
-            fontSize: '0.9rem'
-          }}>
-            A
+    <div className="onboarding-shell" style={{ '--slide-accent': slide.accent } as React.CSSProperties}>
+      <div className="onboarding-orb onboarding-orb-one" aria-hidden="true" />
+      <div className="onboarding-orb onboarding-orb-two" aria-hidden="true" />
+      <header className="onboarding-header">
+        <button className="onboarding-logo" onClick={() => setCurrentSlide(0)} aria-label="Return to the first onboarding screen"><img src="/icon.png" alt="" /><span>ADSA Quest</span></button>
+        <button className="onboarding-skip" onClick={onComplete}>Skip introduction</button>
+      </header>
+
+      <main className="onboarding-stage" key={currentSlide}>
+        <div className="onboarding-copy">
+          <span className="onboarding-eyebrow"><span>{String(currentSlide + 1).padStart(2, '0')}</span>{slide.eyebrow}</span>
+          <h1>{slide.title}</h1>
+          <p>{slide.description}</p>
+          <div className="onboarding-points">
+            {slide.stats.map((stat, index) => <span key={stat} style={{ '--delay': `${index * 90 + 240}ms` } as React.CSSProperties}><CheckCircle2 size={17} />{stat}</span>)}
           </div>
-          <span style={{ fontWeight: 800, fontSize: '1rem', letterSpacing: '-0.02em', color: '#000000' }}>
-            ADSA Quest
-          </span>
         </div>
 
-        <button
-          onClick={onComplete}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: 'var(--text-muted)',
-            fontWeight: 600,
-            fontSize: '0.85rem',
-            cursor: 'pointer',
-            padding: '6px 12px'
-          }}
-        >
-          Skip
-        </button>
-      </div>
-
-      {/* Main Slide Card */}
-      <div className="fade-in" key={slide.id} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center', margin: '20px 0' }}>
-        {/* Large Visual Circle */}
-        <div className="card-black" style={{
-          width: 110,
-          height: 110,
-          borderRadius: 32,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginBottom: 28,
-          boxShadow: '0 12px 32px rgba(0, 0, 0, 0.12)'
-        }}>
-          <IconComponent size={52} color="#FFFFFF" strokeWidth={1.5} />
+        <div className="onboarding-visual" aria-hidden="true">
+          <div className="onboarding-ring ring-one" /><div className="onboarding-ring ring-two" />
+          <div className="onboarding-icon-card"><Icon size={82} strokeWidth={1.25} /></div>
+          <span className="floating-chip chip-top">LEARN</span><span className="floating-chip chip-right">BUILD</span><span className="floating-chip chip-bottom">MASTER</span>
         </div>
+      </main>
 
-        {/* Badge */}
-        <span style={{
-          display: 'inline-block',
-          padding: '4px 12px',
-          borderRadius: 'var(--radius-pill)',
-          background: 'var(--bg-grey)',
-          color: 'var(--text-black)',
-          fontSize: '0.7rem',
-          fontWeight: 800,
-          letterSpacing: '0.06em',
-          marginBottom: 12
-        }}>
-          {slide.badge}
-        </span>
-
-        {/* Title & Subtitle */}
-        <h2 style={{ fontSize: '1.8rem', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.2, color: '#000000', marginBottom: 8 }}>
-          {slide.title}
-        </h2>
-        <p style={{ fontSize: '0.95rem', color: 'var(--text-secondary)', fontWeight: 500, lineHeight: 1.45, maxWidth: 460, marginBottom: 16 }}>
-          {slide.subtitle}
-        </p>
-
-        {/* Detailed Paragraph */}
-        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', lineHeight: 1.5, maxWidth: 460, marginBottom: 24 }}>
-          {slide.description}
-        </p>
-
-        {/* Highlights Chips */}
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {slide.highlightStats.map((stat, idx) => (
-            <span key={idx} style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 4,
-              padding: '6px 12px',
-              borderRadius: 'var(--radius-pill)',
-              background: 'var(--bg-light)',
-              border: '1px solid var(--border-hairline)',
-              fontSize: '0.78rem',
-              fontWeight: 700,
-              color: '#000000'
-            }}>
-              <CheckCircle2 size={13} color="var(--accent-green)" /> {stat}
-            </span>
-          ))}
+      <footer className="onboarding-controls">
+        <div className="onboarding-progress" role="tablist" aria-label="Onboarding progress">
+          {SLIDES.map((item, index) => <button key={item.eyebrow} role="tab" aria-selected={index === currentSlide} aria-label={`Show step ${index + 1}: ${item.eyebrow}`} onClick={() => setCurrentSlide(index)}><span style={{ transform: index <= currentSlide ? 'scaleX(1)' : 'scaleX(0)' }} /></button>)}
         </div>
-      </div>
-
-      {/* Bottom Controls: Indicators & Next Button */}
-      <div>
-        {/* Indicator Dots */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 8, marginBottom: 24 }}>
-          {SLIDES.map((_, idx) => (
-            <div
-              key={idx}
-              onClick={() => setCurrentSlide(idx)}
-              style={{
-                width: currentSlide === idx ? 28 : 8,
-                height: 8,
-                borderRadius: 4,
-                background: currentSlide === idx ? '#000000' : 'var(--border-hairline)',
-                cursor: 'pointer',
-                transition: 'all 0.3s cubic-bezier(0.33, 1, 0.68, 1)'
-              }}
-            />
-          ))}
+        <div className="onboarding-actions">
+          <button className="onboarding-back" onClick={previous} disabled={currentSlide === 0}><ArrowLeft size={18} /> Back</button>
+          <button className="onboarding-next" onClick={next}>{last ? 'Start learning' : 'Continue'} <ArrowRight size={19} /></button>
         </div>
-
-        {/* Action Button */}
-        <button
-          className="btn btn-primary"
-          style={{ width: '100%', padding: '16px', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
-          onClick={handleNext}
-        >
-          {currentSlide + 1 < SLIDES.length ? (
-            <>
-              Next <ChevronRight size={18} />
-            </>
-          ) : (
-            <>
-              Get Started <ArrowRight size={18} />
-            </>
-          )}
-        </button>
-      </div>
+      </footer>
     </div>
   );
 };

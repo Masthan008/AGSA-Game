@@ -3,6 +3,11 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import { clerkClient, clerkMiddleware, getAuth } from '@clerk/express';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
+import { z } from 'zod';
+import type { RequestHandler } from 'express';
+import { randomBytes, randomUUID } from 'node:crypto';
 
 dotenv.config();
 
@@ -28,6 +33,30 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173')
 const clerkConfigured = Boolean(process.env.CLERK_SECRET_KEY && process.env.CLERK_PUBLISHABLE_KEY);
 
 app.disable('x-powered-by');
+app.use((req, res, next) => {
+  const supplied = req.header('x-request-id');
+  const requestId = supplied && /^[a-zA-Z0-9._:-]{8,128}$/.test(supplied) ? supplied : randomUUID();
+  (req as any).requestId = requestId;
+  res.setHeader('x-request-id', requestId);
+  const startedAt = Date.now();
+  res.on('finish', () => {
+    const event = { level: res.statusCode >= 500 ? 'error' : 'info', requestId, method: req.method, path: req.path, status: res.statusCode, durationMs: Date.now() - startedAt };
+    console.log(JSON.stringify(event));
+  });
+  next();
+});
+app.use((req: any, res, next) => {
+  const sendJson = res.json.bind(res);
+  res.json = ((body: any) => {
+    if (res.statusCode >= 400 && body?.error) {
+      if (typeof body.error === 'string') body = { error: { code: body.code || 'REQUEST_FAILED', message: body.error, requestId: req.requestId } };
+      else if (!body.error.requestId) body = { ...body, error: { ...body.error, requestId: req.requestId } };
+    }
+    return sendJson(body);
+  }) as typeof res.json;
+  next();
+});
+app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({
   origin(origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) return callback(null, true);
@@ -35,6 +64,13 @@ app.use(cors({
   },
 }));
 app.use(express.json({ limit: '256kb' }));
+app.use('/api', rateLimit({
+  windowMs: 60_000,
+  limit: process.env.NODE_ENV === 'test' ? 10_000 : 180,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  message: { error: { code: 'RATE_LIMITED', message: 'Too many requests. Please retry shortly.' } },
+}));
 if (clerkConfigured) app.use(clerkMiddleware());
 
 app.use('/api/v1', (req: any, res, next) => {
@@ -47,7 +83,7 @@ app.use('/api/v1', (req: any, res, next) => {
   const auth = getAuth(req);
   if (!auth.userId) return res.status(401).json({ error: 'Authentication required' });
   req.authenticatedUserId = auth.userId;
-  if (!req.path.startsWith('/admin') && req.body && typeof req.body === 'object') {
+  if (!req.path.startsWith('/admin') && !req.path.startsWith('/teacher') && req.body && typeof req.body === 'object') {
     req.body.userId = auth.userId;
   }
   const legacyOwnerPath = req.path.match(/^\/(notes|bookmarks|completions)\/([^/]+)/);
@@ -65,13 +101,77 @@ app.use('/api/v1', (req: any, res, next) => {
 const requestOwnerId = (req: any, fallback?: string): string | undefined =>
   req.authenticatedUserId || fallback;
 
+const apiError = (req: any, res: express.Response, status: number, code: string, message: string, details?: unknown) =>
+  res.status(status).json({ error: { code, message, requestId: req.requestId, ...(details === undefined ? {} : { details }) } });
+
+const pageSize = (value: unknown, fallback = 25) => Math.min(100, Math.max(1, Number(value) || fallback));
+
+const writeAudit = async (actorId: string, action: string, targetType: string, targetId?: string, metadata?: Record<string, unknown>, db: any = prisma) => {
+  await db.auditLog.create({ data: { actorId, action, targetType, targetId, metadata } });
+};
+
+const validateBody = (schema: z.ZodType): RequestHandler => (req, res, next) => {
+  const parsed = schema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      error: { code: 'INVALID_REQUEST', message: 'Request validation failed', details: parsed.error.flatten() },
+    });
+  }
+  req.body = parsed.data;
+  next();
+};
+
+const userSyncSchema = z.object({
+  userId: z.string().min(1).max(200), username: z.string().trim().min(1).max(80).optional(),
+  email: z.string().email().max(254).nullable().optional(), role: z.enum(['student', 'admin']).optional(),
+  xp: z.number().int().min(0).max(10_000_000).optional(), levelUnlocked: z.number().int().min(1).max(TOTAL_LEVELS).optional(),
+  starsPerLevel: z.record(z.string(), z.number().int().min(0).max(3)).optional(), completedLevels: z.array(z.string().max(100)).max(TOTAL_LEVELS).optional(),
+});
+const levelCompleteSchema = z.object({ userId: z.string().min(1).max(200), levelId: z.string().regex(/^level-\d+-[a-z0-9-]+$/), stars: z.number().int().min(1).max(3), earnedXp: z.number().optional() });
+const noteSchema = z.object({ userId: z.string().min(1).max(200), topicId: z.string().trim().min(1).max(120), topicTitle: z.string().trim().max(160).optional(), content: z.string().trim().min(1).max(50_000) });
+const noteUpdateSchema = noteSchema.pick({ topicTitle: true, content: true });
+const bookmarkSchema = z.object({ userId: z.string().min(1).max(200), topicId: z.string().trim().min(1).max(120), topicTitle: z.string().trim().max(160).optional(), note: z.string().trim().max(2_000).optional() });
+const completionSchema = z.object({ userId: z.string().min(1).max(200), puzzleId: z.string().trim().min(1).max(200), puzzleType: z.enum(['quiz', 'flashcard', 'practice']).default('quiz') });
+const assignmentSchema = z.object({ userId: z.string().min(1).max(200), levelIds: z.array(z.string().regex(/^level-\d+-[a-z0-9-]+$/)).min(1).max(TOTAL_LEVELS) });
+const guestProgressSchema = z.object({
+  starsPerLevel: z.record(z.string().regex(/^level-\d+-[a-z0-9-]+$/), z.number().int().min(0).max(3)),
+  completedLevels: z.array(z.string().regex(/^level-\d+-[a-z0-9-]+$/)).max(TOTAL_LEVELS),
+});
+const classroomSchema = z.object({ name: z.string().trim().min(2).max(100) });
+const classroomMemberSchema = z.object({ userId: z.string().min(1).max(200) });
+const classroomAssignmentSchema = z.object({
+  levelIds: z.array(z.string().regex(/^level-\d+-[a-z0-9-]+$/)).min(1).max(TOTAL_LEVELS),
+  dueAt: z.string().datetime().nullable().optional(), instructions: z.string().trim().max(2_000).optional(),
+});
+const quizAttemptSchema = z.object({
+  puzzleId: z.string().trim().min(1).max(200), levelId: z.string().regex(/^level-\d+-[a-z0-9-]+$/),
+  selectedIndex: z.number().int().min(0).max(10), correct: z.boolean(), hintUsed: z.boolean().default(false),
+});
+const flashcardReviewSchema = z.object({ cardId: z.string().regex(/^fc-\d+$/), rating: z.enum(['again','hard','good','easy']) });
+
+const awardAchievements = async (userId: string, db: any = prisma) => {
+  const user = await db.user.findUnique({ where: { id: userId }, include: { progress: true } });
+  if (!user) return [];
+  const badges: string[] = [];
+  if (user.progress.length >= 1) badges.push('first-lesson');
+  if (user.progress.some((item: { stars: number }) => item.stars === 3)) badges.push('perfect-score');
+  if (user.progress.length >= 5) badges.push('five-levels');
+  if (user.progress.length >= 10) badges.push('ten-levels');
+  if (user.streakDays >= 3) badges.push('three-day-streak');
+  if (user.streakDays >= 7) badges.push('week-warrior');
+  await Promise.all(badges.map(badgeKey => db.userAchievement.upsert({
+    where: { userId_badgeKey: { userId, badgeKey } }, update: {}, create: { userId, badgeKey },
+  })));
+  return db.userAchievement.findMany({ where: { userId }, orderBy: { unlockedAt: 'asc' } });
+};
+
 // Health Check Endpoint
 app.get('/health', (req, res) => {
-  res.json({ status: 'ok', service: 'ADSA Quest Express Backend with PostgreSQL', timestamp: new Date().toISOString() });
+  res.json({ status: 'ok', service: 'ADSA Quest Express Backend with PostgreSQL', timestamp: new Date().toISOString(), requestId: (req as any).requestId });
 });
 
 // User Sync Endpoint (Prisma PostgreSQL — real DB only)
-app.post('/api/v1/user/sync', async (req, res) => {
+app.post('/api/v1/user/sync', validateBody(userSyncSchema), async (req, res) => {
   const { userId, username, email, xp, levelUnlocked } = req.body;
 
   if (!userId) {
@@ -123,7 +223,7 @@ app.get('/api/v1/me', async (req: any, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      include: { progress: true, tasks: { orderBy: { assignedAt: 'desc' } }, bookmarks: true, notes: true },
+      include: { progress: true, tasks: { orderBy: { assignedAt: 'desc' } }, bookmarks: true, notes: true, achievements: true },
     });
     if (!user) return res.status(404).json({ error: 'Profile not found' });
     return res.json({ user });
@@ -143,20 +243,94 @@ app.get('/api/v1/me/tasks', async (req: any, res) => {
   }
 });
 
-// Level Completion Endpoint (Prisma PostgreSQL)
-app.post('/api/v1/progress/level-complete', async (req, res) => {
-  const { userId, levelId, stars } = req.body;
-
-  if (!userId || !levelId) {
-    return res.status(400).json({ error: 'userId and levelId are required' });
+app.post('/api/v1/me/import-guest-progress', validateBody(guestProgressSchema), async (req: any, res) => {
+  const userId = requestOwnerId(req);
+  if (!userId) return res.status(401).json({ error: 'Authentication required' });
+  try {
+    const user = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    if (user.guestMigratedAt) return res.status(409).json({ error: { code: 'ALREADY_IMPORTED', message: 'Guest progress was already imported' } });
+    const completed = [...new Set(req.body.completedLevels as string[])].slice(0, TOTAL_LEVELS);
+    await prisma.$transaction(async tx => {
+      for (const levelId of completed) {
+        const stars = Math.min(3, Math.max(req.body.starsPerLevel[levelId] || 1, 1));
+        await tx.levelProgress.upsert({
+          where: { userId_levelId: { userId, levelId } },
+          update: { stars: { set: stars } },
+          create: { userId, levelId, stars },
+        });
+      }
+      const maxLevel = completed.reduce((max, id) => Math.max(max, Number(id.match(/^level-(\d+)-/)?.[1] || 0)), 0);
+      const importedXp = completed.reduce((sum, id) => sum + Math.max(1, req.body.starsPerLevel[id] || 1) * 25, 0);
+      await tx.user.update({
+        where: { id: userId },
+        data: {
+          xp: Math.max(user.xp, importedXp),
+          levelUnlocked: Math.max(user.levelUnlocked, Math.min(TOTAL_LEVELS, maxLevel + 1)),
+          guestMigratedAt: new Date(),
+        },
+      });
+    });
+    return res.json({ success: true });
+  } catch {
+    return res.status(500).json({ error: 'Unable to import guest progress' });
   }
+});
+
+app.post('/api/v1/me/quiz-attempts', validateBody(quizAttemptSchema), async (req: any, res) => {
+  const userId = requestOwnerId(req);
+  if (!userId) return res.status(401).json({ error: 'Authentication required' });
+  const attempt = await prisma.quizAttempt.create({ data: { userId, ...req.body } });
+  res.status(201).json({ attempt });
+});
+
+app.get('/api/v1/me/mistakes', async (req: any, res) => {
+  const userId = requestOwnerId(req);
+  if (!userId) return res.status(401).json({ error: 'Authentication required' });
+  const attempts = await prisma.quizAttempt.findMany({ where: { userId }, orderBy: { attemptedAt: 'desc' }, take: 1000 });
+  const latest = new Map<string, typeof attempts[number]>();
+  for (const attempt of attempts) if (!latest.has(attempt.puzzleId)) latest.set(attempt.puzzleId, attempt);
+  res.json({ mistakes: [...latest.values()].filter(attempt => !attempt.correct) });
+});
+
+app.get('/api/v1/me/flashcard-reviews', async (req: any, res) => {
+  const userId = requestOwnerId(req);
+  if (!userId) return res.status(401).json({ error: 'Authentication required' });
+  const reviews = await prisma.flashcardReview.findMany({ where: { userId }, orderBy: { nextReviewAt: 'asc' } });
+  res.json({ reviews, dueCardIds: reviews.filter(review => review.nextReviewAt <= new Date()).map(review => review.cardId) });
+});
+
+app.post('/api/v1/me/flashcard-reviews', validateBody(flashcardReviewSchema), async (req: any, res) => {
+  const userId = requestOwnerId(req);
+  if (!userId) return res.status(401).json({ error: 'Authentication required' });
+  const previous = await prisma.flashcardReview.findUnique({ where: { userId_cardId: { userId, cardId: req.body.cardId } } });
+  const rating = req.body.rating as 'again'|'hard'|'good'|'easy';
+  const currentInterval = previous?.intervalDays || 0;
+  const intervalDays = rating === 'again' ? 0 : rating === 'hard' ? Math.max(1, Math.round(currentInterval * 1.2) || 1) : rating === 'good' ? Math.max(2, Math.round(currentInterval * (previous?.ease || 2.5)) || 2) : Math.max(4, Math.round(currentInterval * 3) || 4);
+  const ease = Math.max(1.3, Math.min(3, (previous?.ease || 2.5) + (rating === 'easy' ? .15 : rating === 'hard' ? -.15 : rating === 'again' ? -.25 : 0)));
+  const now = new Date(), nextReviewAt = new Date(now.getTime() + (rating === 'again' ? 10 * 60_000 : intervalDays * 86_400_000));
+  const review = await prisma.flashcardReview.upsert({
+    where: { userId_cardId: { userId, cardId: req.body.cardId } },
+    update: { intervalDays, ease, nextReviewAt, reviewedAt: now, lastRating: rating },
+    create: { userId, cardId: req.body.cardId, intervalDays, ease, nextReviewAt, reviewedAt: now, lastRating: rating },
+  });
+  res.json({ review });
+});
+
+// Level Completion Endpoint (Prisma PostgreSQL)
+app.post('/api/v1/progress/level-complete', validateBody(levelCompleteSchema), async (req, res) => {
+  const { userId, levelId, stars } = req.body;
+  const idempotencyKey = req.header('idempotency-key');
+  if (!idempotencyKey || !/^[a-zA-Z0-9._:-]{8,128}$/.test(idempotencyKey)) return apiError(req, res, 400, 'IDEMPOTENCY_KEY_REQUIRED', 'A valid Idempotency-Key header is required');
 
   try {
+    const replay = await prisma.idempotencyRecord.findUnique({ where: { userId_key: { userId, key: idempotencyKey } } });
+    if (replay) return res.status(replay.statusCode).json(replay.responseJson);
+    const response = await prisma.$transaction(async tx => {
     // Record or update level progress in DB
     const awardedStars = Math.min(3, Math.max(Number(stars) || 1, 1));
-    const existing = await prisma.levelProgress.findUnique({ where: { userId_levelId: { userId, levelId } } });
+    const existing = await tx.levelProgress.findUnique({ where: { userId_levelId: { userId, levelId } } });
     const improvedStars = Math.max(existing?.stars || 0, awardedStars);
-    const progress = await prisma.levelProgress.upsert({
+    const progress = await tx.levelProgress.upsert({
       where: { userId_levelId: { userId, levelId } },
       update: { stars: improvedStars },
       create: { userId, levelId, stars: awardedStars },
@@ -164,7 +338,7 @@ app.post('/api/v1/progress/level-complete', async (req, res) => {
 
     // Auto-complete any task (assigned level) the student was given
     try {
-      const task = await prisma.task.updateMany({
+      const task = await tx.task.updateMany({
         where: { userId, levelId, completedAt: null },
         data: { completedAt: new Date() },
       });
@@ -172,7 +346,7 @@ app.post('/api/v1/progress/level-complete', async (req, res) => {
     } catch { /* task table may not exist yet — ignore */ }
 
     // Update user total XP and unlock status
-    const currentUser = await prisma.user.findUniqueOrThrow({ where: { id: userId } });
+    const currentUser = await tx.user.findUniqueOrThrow({ where: { id: userId } });
     const now = new Date();
     const previousDay = currentUser.lastActiveAt
       ? Date.UTC(currentUser.lastActiveAt.getUTCFullYear(), currentUser.lastActiveAt.getUTCMonth(), currentUser.lastActiveAt.getUTCDate())
@@ -183,7 +357,7 @@ app.post('/api/v1/progress/level-complete', async (req, res) => {
     const starGain = improvedStars - (existing?.stars || 0);
     const xpGain = existing ? starGain * 10 : awardedStars * 25;
     const levelNumber = Number(levelId.match(/^level-(\d+)-/)?.[1] || 0);
-    const updatedUser = await prisma.user.update({
+    const updatedUser = await tx.user.update({
       where: { id: userId },
       data: {
         xp: { increment: xpGain },
@@ -195,7 +369,12 @@ app.post('/api/v1/progress/level-complete', async (req, res) => {
       include: { progress: true }
     });
 
-    return res.json({ success: true, progress, user: updatedUser });
+    const achievements = await awardAchievements(userId, tx);
+    const result = { success: true, progress, user: { ...updatedUser, achievements } };
+    await tx.idempotencyRecord.create({ data: { userId, key: idempotencyKey, operation: 'level-complete', responseJson: result as any, expiresAt: new Date(Date.now() + 7 * 86400000) } });
+    return result;
+    });
+    return res.json(response);
   } catch (err) {
     return res.status(500).json({ error: 'Database unavailable — cannot record level progress' });
   }
@@ -238,7 +417,7 @@ app.get('/api/v1/notes/:userId', async (req, res) => {
   }
 });
 
-app.post('/api/v1/notes', async (req, res) => {
+app.post('/api/v1/notes', validateBody(noteSchema), async (req, res) => {
   const { userId, topicId, topicTitle, content } = req.body;
   if (!userId || !topicId || !content) {
     return res.status(400).json({ error: 'userId, topicId, content required' });
@@ -265,7 +444,7 @@ app.delete('/api/v1/notes/:id', async (req: any, res) => {
   }
 });
 
-app.put('/api/v1/notes/:id', async (req: any, res) => {
+app.put('/api/v1/notes/:id', validateBody(noteUpdateSchema), async (req: any, res) => {
   const { id } = req.params;
   const { topicTitle, content } = req.body;
   if (!content) {
@@ -299,7 +478,7 @@ app.get('/api/v1/bookmarks/:userId', async (req, res) => {
   }
 });
 
-app.post('/api/v1/bookmarks', async (req, res) => {
+app.post('/api/v1/bookmarks', validateBody(bookmarkSchema), async (req, res) => {
   const { userId, topicId, topicTitle, note } = req.body;
   if (!userId || !topicId) {
     return res.status(400).json({ error: 'userId and topicId required' });
@@ -341,7 +520,7 @@ app.get('/api/v1/completions/:userId', async (req, res) => {
   }
 });
 
-app.post('/api/v1/completions', async (req, res) => {
+app.post('/api/v1/completions', validateBody(completionSchema), async (req, res) => {
   const { userId, puzzleId, puzzleType } = req.body;
   if (!userId || !puzzleId) {
     return res.status(400).json({ error: 'userId and puzzleId required' });
@@ -440,11 +619,17 @@ const buildStudentRow = (u: any) => {
 app.get('/api/v1/admin/students', async (req, res) => {
   if (!(await adminGate(req, res))) return;
   try {
+    const limit = pageSize(req.query.limit);
+    const cursor = typeof req.query.cursor === 'string' ? req.query.cursor : undefined;
+    const search = typeof req.query.search === 'string' ? req.query.search.trim().slice(0, 80) : '';
     const users = await prisma.user.findMany({
+      where: search ? { OR: [{ username: { contains: search, mode: 'insensitive' } }, { email: { contains: search, mode: 'insensitive' } }] } : undefined,
       include: { progress: true, completions: true, tasks: true, bookmarks: true, notes: true },
-      orderBy: { xp: 'desc' },
+      orderBy: { id: 'asc' }, take: limit + 1, ...(cursor ? { cursor: { id: cursor }, skip: 1 } : {}),
     });
-    const students = users.map(buildStudentRow);
+    const hasMore = users.length > limit;
+    const page = hasMore ? users.slice(0, limit) : users;
+    const students = page.map(buildStudentRow);
     const allTasks = students.reduce((a: any, s: any) => a.concat(s.tasks.items), []);
     return res.json({
       success: true,
@@ -460,6 +645,7 @@ app.get('/api/v1/admin/students', async (req, res) => {
         levelsCompleted: students.reduce((a: any, s: any) => a + s.levels.completed, 0),
       },
       students,
+      page: { limit, nextCursor: hasMore ? page.at(-1)?.id ?? null : null },
     });
   } catch (err) {
     return res.status(500).json({ error: 'Database unavailable — cannot load student data' });
@@ -467,7 +653,7 @@ app.get('/api/v1/admin/students', async (req, res) => {
 });
 
 // Assign levels as tasks to a student (upsert per user+level)
-app.post('/api/v1/admin/tasks', async (req, res) => {
+app.post('/api/v1/admin/tasks', validateBody(assignmentSchema), async (req, res) => {
   if (!(await adminGate(req, res))) return;
   const { userId, levelIds } = req.body;
   if (!userId || !Array.isArray(levelIds) || levelIds.length === 0) {
@@ -483,6 +669,7 @@ app.post('/api/v1/admin/tasks', async (req, res) => {
       });
       created.push(task);
     }
+    await writeAudit(requestOwnerId(req)!, 'tasks.assign', 'User', userId, { levelIds });
     res.json({ success: true, tasks: created });
   } catch (err) {
     return res.status(500).json({ error: 'Database unavailable — cannot assign tasks' });
@@ -494,10 +681,12 @@ app.get('/api/v1/admin/tasks', async (req, res) => {
   if (!(await adminGate(req, res))) return;
   const { userId } = req.query;
   try {
+    const limit = pageSize(req.query.limit);
     const tasks = await prisma.task.findMany({
       where: userId ? { userId: String(userId) } : {},
-      orderBy: { assignedAt: 'desc' },
+      orderBy: { assignedAt: 'desc' }, take: limit,
     });
+    await writeAudit(requestOwnerId(req)!, 'tasks.read', 'Task', undefined, { userId: userId ? String(userId) : null, limit });
     res.json({ success: true, tasks });
   } catch (err) {
     return res.status(500).json({ error: 'Database unavailable — cannot load tasks' });
@@ -509,12 +698,94 @@ app.delete('/api/v1/admin/tasks/:id', async (req, res) => {
   const { id } = req.params;
   try {
     await prisma.task.delete({ where: { id } });
+    await writeAudit(requestOwnerId(req)!, 'tasks.delete', 'Task', id);
     res.json({ success: true });
   } catch (err) {
     res.status(500).json({ error: 'Failed to remove task' });
   }
 });
 
-app.listen(PORT, () => {
+// Classroom-scoped teacher APIs. Platform-admin access is still required to
+// create a teaching scope; every subsequent query is constrained by teacherId.
+app.get('/api/v1/teacher/classrooms', async (req: any, res) => {
+  if (!(await adminGate(req, res))) return;
+  const teacherId = requestOwnerId(req)!;
+  const classrooms = await prisma.classroom.findMany({
+    where: { teacherId },
+    include: { members: { include: { user: { select: { id: true, username: true, email: true, xp: true, levelUnlocked: true } } } }, _count: { select: { tasks: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
+  await writeAudit(teacherId, 'classrooms.read', 'Classroom');
+  res.json({ classrooms });
+});
+
+app.post('/api/v1/teacher/classrooms', validateBody(classroomSchema), async (req: any, res) => {
+  if (!(await adminGate(req, res))) return;
+  const classroom = await prisma.classroom.create({
+    data: { name: req.body.name, teacherId: requestOwnerId(req)!, joinCode: randomBytes(4).toString('hex').toUpperCase() },
+  });
+  await writeAudit(requestOwnerId(req)!, 'classrooms.create', 'Classroom', classroom.id);
+  res.status(201).json({ classroom });
+});
+
+app.post('/api/v1/teacher/classrooms/:id/members', validateBody(classroomMemberSchema), async (req: any, res) => {
+  if (!(await adminGate(req, res))) return;
+  const classroom = await prisma.classroom.findFirst({ where: { id: req.params.id, teacherId: requestOwnerId(req)! } });
+  if (!classroom) return res.status(404).json({ error: 'Classroom not found' });
+  const member = await prisma.classroomMember.upsert({
+    where: { classroomId_userId: { classroomId: classroom.id, userId: req.body.userId } },
+    update: {}, create: { classroomId: classroom.id, userId: req.body.userId },
+  });
+  await writeAudit(requestOwnerId(req)!, 'classrooms.member.add', 'Classroom', classroom.id, { userId: req.body.userId });
+  res.status(201).json({ member });
+});
+
+app.post('/api/v1/teacher/classrooms/:id/assignments', validateBody(classroomAssignmentSchema), async (req: any, res) => {
+  if (!(await adminGate(req, res))) return;
+  const teacherId = requestOwnerId(req)!;
+  const classroom = await prisma.classroom.findFirst({
+    where: { id: req.params.id, teacherId }, include: { members: true },
+  });
+  if (!classroom) return res.status(404).json({ error: 'Classroom not found' });
+  const tasks = [];
+  for (const member of classroom.members) {
+    for (const levelId of req.body.levelIds) {
+      tasks.push(await prisma.task.upsert({
+        where: { userId_levelId: { userId: member.userId, levelId } },
+        update: { classroomId: classroom.id, assignedById: teacherId, dueAt: req.body.dueAt ? new Date(req.body.dueAt) : null, instructions: req.body.instructions },
+        create: { userId: member.userId, levelId, classroomId: classroom.id, assignedById: teacherId, dueAt: req.body.dueAt ? new Date(req.body.dueAt) : null, instructions: req.body.instructions },
+      }));
+    }
+  }
+  await writeAudit(teacherId, 'classrooms.assign', 'Classroom', classroom.id, { levelIds: req.body.levelIds, learnerCount: classroom.members.length });
+  res.status(201).json({ tasks });
+});
+
+app.get('/api/v1/teacher/classrooms/:id/report', async (req: any, res) => {
+  if (!(await adminGate(req, res))) return;
+  const classroom = await prisma.classroom.findFirst({
+    where: { id: req.params.id, teacherId: requestOwnerId(req)! },
+    include: { members: { include: { user: { include: { progress: true, quizAttempts: true, tasks: true } } } } },
+  });
+  if (!classroom) return res.status(404).json({ error: 'Classroom not found' });
+  const learners = classroom.members.map(({ user }) => ({
+    id: user.id, username: user.username, email: user.email, xp: user.xp, streakDays: user.streakDays,
+    levelsCompleted: user.progress.length, stars: user.progress.reduce((sum, item) => sum + item.stars, 0),
+    quizAttempts: user.quizAttempts.length, quizAccuracy: user.quizAttempts.length ? user.quizAttempts.filter(item => item.correct).length / user.quizAttempts.length : null,
+    tasksAssigned: user.tasks.filter(task => task.classroomId === classroom.id).length,
+    tasksCompleted: user.tasks.filter(task => task.classroomId === classroom.id && task.completedAt).length,
+  }));
+  await writeAudit(requestOwnerId(req)!, 'classrooms.report.read', 'Classroom', classroom.id);
+  res.json({ classroom: { id: classroom.id, name: classroom.name }, learners });
+});
+
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  console.error(err);
+  res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'An unexpected server error occurred' } });
+});
+
+export { app };
+
+if (process.env.NODE_ENV !== 'test') app.listen(PORT, () => {
   console.log(`⚡ ADSA Quest Backend Server with PostgreSQL running on http://localhost:${PORT}`);
 });

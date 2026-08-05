@@ -5,6 +5,40 @@ const code = (title: string, timeComplexity: string, spaceComplexity: string, ex
 });
 
 export const CURRICULUM_EXPANSION_SNIPPETS: Record<string, CodeSnippet> = {
+  amortized: code('Dynamic Array Amortized Append', 'O(1) amortized', 'O(N)', 'Most appends cost one; a resize copies N items but happens only after exponentially many cheap appends.', `def append(array, size, value):
+    if size == len(array):
+        grown = [None] * max(1, 2 * len(array))
+        for i in range(size): grown[i] = array[i]
+        array = grown
+    array[size] = value
+    return array, size + 1`),
+  fibonacci: code('Fibonacci Heap Decrease-Key', 'O(1) amortized', 'O(1) auxiliary', 'Cut a violating node to the root list and cascade after repeated child losses.', `def decrease_key(heap, node, key):
+    if key > node.key: raise ValueError('key increased')
+    node.key = key
+    parent = node.parent
+    if parent and node.key < parent.key:
+        cut(heap, node, parent)
+        cascading_cut(heap, parent)
+    if node.key < heap.minimum.key: heap.minimum = node`),
+  convexhull: code('Graham Scan Convex Hull', 'O(N log N)', 'O(N)', 'Sort around a pivot and remove every non-counter-clockwise turn.', `def cross(o, a, b): return (a[0]-o[0])*(b[1]-o[1])-(a[1]-o[1])*(b[0]-o[0])
+def hull(points):
+    points = sorted(set(points))
+    lower = []
+    for point in points:
+        while len(lower) >= 2 and cross(lower[-2], lower[-1], point) <= 0: lower.pop()
+        lower.append(point)
+    upper = []
+    for point in reversed(points):
+        while len(upper) >= 2 and cross(upper[-2], upper[-1], point) <= 0: upper.pop()
+        upper.append(point)
+    return lower[:-1] + upper[:-1]`),
+  npcomplete: code('Vertex Cover 2-Approximation', 'O(V + E)', 'O(V + E)', 'Pick both endpoints of an uncovered edge; selected edges form a matching, proving the factor-two bound.', `def approximate_vertex_cover(edges):
+    cover, remaining = set(), set(edges)
+    while remaining:
+        u, v = next(iter(remaining))
+        cover.update((u, v))
+        remaining = {edge for edge in remaining if u not in edge and v not in edge}
+    return cover`),
   toposort: code('Topological Sort — Kahn', 'O(V + E)', 'O(V)', 'Repeatedly emit vertices whose prerequisites are all satisfied.', `def topo(graph):
     indeg = [0] * len(graph)
     for u in range(len(graph)):

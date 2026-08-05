@@ -7,7 +7,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     levelId: 'level-1-avl',
     difficulty: 'beginner',
     xpReward: 20,
-    question: 'Keys 10 and 20 were inserted into an empty AVL tree (tree below). You now insert 30 â€” it lands as the right child of 20 and the root becomes imbalanced. Which single rotation restores balance?',
+    question: 'Keys 10 and 20 were inserted into an empty AVL tree (tree below). You now insert 30 — it lands as the right child of 20 and the root becomes imbalanced. Which single rotation restores balance?',
     options: [
       'Left Rotation (RR case)',
       'Right Rotation (LL case)',
@@ -15,8 +15,8 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       'Right-Left Double Rotation (RL case)',
     ],
     correctAnswerIndex: 0,
-    explanation: 'Root 10 now has balance factor âˆ’2 (right-heavy) and 30 sits in the right-right chain 10 â†’ 20 â†’ 30. The RR case needs exactly ONE left rotation: 20 rises to the root, 10 drops to its left child and 30 becomes its right child. The tree stays perfectly balanced at height 2.',
-    hint: 'Check the balance factor of the root after 30 is inserted: BF = âˆ’2 means right-heavy. Which subtree did 30 enter?',
+    explanation: 'Root 10 now has balance factor −2 (right-heavy) and 30 sits in the right-right chain 10 → 20 → 30. The RR case needs exactly ONE left rotation: 20 rises to the root, 10 drops to its left child and 30 becomes its right child. The tree stays perfectly balanced at height 2.',
+    hint: 'Check the balance factor of the root after 30 is inserted: BF = −2 means right-heavy. Which subtree did 30 enter?',
     treeData: {
       nodes: [
         { id: 'q1-node-10', value: 10, x: 300, y: 50, balanceFactor: -1 },
@@ -41,7 +41,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     levelId: 'level-1-avl',
     difficulty: 'medium',
     xpReward: 30,
-    question: 'Keys 30, 10, 20 were inserted in that order. After 20 lands, the tree below became unbalanced: node 30 has balance factor +2 but its left child 10 is right-heavy (BF = âˆ’1). Which rotation sequence rebalances the tree?',
+    question: 'Keys 30, 10, 20 were inserted in that order. After 20 lands, the tree below became unbalanced: node 30 has balance factor +2 but its left child 10 is right-heavy (BF = −1). Which rotation sequence rebalances the tree?',
     options: [
       'Single Right Rotation',
       'Single Left Rotation',
@@ -49,8 +49,8 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       'Right-Left (RL) Double Rotation',
     ],
     correctAnswerIndex: 2,
-    explanation: 'BF = +2 at 30 means the imbalance is on the left side, but the heavy child 10 leans the OPPOSITE way (BF = âˆ’1). A single right rotation cannot fix this â€” rotate the child LEFT first (10 â†’ 20), then rotate the parent RIGHT (30 â†’ 20). This LR double rotation brings 20 to the root with 10 on the left and 30 on the right.',
-    hint: 'The parent is left-heavy (+2) but its left child is right-heavy (âˆ’1) â€” opposite directions always mean a double rotation.',
+    explanation: 'BF = +2 at 30 means the imbalance is on the left side, but the heavy child 10 leans the OPPOSITE way (BF = −1). A single right rotation cannot fix this — rotate the child LEFT first (10 → 20), then rotate the parent RIGHT (30 → 20). This LR double rotation brings 20 to the root with 10 on the left and 30 on the right.',
+    hint: 'The parent is left-heavy (+2) but its left child is right-heavy (−1) — opposite directions always mean a double rotation.',
     treeData: {
       nodes: [
         { id: 'q2-node-30', value: 30, x: 300, y: 50, balanceFactor: 2 },
@@ -79,16 +79,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     levelId: 'level-1-avl',
     difficulty: 'mastery',
     xpReward: 50,
-    question: 'Keys 10, 20, 30, 40, 50 are inserted in order. After the final insert, node 30 becomes imbalanced (BF = âˆ’2) and its right child 40 also leans right (BF = âˆ’1). Which rotation fixes node 30, and what is the resulting tree?',
+    question: 'Keys 10, 20, 30, 40, 50 are inserted in order. After the final insert, node 30 becomes imbalanced (BF = −2) and its right child 40 also leans right (BF = −1). Which rotation fixes node 30, and what is the resulting tree?',
     options: [
-      'Left Rotation at 30 â€” 40 rises; the root stays 20 with right subtree 40 â†’ (30, 50)',
-      'Right Rotation at 30 â€” the new root becomes 40',
+      'Left Rotation at 30 — 40 rises; the root stays 20 with right subtree 40 → (30, 50)',
+      'Right Rotation at 30 — the new root becomes 40',
       'Left-Right Double Rotation at 30',
       'Right-Left Double Rotation at 30',
     ],
     correctAnswerIndex: 0,
-    explanation: 'Node 30\u2019s heavy chain is right-right (30 â†’ 40 â†’ 50) and its child 40 leans the SAME direction (right), so a single LEFT rotation at 30 fixes it: 40 rises to 20\u2019s right child, 30 drops to 40\u2019s left child, and 50 stays on 40\u2019s right. Height stays 3 for 5 keys â€” O(log N) guarantees for any insert sequence.',
-    hint: 'Both node 30 and its right child lean right â€” a same-direction chain means a single rotation. Which direction?',
+    explanation: 'Node 30\u2019s heavy chain is right-right (30 → 40 → 50) and its child 40 leans the SAME direction (right), so a single LEFT rotation at 30 fixes it: 40 rises to 20\u2019s right child, 30 drops to 40\u2019s left child, and 50 stays on 40\u2019s right. Height stays 3 for 5 keys — O(log N) guarantees for any insert sequence.',
+    hint: 'Both node 30 and its right child lean right — a same-direction chain means a single rotation. Which direction?',
     treeData: {
       nodes: [
         { id: 'q3-node-20', value: 20, x: 300, y: 50, balanceFactor: -2 },
@@ -124,9 +124,9 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q2-avl-1',
     levelId: 'level-2-avl',
     question: 'What is the balance factor constraint for every node in an AVL tree?',
-    options: ['Height(left) - Height(right) âˆˆ {-1, 0, 1}', 'Height <= 5', 'Left child count = Right child count', 'Balance Factor = 0 strictly'],
+    options: ['Height(left) - Height(right) ∈ {-1, 0, 1}', 'Height <= 5', 'Left child count = Right child count', 'Balance Factor = 0 strictly'],
     correctAnswerIndex: 0,
-    explanation: 'AVL trees enforce |Balance Factor| â‰¤ 1 across all nodes.',
+    explanation: 'AVL trees enforce |Balance Factor| ≤ 1 across all nodes.',
     hint: 'Balance Factor = Height(Left) - Height(Right).'
   },
   {
@@ -153,16 +153,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'After inserting 30, 20, 10 into an empty AVL tree, which rotation rebalances the root?',
     options: ['Right rotation (LL case)', 'Left rotation (RR case)', 'LR double rotation', 'RL double rotation'],
     correctAnswerIndex: 0,
-    explanation: 'The left-left chain 30â†’20â†’10 has BF +2 with left child BF +1 â€” a single right rotation makes 20 the root.',
+    explanation: 'The left-left chain 30→20→10 has BF +2 with left child BF +1 — a single right rotation makes 20 the root.',
     hint: 'Both the root and its left child lean left.'
   },
   {
     id: 'q2-avl-5',
     levelId: 'level-2-avl',
     question: 'An AVL tree with N nodes guarantees a height of at most:',
-    options: ['1.44 logâ‚‚(N+1)', 'logâ‚‚(N)', '2N', 'N/2'],
+    options: ['1.44 log₂(N+1)', 'log₂(N)', '2N', 'N/2'],
     correctAnswerIndex: 0,
-    explanation: 'The AVL balance constraint bounds height to about 1.44 logâ‚‚(N+1), keeping search O(log N).',
+    explanation: 'The AVL balance constraint bounds height to about 1.44 log₂(N+1), keeping search O(log N).',
     hint: 'Compare with the worst-case skew of a plain BST.'
   },
   {
@@ -223,10 +223,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q3-redblack-2',
     levelId: 'level-3-redblack',
     question: 'If a Red-Black tree has N nodes, what is the guaranteed upper bound on its height?',
-    options: ['h â‰¤ logâ‚‚(N)', 'h â‰¤ 2 logâ‚‚(N + 1)', 'h â‰¤ 1.44 logâ‚‚(N)', 'h â‰¤ N'],
+    options: ['h ≤ log₂(N)', 'h ≤ 2 log₂(N + 1)', 'h ≤ 1.44 log₂(N)', 'h ≤ N'],
     correctAnswerIndex: 1,
-    explanation: 'Black height keeps the tree balanced: h â‰¤ 2Â·logâ‚‚(N+1), slightly taller than AVL but with fewer rotations.',
-    hint: 'Compare with AVL height bound 1.44 logâ‚‚(N).'
+    explanation: 'Black height keeps the tree balanced: h ≤ 2·log₂(N+1), slightly taller than AVL but with fewer rotations.',
+    hint: 'Compare with AVL height bound 1.44 log₂(N).'
   },
   {
     id: 'q4-heap-1',
@@ -277,10 +277,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q6-segment-2',
     levelId: 'level-6-segment',
     question: 'What is the space complexity of a standard recursive Segment Tree on N elements?',
-    options: ['O(N)', 'O(4N)', 'O(NÂ²)', 'O(log N)'],
+    options: ['O(N)', 'O(4N)', 'O(N²)', 'O(log N)'],
     correctAnswerIndex: 1,
     explanation: 'The recursive tree allocates 4N nodes to safely cover every interval.',
-    hint: 'The array size is typically 4 Ã— N.'
+    hint: 'The array size is typically 4 × N.'
   },
   {
     id: 'q7-trie-1',
@@ -295,9 +295,9 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q7-trie-2',
     levelId: 'level-7-trie',
     question: 'What is the worst-case space used by a trie storing N words of average length L over an alphabet of size K?',
-    options: ['O(N)', 'O(N Ã— L Ã— K)', 'O(L)', 'O(N Ã— K)'],
+    options: ['O(N)', 'O(N × L × K)', 'O(L)', 'O(N × K)'],
     correctAnswerIndex: 1,
-    explanation: 'Each of the up to NÃ—L nodes holds up to K child pointers, so O(N Ã— L Ã— K) worst case.',
+    explanation: 'Each of the up to N×L nodes holds up to K child pointers, so O(N × L × K) worst case.',
     hint: 'Count nodes and pointers per node.'
   },
   {
@@ -331,7 +331,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q9-dijkstra-2',
     levelId: 'level-9-dijkstra',
     question: 'What is the time complexity of Dijkstra using a binary min-heap?',
-    options: ['O(VÂ²)', 'O((V + E) log V)', 'O(V + E)', 'O(V Ã— E)'],
+    options: ['O(V²)', 'O((V + E) log V)', 'O(V + E)', 'O(V × E)'],
     correctAnswerIndex: 1,
     explanation: 'Each of V extract-mins and E relaxations costs O(log V) in the heap.',
     hint: 'Count heap operations for vertices and edges.'
@@ -367,16 +367,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q11-mst-2',
     levelId: 'level-11-mst',
     question: "What is the time complexity of Kruskal's MST algorithm on E edges?",
-    options: ['O(E log E)', 'O(V Ã— E)', 'O(E)', 'O(VÂ²)'],
+    options: ['O(E log E)', 'O(V × E)', 'O(E)', 'O(V²)'],
     correctAnswerIndex: 0,
     explanation: 'Sorting E edges dominates: O(E log E); DSU operations are nearly O(1) each.',
-    hint: 'Which step dominates â€” sorting or scanning?'
+    hint: 'Which step dominates — sorting or scanning?'
   },
   {
     id: 'q12-tarjan-1',
     levelId: 'level-12-tarjan',
     question: "What is the time complexity of Tarjan's SCC algorithm?",
-    options: ['O(V + E)', 'O(VÂ²)', 'O(V E)', 'O(V log V)'],
+    options: ['O(V + E)', 'O(V²)', 'O(V E)', 'O(V log V)'],
     correctAnswerIndex: 0,
     explanation: 'Tarjan runs a single DFS traversal visiting every vertex and edge once.',
     hint: 'It is essentially one DFS pass.'
@@ -402,10 +402,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q13-knapsack-2',
     levelId: 'level-13-knapsack',
-    question: 'The 0/1 Knapsack DP table has dimensions (N+1) Ã— (W+1). What is its time complexity?',
-    options: ['O(N Ã— W)', 'O(2^N)', 'O(N log W)', 'O(N + W)'],
+    question: 'The 0/1 Knapsack DP table has dimensions (N+1) × (W+1). What is its time complexity?',
+    options: ['O(N × W)', 'O(2^N)', 'O(N log W)', 'O(N + W)'],
     correctAnswerIndex: 0,
-    explanation: 'Every cell is filled in O(1) and there are N Ã— W cells.',
+    explanation: 'Every cell is filled in O(1) and there are N × W cells.',
     hint: 'Count the cells in the table.'
   },
   {
@@ -421,16 +421,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q14-lcs-2',
     levelId: 'level-14-lcs',
     question: 'What is the time complexity of LCS for strings of length N and M?',
-    options: ['O(N Ã— M)', 'O(N + M)', 'O(N log M)', 'O(2^(N+M))'],
+    options: ['O(N × M)', 'O(N + M)', 'O(N log M)', 'O(2^(N+M))'],
     correctAnswerIndex: 0,
-    explanation: 'The DP grid has N Ã— M cells, each computed in O(1).',
+    explanation: 'The DP grid has N × M cells, each computed in O(1).',
     hint: 'It fills a 2D table.'
   },
   {
     id: 'q15-floydwarshall-1',
     levelId: 'level-15-floydwarshall',
     question: 'What is the time complexity of Floyd-Warshall algorithm?',
-    options: ['O(VÂ³)', 'O(VÂ²)', 'O(V E)', 'O(V log V)'],
+    options: ['O(V³)', 'O(V²)', 'O(V E)', 'O(V log V)'],
     correctAnswerIndex: 0,
     explanation: 'Uses 3 nested loops iterating through intermediate vertex k, source i, and dest j.',
     hint: 'Three nested loops over V.'
@@ -457,18 +457,18 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q16-matrixchain-2',
     levelId: 'level-16-matrixchain',
     question: 'What is the time complexity of Matrix Chain Multiplication for N matrices?',
-    options: ['O(NÂ³)', 'O(NÂ²)', 'O(N log N)', 'O(2^N)'],
+    options: ['O(N³)', 'O(N²)', 'O(N log N)', 'O(2^N)'],
     correctAnswerIndex: 0,
-    explanation: 'The table has O(NÂ²) subproblems and each tries O(N) splits.',
-    hint: 'NÂ² subproblems Ã— N split choices.'
+    explanation: 'The table has O(N²) subproblems and each tries O(N) splits.',
+    hint: 'N² subproblems × N split choices.'
   },
   {
     id: 'q17-dsu-1',
     levelId: 'level-17-dsu',
     question: 'What is the amortized time complexity per find operation with Path Compression?',
-    options: ['O(Î±(N)) near O(1)', 'O(log N)', 'O(N)', 'O(NÂ²)'],
+    options: ['O(α(N)) near O(1)', 'O(log N)', 'O(N)', 'O(N²)'],
     correctAnswerIndex: 0,
-    explanation: 'Path compression + rank union yields Inverse Ackermann function Î±(N) â‰ˆ O(1).',
+    explanation: 'Path compression + rank union yields Inverse Ackermann function α(N) ≈ O(1).',
     hint: 'It is effectively constant.'
   },
   {
@@ -484,7 +484,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q18-kmp-1',
     levelId: 'level-18-kmp',
     question: 'What is the worst-case time complexity of KMP algorithm?',
-    options: ['O(N + M)', 'O(N * M)', 'O(N log M)', 'O(NÂ²)'],
+    options: ['O(N + M)', 'O(N * M)', 'O(N log M)', 'O(N²)'],
     correctAnswerIndex: 0,
     explanation: 'LPS preprocessing takes O(M) and text search takes O(N).',
     hint: 'The text pointer never moves backwards.'
@@ -502,7 +502,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q19-suffixarray-1',
     levelId: 'level-19-suffixarray',
     question: 'How fast can substring binary search be performed using a Suffix Array of length N?',
-    options: ['O(M log N)', 'O(N * M)', 'O(NÂ²)', 'O(N log N)'],
+    options: ['O(M log N)', 'O(N * M)', 'O(N²)', 'O(N log N)'],
     correctAnswerIndex: 0,
     explanation: 'Binary search on N sorted suffixes for pattern length M takes O(M log N).',
     hint: 'Each comparison costs O(M).'
@@ -511,9 +511,9 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q19-suffixarray-2',
     levelId: 'level-19-suffixarray',
     question: 'What is the time complexity of building a suffix array using the doubling technique?',
-    options: ['O(N log N)', 'O(NÂ²)', 'O(N)', 'O(N logÂ² N)'],
+    options: ['O(N log N)', 'O(N²)', 'O(N)', 'O(N log² N)'],
     correctAnswerIndex: 0,
-    explanation: 'log N doubling rounds each sorting N elements â†’ O(N log N).',
+    explanation: 'log N doubling rounds each sorting N elements → O(N log N).',
     hint: 'Count the doubling rounds.'
   },
   {
@@ -528,11 +528,11 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q20-amortized-2',
     levelId: 'level-20-amortized',
-    question: 'In the Potential Method, the potential function Î¦ is chosen so that...',
-    options: ['Total amortized cost is an upper bound on total actual cost', 'Î¦ always decreases', 'Î¦ is always zero', 'Î¦ equals the number of operations'],
+    question: 'In the Potential Method, the potential function Φ is chosen so that...',
+    options: ['Total amortized cost is an upper bound on total actual cost', 'Φ always decreases', 'Φ is always zero', 'Φ equals the number of operations'],
     correctAnswerIndex: 0,
-    explanation: 'Amortized cost = actual cost + Î”Î¦, and with Î¦_final â‰¥ Î¦_initial the sum bounds the real cost.',
-    hint: 'Think about Î”Î¦ between states.'
+    explanation: 'Amortized cost = actual cost + ΔΦ, and with Φ_final ≥ Φ_initial the sum bounds the real cost.',
+    hint: 'Think about ΔΦ between states.'
   },
   {
     id: 'q21-fibonacci-1',
@@ -565,7 +565,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q22-rabinkarp-2',
     levelId: 'level-22-rabinkarp',
     question: 'What is the worst-case time complexity of Rabin-Karp on hash collisions?',
-    options: ['O(N Ã— M)', 'O(N + M)', 'O(N log M)', 'O(M)'],
+    options: ['O(N × M)', 'O(N + M)', 'O(N log M)', 'O(M)'],
     correctAnswerIndex: 0,
     explanation: 'If many windows collide, each is verified by O(M) string comparison.',
     hint: 'Verification is expensive on bad hashes.'
@@ -574,16 +574,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q23-convexhull-1',
     levelId: 'level-23-convexhull',
     question: "What is the time complexity of Graham's Scan Convex Hull algorithm?",
-    options: ['O(N log N)', 'O(NÂ²)', 'O(NÂ³)', 'O(2^N)'],
+    options: ['O(N log N)', 'O(N²)', 'O(N³)', 'O(2^N)'],
     correctAnswerIndex: 0,
     explanation: "Sorting points by polar angle takes O(N log N); linear stack scan takes O(N).",
-    hint: 'Which step dominates â€” sorting or scanning?'
+    hint: 'Which step dominates — sorting or scanning?'
   },
   {
     id: 'q23-convexhull-2',
     levelId: 'level-23-convexhull',
     question: 'In Graham Scan, a point is popped from the hull stack when its turn is...',
-    options: ['Not counter-clockwise (collinear or clockwise)', 'Counter-clockwise', 'Exactly 180Â° only', 'Any angle'],
+    options: ['Not counter-clockwise (collinear or clockwise)', 'Counter-clockwise', 'Exactly 180° only', 'Any angle'],
     correctAnswerIndex: 0,
     explanation: 'Points creating a non-CCW turn cannot be hull vertices and are popped.',
     hint: 'The hull boundary must turn counter-clockwise.'
@@ -594,7 +594,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'What approximation ratio does the Greedy Vertex Cover algorithm guarantee?',
     options: ['2-Approximation (Result <= 2 * OPT)', '1.5-Approximation', 'Polynomial Exact', 'No bound'],
     correctAnswerIndex: 0,
-    explanation: 'Greedy maximal matching picks both endpoints of un-covered edges, guaranteeing â‰¤ 2 * OPT.',
+    explanation: 'Greedy maximal matching picks both endpoints of un-covered edges, guaranteeing ≤ 2 * OPT.',
     hint: 'Pick both endpoints of unmatched edges.'
   },
   {
@@ -605,7 +605,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
       'If any NP-complete problem has a polynomial algorithm, all NP problems do',
       'NP-complete problems are known to require exponential time',
       'NP-complete problems cannot be verified in polynomial time',
-      'P â‰  NP is proven'
+      'P ≠ NP is proven'
     ],
     correctAnswerIndex: 0,
     explanation: 'NP-completeness means every NP problem reduces to it; one polynomial solution solves all of NP.',
@@ -627,7 +627,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     options: ['Black', 'Red', 'Depends on the insertion order', 'Transparent'],
     correctAnswerIndex: 0,
     explanation: 'The root must be black by the root property of Red-Black trees.',
-    hint: 'Red nodes can only have black children â€” a red root is never allowed.'
+    hint: 'Red nodes can only have black children — a red root is never allowed.'
   },
   {
     id: 'q3-redblack-5',
@@ -669,9 +669,9 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q3-redblack-9',
     levelId: 'level-3-redblack',
     question: 'The maximum height of a Red-Black tree with n internal nodes is about...',
-    options: ['2Â·logâ‚‚(n+1)', 'logâ‚‚(n+1)', 'n/2', 'âˆšn'],
+    options: ['2·log₂(n+1)', 'log₂(n+1)', 'n/2', '√n'],
     correctAnswerIndex: 0,
-    explanation: 'At most half of any path can be red, bounding height by 2Â·logâ‚‚(n+1).',
+    explanation: 'At most half of any path can be red, bounding height by 2·log₂(n+1).',
     hint: 'Doubles the pure binary height bound.'
   },
   {
@@ -716,14 +716,14 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'In a 0-indexed heap array, the right child of the node at index 3 is at index...',
     options: ['8', '7', '6', '4'],
     correctAnswerIndex: 0,
-    explanation: 'Right child of i is 2i + 2, so 2Â·3 + 2 = 8.',
+    explanation: 'Right child of i is 2i + 2, so 2·3 + 2 = 8.',
     hint: 'Left child is 2i + 1; the right child is one more.'
   },
   {
     id: 'q4-heap-7',
     levelId: 'level-4-heap',
     question: 'Building a heap from an unsorted array of n elements using sift-down takes...',
-    options: ['O(n)', 'O(n log n)', 'O(log n)', 'O(nÂ²)'],
+    options: ['O(n)', 'O(n log n)', 'O(log n)', 'O(n²)'],
     correctAnswerIndex: 0,
     explanation: 'Most nodes are near the leaves, so the total work of sift-down heapify is linear.',
     hint: 'Faster than inserting n elements one by one.'
@@ -741,7 +741,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q4-heap-9',
     levelId: 'level-4-heap',
     question: 'Heapsort sorts n elements in...',
-    options: ['O(n log n)', 'O(n)', 'O(nÂ²)', 'O(log n)'],
+    options: ['O(n log n)', 'O(n)', 'O(n²)', 'O(log n)'],
     correctAnswerIndex: 0,
     explanation: 'n extract-min operations at O(log n) each give O(n log n).',
     hint: 'Multiply the number of extractions by extraction cost.'
@@ -752,17 +752,17 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'A complete binary tree with 7 nodes has how many leaves?',
     options: ['4', '3', '5', '7'],
     correctAnswerIndex: 0,
-    explanation: 'Nodes 3, 4, 5, 6 are leaves (0-indexed) â€” all internal nodes sit in the first 3 levels.',
+    explanation: 'Nodes 3, 4, 5, 6 are leaves (0-indexed) — all internal nodes sit in the first 3 levels.',
     hint: 'Every node in the bottom level and its neighbors without children.'
   },
   {
     id: 'q5-btree-3',
     levelId: 'level-5-btree',
     question: 'A B-tree of order m allows each node to hold at most...',
-    options: ['m children and m âˆ’ 1 keys', 'm âˆ’ 1 children and m keys', 'm keys and m children', '2m keys and no children'],
+    options: ['m children and m − 1 keys', 'm − 1 children and m keys', 'm keys and m children', '2m keys and no children'],
     correctAnswerIndex: 0,
-    explanation: 'An order-m node has up to m child pointers and m âˆ’ 1 separator keys.',
-    hint: 'Keys separate children, so keys = children âˆ’ 1.'
+    explanation: 'An order-m node has up to m child pointers and m − 1 separator keys.',
+    hint: 'Keys separate children, so keys = children − 1.'
   },
   {
     id: 'q5-btree-4',
@@ -770,7 +770,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'In a B-tree of order 5, the maximum number of keys inside one node is...',
     options: ['4', '5', '6', '3'],
     correctAnswerIndex: 0,
-    explanation: 'Max keys = m âˆ’ 1 = 4 for an order-5 B-tree.',
+    explanation: 'Max keys = m − 1 = 4 for an order-5 B-tree.',
     hint: 'One less than the order.'
   },
   {
@@ -797,14 +797,14 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'A B-tree with minimum degree t = 2 requires at least how many keys in a non-root node?',
     options: ['1', '2', '3', '0'],
     correctAnswerIndex: 0,
-    explanation: 'Non-root nodes must hold at least t âˆ’ 1 = 1 key (and t = 2 children).',
-    hint: 'Minimum keys = t âˆ’ 1.'
+    explanation: 'Non-root nodes must hold at least t − 1 = 1 key (and t = 2 children).',
+    hint: 'Minimum keys = t − 1.'
   },
   {
     id: 'q5-btree-8',
     levelId: 'level-5-btree',
     question: 'Searching one key in a B-tree with N keys and order m reads about how many disk blocks?',
-    options: ['O(log_m N)', 'O(N)', 'O(m)', 'O(NÂ·m)'],
+    options: ['O(log_m N)', 'O(N)', 'O(m)', 'O(N·m)'],
     correctAnswerIndex: 0,
     explanation: 'The height of a B-tree is log_m N, and one block read occurs per level.',
     hint: 'The height of a tree with branching factor m.'
@@ -842,7 +842,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'For an array of 5 elements, a classic iterative-free segment tree (next power of two leaves) uses an array of size...',
     options: ['16', '10', '8', '32'],
     correctAnswerIndex: 0,
-    explanation: 'Next power of two â‰¥ 5 is 8 leaves; doubling gives 16 total cells.',
+    explanation: 'Next power of two ≥ 5 is 8 leaves; doubling gives 16 total cells.',
     hint: 'Pad 5 up to a power of two, then double it.'
   },
   {
@@ -851,7 +851,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'A range query in a segment tree is answered by combining at most how many node values?',
     options: ['O(log n) nodes', 'O(n) nodes', 'exactly 2 nodes', 'every leaf'],
     correctAnswerIndex: 0,
-    explanation: 'The query interval decomposes into at most 2Â·log n canonical segments.',
+    explanation: 'The query interval decomposes into at most 2·log n canonical segments.',
     hint: 'Same order as a single root-to-leaf path.'
   },
   {
@@ -876,9 +876,9 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q6-segment-8',
     levelId: 'level-6-segment',
     question: 'Building a segment tree bottom-up from n elements takes...',
-    options: ['O(n)', 'O(n log n)', 'O(log n)', 'O(nÂ²)'],
+    options: ['O(n)', 'O(n log n)', 'O(log n)', 'O(n²)'],
     correctAnswerIndex: 0,
-    explanation: 'Each array element is combined once into its parents â€” linear total work.',
+    explanation: 'Each array element is combined once into its parents — linear total work.',
     hint: 'Every leaf contributes to O(1) merges overall.'
   },
   {
@@ -905,7 +905,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'In a trie, the longest common prefix of "cat" and "car" is...',
     options: ['"ca"', '"c"', '"cat"', '"ar"'],
     correctAnswerIndex: 0,
-    explanation: 'Both words share the path c â†’ a, then diverge at t vs r.',
+    explanation: 'Both words share the path c → a, then diverge at t vs r.',
     hint: 'Shared path from the root.'
   },
   {
@@ -932,7 +932,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'Searching for a word of length L in a trie takes...',
     options: ['O(L)', 'O(N)', 'O(L log N)', 'O(N log L)'],
     correctAnswerIndex: 0,
-    explanation: 'The search walks exactly L characters down the trie â€” independent of dictionary size.',
+    explanation: 'The search walks exactly L characters down the trie — independent of dictionary size.',
     hint: 'Depends only on the word length.'
   },
   {
@@ -966,15 +966,15 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q7-trie-10',
     levelId: 'level-7-trie',
     question: 'Sorting n strings stored in a trie (via DFS) takes...',
-    options: ['O(total number of characters)', 'O(n log n)', 'O(nÂ²)', 'O(log n)'],
+    options: ['O(total number of characters)', 'O(n log n)', 'O(n²)', 'O(log n)'],
     correctAnswerIndex: 0,
-    explanation: 'A pre-order DFS visits characters in sorted order â€” linear in total size.',
+    explanation: 'A pre-order DFS visits characters in sorted order — linear in total size.',
     hint: 'Tries give sorted order for free.'
   },
   {
     id: 'q8-bfsdfs-3',
     levelId: 'level-8-bfsdfs',
-    question: 'Graph: 0â€“1, 0â€“2, 1â€“3, 2â€“3. Starting BFS at 0 with adjacency [1, 2], the visit order is...',
+    question: 'Graph: 0–1, 0–2, 1–3, 2–3. Starting BFS at 0 with adjacency [1, 2], the visit order is...',
     options: ['0, 1, 2, 3', '0, 1, 3, 2', '0, 2, 1, 3', '3, 2, 1, 0'],
     correctAnswerIndex: 0,
     explanation: 'BFS explores all neighbors of 0 first (1, 2), then their neighbors (3).',
@@ -983,10 +983,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q8-bfsdfs-4',
     levelId: 'level-8-bfsdfs',
-    question: 'Same graph 0â€“1, 0â€“2, 1â€“3, 2â€“3. Starting DFS at 0, a possible visit order is...',
+    question: 'Same graph 0–1, 0–2, 1–3, 2–3. Starting DFS at 0, a possible visit order is...',
     options: ['0, 1, 3, 2', '0, 1, 2, 3', '3, 2, 1, 0', '2, 3, 1, 0'],
     correctAnswerIndex: 0,
-    explanation: 'DFS dives along 0â†’1â†’3, then backtracks to visit 2.',
+    explanation: 'DFS dives along 0→1→3, then backtracks to visit 2.',
     hint: 'Go as deep as possible before backtracking.'
   },
   {
@@ -1020,7 +1020,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q8-bfsdfs-8',
     levelId: 'level-8-bfsdfs',
     question: 'BFS and DFS on a graph with V vertices and E edges both run in...',
-    options: ['O(V + E)', 'O(VÂ²)', 'O(VÂ·E)', 'O(log V)'],
+    options: ['O(V + E)', 'O(V²)', 'O(V·E)', 'O(log V)'],
     correctAnswerIndex: 0,
     explanation: 'Each vertex is enqueued once and each edge examined once.',
     hint: 'Linear in the size of the graph.'
@@ -1046,10 +1046,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q9-dijkstra-3',
     levelId: 'level-9-dijkstra',
-    question: 'Edges: 0â€“1 = 4, 0â€“2 = 1, 2â€“1 = 2, 1â€“3 = 5, 2â€“3 = 6. What is Dijkstra\u2019s shortest distance from 0 to 3?',
+    question: 'Edges: 0–1 = 4, 0–2 = 1, 2–1 = 2, 1–3 = 5, 2–3 = 6. What is Dijkstra\u2019s shortest distance from 0 to 3?',
     options: ['7', '9', '8', '11'],
     correctAnswerIndex: 0,
-    explanation: 'Path 0â†’2 (1) + 2â†’3 (6) = 7 beats 0â†’1â†’3 = 9 and 0â†’2â†’1â†’3 = 8.',
+    explanation: 'Path 0→2 (1) + 2→3 (6) = 7 beats 0→1→3 = 9 and 0→2→1→3 = 8.',
     hint: 'Try the route through node 2.'
   },
   {
@@ -1065,7 +1065,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q9-dijkstra-5',
     levelId: 'level-9-dijkstra',
     question: 'With a binary min-heap, Dijkstra\u2019s total time on V vertices and E edges is...',
-    options: ['O((V + E) log V)', 'O(VÂ²)', 'O(E log E)', 'O(V + E)'],
+    options: ['O((V + E) log V)', 'O(V²)', 'O(E log E)', 'O(V + E)'],
     correctAnswerIndex: 0,
     explanation: 'Each vertex extraction is O(log V) and each edge relaxation is O(log V).',
     hint: 'Combine extraction and relaxation costs.'
@@ -1103,7 +1103,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'If all edge weights are identical, Dijkstra behaves like...',
     options: ['BFS', 'DFS', 'merge sort', 'Floyd-Warshall'],
     correctAnswerIndex: 0,
-    explanation: 'With unit weights, the heap pops in FIFO order â€” exactly BFS level order.',
+    explanation: 'With unit weights, the heap pops in FIFO order — exactly BFS level order.',
     hint: 'Level-by-level exploration.'
   },
   {
@@ -1122,15 +1122,15 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     options: ['a V-th relaxation pass and checking for any distance improvement', 'a BFS from every vertex', 'Dijkstra twice', 'a topological sort'],
     correctAnswerIndex: 0,
     explanation: 'If distances still improve on the V-th pass, a negative cycle is reachable.',
-    hint: 'After V âˆ’ 1 passes, nothing should change.'
+    hint: 'After V − 1 passes, nothing should change.'
   },
   {
     id: 'q10-bellmanford-4',
     levelId: 'level-10-bellmanford',
     question: 'The total time complexity of Bellman-Ford on V vertices and E edges is...',
-    options: ['O(VÂ·E)', 'O(V + E)', 'O(VÂ²)', 'O(E log V)'],
+    options: ['O(V·E)', 'O(V + E)', 'O(V²)', 'O(E log V)'],
     correctAnswerIndex: 0,
-    explanation: 'V âˆ’ 1 passes, each relaxing all E edges.',
+    explanation: 'V − 1 passes, each relaxing all E edges.',
     hint: 'Multiply passes by edges per pass.'
   },
   {
@@ -1146,7 +1146,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q10-bellmanford-6',
     levelId: 'level-10-bellmanford',
     question: 'A shortest path in a graph without negative cycles contains at most...',
-    options: ['V âˆ’ 1 edges', 'V edges', 'E edges', 'log V edges'],
+    options: ['V − 1 edges', 'V edges', 'E edges', 'log V edges'],
     correctAnswerIndex: 0,
     explanation: 'Any longer path would repeat a vertex and could be shortened by removing the cycle.',
     hint: 'Simple paths never repeat vertices.'
@@ -1164,7 +1164,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q10-bellmanford-8',
     levelId: 'level-10-bellmanford',
     question: 'If a reachable negative cycle exists, the shortest path is...',
-    options: ['undefined â€” distances decrease forever', 'still well-defined', 'the largest positive path', 'computed by BFS'],
+    options: ['undefined — distances decrease forever', 'still well-defined', 'the largest positive path', 'computed by BFS'],
     correctAnswerIndex: 0,
     explanation: 'Looping the negative cycle keeps lowering the distance without bound.',
     hint: 'Distances never stabilize.'
@@ -1173,7 +1173,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q10-bellmanford-9',
     levelId: 'level-10-bellmanford',
     question: 'A single relaxation step for edge (u, v) with weight w updates dist[v] to...',
-    options: ['min(dist[v], dist[u] + w)', 'dist[u] + w', 'dist[v] âˆ’ w', 'max(dist[v], dist[u] + w)'],
+    options: ['min(dist[v], dist[u] + w)', 'dist[u] + w', 'dist[v] − w', 'max(dist[v], dist[u] + w)'],
     correctAnswerIndex: 0,
     explanation: 'Relaxation keeps the cheaper of the current value and the route through u.',
     hint: 'Take the better of the two candidate distances.'
@@ -1181,11 +1181,11 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q10-bellmanford-10',
     levelId: 'level-10-bellmanford',
-    question: 'Why are V âˆ’ 1 passes sufficient?',
-    options: ['a simple shortest path has at most V âˆ’ 1 edges, one pass propagates it per edge', 'all edge weights are positive', 'the graph is a tree', 'each pass doubles the covered distance'],
+    question: 'Why are V − 1 passes sufficient?',
+    options: ['a simple shortest path has at most V − 1 edges, one pass propagates it per edge', 'all edge weights are positive', 'the graph is a tree', 'each pass doubles the covered distance'],
     correctAnswerIndex: 0,
-    explanation: 'The k-th pass finalizes all paths with up to k edges; V âˆ’ 1 covers every simple path.',
-    hint: 'Paths stop growing beyond V âˆ’ 1 edges.'
+    explanation: 'The k-th pass finalizes all paths with up to k edges; V − 1 covers every simple path.',
+    hint: 'Paths stop growing beyond V − 1 edges.'
   },
   {
     id: 'q11-mst-3',
@@ -1209,9 +1209,9 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q11-mst-5',
     levelId: 'level-11-mst',
     question: 'An MST of a graph with V vertices always contains exactly...',
-    options: ['V âˆ’ 1 edges', 'V edges', 'E edges', 'V/2 edges'],
+    options: ['V − 1 edges', 'V edges', 'E edges', 'V/2 edges'],
     correctAnswerIndex: 0,
-    explanation: 'A spanning tree on V vertices is minimally connected with V âˆ’ 1 edges.',
+    explanation: 'A spanning tree on V vertices is minimally connected with V − 1 edges.',
     hint: 'One less than the vertex count.'
   },
   {
@@ -1227,7 +1227,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q11-mst-7',
     levelId: 'level-11-mst',
     question: 'After sorting, Kruskal\u2019s algorithm runs in...',
-    options: ['O(E log E)', 'O(VÂ²)', 'O(V + E)', 'O(E log V + V log V) for the DSU part only â€” sorting dominates'],
+    options: ['O(E log E)', 'O(V²)', 'O(V + E)', 'O(E log V + V log V) for the DSU part only — sorting dominates'],
     correctAnswerIndex: 0,
     explanation: 'Sorting the E edges dominates the near-linear DSU processing.',
     hint: 'The sort decides the total cost.'
@@ -1236,7 +1236,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q11-mst-8',
     levelId: 'level-11-mst',
     question: 'Prim\u2019s algorithm with a binary heap runs in...',
-    options: ['O(E log V)', 'O(VÂ²)', 'O(E log E)', 'O(V + E)'],
+    options: ['O(E log V)', 'O(V²)', 'O(E log E)', 'O(V + E)'],
     correctAnswerIndex: 0,
     explanation: 'Each of the E edges relaxes a heap key in O(log V).',
     hint: 'Heap operations per edge.'
@@ -1253,10 +1253,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q11-mst-10',
     levelId: 'level-11-mst',
-    question: 'Edges: 0â€“1 = 1, 1â€“2 = 2, 0â€“2 = 3, 1â€“3 = 4. What is the total weight of the MST?',
+    question: 'Edges: 0–1 = 1, 1–2 = 2, 0–2 = 3, 1–3 = 4. What is the total weight of the MST?',
     options: ['7', '6', '10', '8'],
     correctAnswerIndex: 0,
-    explanation: 'Kruskal picks 1 (0â€“1), 2 (1â€“2), then skips 3 (0â€“2 forms a cycle) and takes 4 (1â€“3): total 7.',
+    explanation: 'Kruskal picks 1 (0–1), 2 (1–2), then skips 3 (0–2 forms a cycle) and takes 4 (1–3): total 7.',
     hint: 'Skip the edge that closes a cycle.'
   },
   {
@@ -1299,7 +1299,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q12-tarjan-7',
     levelId: 'level-12-tarjan',
     question: 'Tarjan\u2019s algorithm runs in...',
-    options: ['O(V + E)', 'O(VÂ²)', 'O(VÂ·E)', 'O(E log V)'],
+    options: ['O(V + E)', 'O(V²)', 'O(V·E)', 'O(E log V)'],
     correctAnswerIndex: 0,
     explanation: 'Every vertex and edge is touched once during the single DFS.',
     hint: 'Linear in graph size.'
@@ -1316,7 +1316,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q12-tarjan-9',
     levelId: 'level-12-tarjan',
-    question: 'The graph 0 â†’ 1 â†’ 2 â†’ 0 (a single directed cycle) contains how many SCCs?',
+    question: 'The graph 0 → 1 → 2 → 0 (a single directed cycle) contains how many SCCs?',
     options: ['1', '2', '3', '0'],
     correctAnswerIndex: 0,
     explanation: 'All three vertices are mutually reachable around the cycle.',
@@ -1362,7 +1362,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q13-knapsack-6',
     levelId: 'level-13-knapsack',
     question: 'The classic 0/1 knapsack DP table for n items and capacity W has dimensions...',
-    options: ['(n + 1) Ã— (W + 1)', 'n Ã— W', '(n âˆ’ 1) Ã— W', 'n Ã— n'],
+    options: ['(n + 1) × (W + 1)', 'n × W', '(n − 1) × W', 'n × n'],
     correctAnswerIndex: 0,
     explanation: 'Rows track item prefix, columns track capacity.',
     hint: 'Both indices plus a zero row and column.'
@@ -1379,7 +1379,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q13-knapsack-8',
     levelId: 'level-13-knapsack',
-    question: 'The 0/1 knapsack DP runs in O(nÂ·W), which is called...',
+    question: 'The 0/1 knapsack DP runs in O(n·W), which is called...',
     options: ['pseudo-polynomial (polynomial in the input value W, not its bit-length)', 'fully polynomial', 'exponential always', 'linear in n only'],
     correctAnswerIndex: 0,
     explanation: 'W is a number, not input size; log W bits encode it.',
@@ -1389,9 +1389,9 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q13-knapsack-9',
     levelId: 'level-13-knapsack',
     question: 'In the 0/1 recurrence, the option that skips item i is expressed as...',
-    options: ['dp[i âˆ’ 1][w]', 'dp[i][w âˆ’ 1]', 'dp[i âˆ’ 1][w âˆ’ wt]', 'dp[0][w]'],
+    options: ['dp[i − 1][w]', 'dp[i][w − 1]', 'dp[i − 1][w − wt]', 'dp[0][w]'],
     correctAnswerIndex: 0,
-    explanation: 'Skipping means the best value for items 1..iâˆ’1 at the same capacity.',
+    explanation: 'Skipping means the best value for items 1..i−1 at the same capacity.',
     hint: 'Previous row, same capacity.'
   },
   {
@@ -1401,7 +1401,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     options: ['21', '12', '16', '9'],
     correctAnswerIndex: 0,
     explanation: 'All three fit (total weight 3): 5 + 7 + 9 = 21.',
-    hint: 'Take everything â€” it all fits.'
+    hint: 'Take everything — it all fits.'
   },
   {
     id: 'q14-lcs-3',
@@ -1424,8 +1424,8 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q14-lcs-5',
     levelId: 'level-14-lcs',
-    question: 'The two-row DP trick reduces the LCS memory from O(mÂ·n) to...',
-    options: ['O(min(m, n)) space (two rows)', 'O(mÂ·n) still', 'O(m + n)Â²', 'O(1) always'],
+    question: 'The two-row DP trick reduces the LCS memory from O(m·n) to...',
+    options: ['O(min(m, n)) space (two rows)', 'O(m·n) still', 'O(m + n)²', 'O(1) always'],
     correctAnswerIndex: 0,
     explanation: 'Each cell only needs the previous row, so two rows suffice.',
     hint: 'Only the last row matters.'
@@ -1434,7 +1434,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q14-lcs-6',
     levelId: 'level-14-lcs',
     question: 'When S1[i] and S2[j] differ, the DP update is...',
-    options: ['max(dp[i âˆ’ 1][j], dp[i][j âˆ’ 1])', '1 + dp[i âˆ’ 1][j âˆ’ 1]', 'dp[i âˆ’ 1][j âˆ’ 1]', 'dp[i][j] + 1'],
+    options: ['max(dp[i − 1][j], dp[i][j − 1])', '1 + dp[i − 1][j − 1]', 'dp[i − 1][j − 1]', 'dp[i][j] + 1'],
     correctAnswerIndex: 0,
     explanation: 'One of the characters cannot extend the subsequence, so we keep the better prefix result.',
     hint: 'Best of dropping either character.'
@@ -1442,10 +1442,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q14-lcs-7',
     levelId: 'level-14-lcs',
-    question: 'The LCS DP runs in O(mÂ·n) time for strings of lengths m and n. This is because...',
+    question: 'The LCS DP runs in O(m·n) time for strings of lengths m and n. This is because...',
     options: ['every pair of positions is combined once', 'a single loop over the longer string', 'binary search per character', 'only matching pairs are visited'],
     correctAnswerIndex: 0,
-    explanation: 'The table of mÃ—n cells is filled cell by cell with O(1) work each.',
+    explanation: 'The table of m×n cells is filled cell by cell with O(1) work each.',
     hint: 'Count the table cells.'
   },
   {
@@ -1478,7 +1478,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q15-floydwarshall-3',
     levelId: 'level-15-floydwarshall',
-    question: 'Edges: 0â€“1 = 3, 0â€“2 = 8, 1â€“2 = 2. What is the shortest distance from 0 to 2?',
+    question: 'Edges: 0–1 = 3, 0–2 = 8, 1–2 = 2. What is the shortest distance from 0 to 2?',
     options: ['5', '8', '13', '3'],
     correctAnswerIndex: 0,
     explanation: 'Going through vertex 1: 3 + 2 = 5 beats the direct edge of 8.',
@@ -1496,10 +1496,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q15-floydwarshall-5',
     levelId: 'level-15-floydwarshall',
-    question: 'Floyd-Warshall runs in O(VÂ³) time and uses...',
-    options: ['O(VÂ²) space', 'O(VÂ³) space', 'O(E) space', 'O(log V) space'],
+    question: 'Floyd-Warshall runs in O(V³) time and uses...',
+    options: ['O(V²) space', 'O(V³) space', 'O(E) space', 'O(log V) space'],
     correctAnswerIndex: 0,
-    explanation: 'One VÃ—V distance matrix (plus an optional next matrix) is stored.',
+    explanation: 'One V×V distance matrix (plus an optional next matrix) is stored.',
     hint: 'All-pairs table size.'
   },
   {
@@ -1533,7 +1533,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q15-floydwarshall-9',
     levelId: 'level-15-floydwarshall',
     question: 'The core recurrence of Floyd-Warshall is...',
-    options: ['dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])', 'dist[i][j] = dist[i][j] + dist[k][k]', 'dist[i][j] = max(dist[i][k], dist[k][j])', 'dist[i][j] = dist[k][i] âˆ’ dist[j][k]'],
+    options: ['dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])', 'dist[i][j] = dist[i][j] + dist[k][k]', 'dist[i][j] = max(dist[i][k], dist[k][j])', 'dist[i][j] = dist[k][i] − dist[j][k]'],
     correctAnswerIndex: 0,
     explanation: 'Every pair may improve by routing through intermediate k.',
     hint: 'Combine two halves through k.'
@@ -1542,7 +1542,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q15-floydwarshall-10',
     levelId: 'level-15-floydwarshall',
     question: 'After the algorithm, the final distance matrix contains...',
-    options: ['shortest distances for all VÂ² vertex pairs', 'distances for the current level only', 'only direct edges', 'MST edge weights'],
+    options: ['shortest distances for all V² vertex pairs', 'distances for the current level only', 'only direct edges', 'MST edge weights'],
     correctAnswerIndex: 0,
     explanation: 'All-pairs output: one row and column per vertex.',
     hint: 'Every ordered pair gets an entry.'
@@ -1550,16 +1550,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q16-matrixchain-3',
     levelId: 'level-16-matrixchain',
-    question: 'Multiplying a 10Ã—20 matrix by a 20Ã—30 matrix needs how many scalar multiplications?',
+    question: 'Multiplying a 10×20 matrix by a 20×30 matrix needs how many scalar multiplications?',
     options: ['6000', '200', '300', '600'],
     correctAnswerIndex: 0,
-    explanation: '10Â·20Â·30 = 6000 multiplications for the resulting 10Ã—30 product.',
+    explanation: '10·20·30 = 6000 multiplications for the resulting 10×30 product.',
     hint: 'Multiply the three dimensions.'
   },
   {
     id: 'q16-matrixchain-4',
     levelId: 'level-16-matrixchain',
-    question: 'A = 10Ã—30, B = 30Ã—5, C = 5Ã—60. What is the minimum cost to multiply the chain?',
+    question: 'A = 10×30, B = 30×5, C = 5×60. What is the minimum cost to multiply the chain?',
     options: ['4500', '27000', '9000', '18000'],
     correctAnswerIndex: 0,
     explanation: '(AB)C costs 1500 + 3000 = 4500; A(BC) costs 9000 + 18000 = 27000.',
@@ -1569,25 +1569,25 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q16-matrixchain-5',
     levelId: 'level-16-matrixchain',
     question: 'The matrix-chain recurrence is dp[i][j] = min over k of...',
-    options: ['dp[i][k] + dp[k+1][j] + p[iâˆ’1]Â·p[k]Â·p[j]', 'dp[i][k] + dp[k+1][j]', 'p[iâˆ’1]Â·p[k]Â·p[j]', 'dp[i][jâˆ’1] + p[i]Â·p[j]'],
+    options: ['dp[i][k] + dp[k+1][j] + p[i−1]·p[k]·p[j]', 'dp[i][k] + dp[k+1][j]', 'p[i−1]·p[k]·p[j]', 'dp[i][j−1] + p[i]·p[j]'],
     correctAnswerIndex: 0,
     explanation: 'Split at k, solve both halves, then pay the cost of combining the products.',
-    hint: 'Split, solve, combine â€” with dimensions p.'
+    hint: 'Split, solve, combine — with dimensions p.'
   },
   {
     id: 'q16-matrixchain-6',
     levelId: 'level-16-matrixchain',
     question: 'A chain of n matrices must be split into how many pairs of sub-chains at each split?',
-    options: ['n âˆ’ 1 possible split positions (k = 1..nâˆ’1)', 'n positions', 'exactly 2', 'n/2 positions'],
+    options: ['n − 1 possible split positions (k = 1..n−1)', 'n positions', 'exactly 2', 'n/2 positions'],
     correctAnswerIndex: 0,
-    explanation: 'The chain can be cut after any of the first n âˆ’ 1 matrices.',
+    explanation: 'The chain can be cut after any of the first n − 1 matrices.',
     hint: 'One fewer split point than matrices.'
   },
   {
     id: 'q16-matrixchain-7',
     levelId: 'level-16-matrixchain',
     question: 'The matrix-chain DP table size is...',
-    options: ['n Ã— n', 'n Ã— n Ã— n', '2n Ã— 2n', '(nâˆ’1) Ã— (nâˆ’1)'],
+    options: ['n × n', 'n × n × n', '2n × 2n', '(n−1) × (n−1)'],
     correctAnswerIndex: 0,
     explanation: 'One cell per (i, j) interval of the chain.',
     hint: 'All intervals of matrices.'
@@ -1596,10 +1596,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q16-matrixchain-8',
     levelId: 'level-16-matrixchain',
     question: 'Matrix-chain multiplication DP runs in...',
-    options: ['O(nÂ³)', 'O(nÂ²)', 'O(n log n)', 'O(2^n)'],
+    options: ['O(n³)', 'O(n²)', 'O(n log n)', 'O(2^n)'],
     correctAnswerIndex: 0,
-    explanation: 'nÂ² intervals, each scanning up to n split positions.',
-    hint: 'Intervals Ã— split points.'
+    explanation: 'n² intervals, each scanning up to n split positions.',
+    hint: 'Intervals × split points.'
   },
   {
     id: 'q16-matrixchain-9',
@@ -1677,7 +1677,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q17-dsu-9',
     levelId: 'level-17-dsu',
     question: 'After k successful unions among N isolated elements (no merges within a set), the number of sets is...',
-    options: ['N âˆ’ k', 'N + k', 'k', 'N'],
+    options: ['N − k', 'N + k', 'k', 'N'],
     correctAnswerIndex: 0,
     explanation: 'Each union merges two distinct sets, reducing the count by one.',
     hint: 'Each union removes one set.'
@@ -1686,7 +1686,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q17-dsu-10',
     levelId: 'level-17-dsu',
     question: 'The amortized cost of find() with both optimizations is...',
-    options: ['O(Î±(N)) â€” effectively O(1)', 'O(log N)', 'O(N)', 'O(NÂ²)'],
+    options: ['O(α(N)) — effectively O(1)', 'O(log N)', 'O(N)', 'O(N²)'],
     correctAnswerIndex: 0,
     explanation: 'The inverse Ackermann function grows so slowly it is constant in practice.',
     hint: 'Tiny, tiny growth rate.'
@@ -1713,7 +1713,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q18-kmp-5',
     levelId: 'level-18-kmp',
     question: 'When text[i] mismatches pattern[j], KMP continues with...',
-    options: ['j = lps[j âˆ’ 1] (no backtracking in the text)', 'j = 0 and i = i + 1', 'i = i âˆ’ 1', 'j = pattern.length'],
+    options: ['j = lps[j − 1] (no backtracking in the text)', 'j = 0 and i = i + 1', 'i = i − 1', 'j = pattern.length'],
     correctAnswerIndex: 0,
     explanation: 'The failure function reuses the matched prefix instead of rescanning.',
     hint: 'The text pointer never moves back.'
@@ -1722,7 +1722,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q18-kmp-6',
     levelId: 'level-18-kmp',
     question: 'After finding a full match at text[i], KMP continues searching for overlapping matches with...',
-    options: ['j = lps[j âˆ’ 1]', 'j = 0', 'i = i + j', 'j = j âˆ’ 1'],
+    options: ['j = lps[j − 1]', 'j = 0', 'i = i + j', 'j = j − 1'],
     correctAnswerIndex: 0,
     explanation: 'The border of the full pattern enables overlapping occurrences.',
     hint: 'The failure function again.'
@@ -1731,7 +1731,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q18-kmp-7',
     levelId: 'level-18-kmp',
     question: 'KMP preprocesses the pattern in O(M) and scans the text in O(N), giving total...',
-    options: ['O(N + M)', 'O(NÂ·M)', 'O(N log M)', 'O(NÂ²)'],
+    options: ['O(N + M)', 'O(N·M)', 'O(N log M)', 'O(N²)'],
     correctAnswerIndex: 0,
     explanation: 'The text is scanned exactly once with the LPS array doing the work.',
     hint: 'Linear in both inputs.'
@@ -1740,7 +1740,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q18-kmp-8',
     levelId: 'level-18-kmp',
     question: 'LPS[i] is defined as the length of the longest proper prefix of pattern[0..i] that is also a...',
-    options: ['suffix of pattern[0..i]', 'prefix of pattern[0..iâˆ’1]', 'substring of the text', 'palindrome'],
+    options: ['suffix of pattern[0..i]', 'prefix of pattern[0..i−1]', 'substring of the text', 'palindrome'],
     correctAnswerIndex: 0,
     explanation: 'The border is a prefix that also ends the substring.',
     hint: 'Same string at both ends.'
@@ -1758,7 +1758,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q18-kmp-10',
     levelId: 'level-18-kmp',
     question: 'A key property of KMP is that the text pointer i...',
-    options: ['never moves backwards', 'moves back to i âˆ’ lps[j]', 'restarts at each match', 'moves twice per character'],
+    options: ['never moves backwards', 'moves back to i − lps[j]', 'restarts at each match', 'moves twice per character'],
     correctAnswerIndex: 0,
     explanation: 'Linear scanning is guaranteed because i only ever increments.',
     hint: 'One forward pass over the text.'
@@ -1787,14 +1787,14 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'The LCP array stores, for consecutive suffixes in the suffix array, ...',
     options: ['the length of their longest common prefix', 'the distance between their start indices', 'their total length', 'the number of shared characters at the end'],
     correctAnswerIndex: 0,
-    explanation: 'LCP[i] = length of the common prefix of SA[iâˆ’1] and SA[i].',
+    explanation: 'LCP[i] = length of the common prefix of SA[i−1] and SA[i].',
     hint: 'Shared beginning length of neighbors.'
   },
   {
     id: 'q19-suffixarray-6',
     levelId: 'level-19-suffixarray',
     question: 'With a suffix array of length N, searching a pattern of length M takes...',
-    options: ['O(M log N)', 'O(N + M)', 'O(NÂ·M)', 'O(log N)'],
+    options: ['O(M log N)', 'O(N + M)', 'O(N·M)', 'O(log N)'],
     correctAnswerIndex: 0,
     explanation: 'Binary search compares the pattern with suffixes, each comparison O(M).',
     hint: 'Binary search with a per-comparison cost.'
@@ -1803,7 +1803,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q19-suffixarray-7',
     levelId: 'level-19-suffixarray',
     question: 'The number of distinct substrings of a string of length N can be computed as...',
-    options: ['N(N+1)/2 âˆ’ sum(LCP array)', 'N(N+1)/2', 'sum of the suffix array', 'NÂ² âˆ’ LCP[0]'],
+    options: ['N(N+1)/2 − sum(LCP array)', 'N(N+1)/2', 'sum of the suffix array', 'N² − LCP[0]'],
     correctAnswerIndex: 0,
     explanation: 'Subtracting shared prefix lengths removes the duplicates among all suffixes.',
     hint: 'All substrings minus repeated prefixes.'
@@ -1812,7 +1812,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q19-suffixarray-8',
     levelId: 'level-19-suffixarray',
     question: 'Suffix arrays are typically built in...',
-    options: ['O(N log N) with the doubling method', 'O(NÂ²) always', 'O(2^N)', 'O(N logÂ² N) only for palindromes'],
+    options: ['O(N log N) with the doubling method', 'O(N²) always', 'O(2^N)', 'O(N log² N) only for palindromes'],
     correctAnswerIndex: 0,
     explanation: 'The doubling algorithm sorts suffixes by 1, 2, 4, ... character ranks in O(N log N).',
     hint: 'Sort by powers of two lengths.'
@@ -1839,16 +1839,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q20-amortized-3',
     levelId: 'level-20-amortized',
     question: 'The amortized cost per append to a dynamically resizing (doubling) array is...',
-    options: ['O(1)', 'O(n)', 'O(log n)', 'O(nÂ²)'],
+    options: ['O(1)', 'O(n)', 'O(log n)', 'O(n²)'],
     correctAnswerIndex: 0,
-    explanation: 'A resize costing O(n) is paid for by n cheap appends â€” O(1) per operation on average.',
+    explanation: 'A resize costing O(n) is paid for by n cheap appends — O(1) per operation on average.',
     hint: 'Aggregate the total over n operations.'
   },
   {
     id: 'q20-amortized-4',
     levelId: 'level-20-amortized',
-    question: 'The Potential Method defines a potential function Î¦ such that...',
-    options: ['amortized cost = actual cost + Î”Î¦', 'amortized cost = actual cost âˆ’ Î”Î¦', 'Î¦ must be negative', 'Î¦ equals the operation count'],
+    question: 'The Potential Method defines a potential function Φ such that...',
+    options: ['amortized cost = actual cost + ΔΦ', 'amortized cost = actual cost − ΔΦ', 'Φ must be negative', 'Φ equals the operation count'],
     correctAnswerIndex: 0,
     explanation: 'The change in potential stores "saved work" from cheap operations to pay for future ones.',
     hint: 'The potential bank account.'
@@ -1875,18 +1875,18 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q20-amortized-7',
     levelId: 'level-20-amortized',
     question: 'A stack supporting push, pop, and multipop has amortized cost...',
-    options: ['O(1) per operation', 'O(n) per operation', 'O(log n) per operation', 'O(nÂ²) per operation'],
+    options: ['O(1) per operation', 'O(n) per operation', 'O(log n) per operation', 'O(n²) per operation'],
     correctAnswerIndex: 0,
-    explanation: 'Each element is pushed once and popped once â€” total work is O(n) for n operations.',
+    explanation: 'Each element is pushed once and popped once — total work is O(n) for n operations.',
     hint: 'Every pop removes an element that was pushed.'
   },
   {
     id: 'q20-amortized-8',
     levelId: 'level-20-amortized',
     question: 'Incrementing a binary counter n times flips at most...',
-    options: ['2n bits total', 'nÂ² bits', 'n log n bits', 'n bits total'],
+    options: ['2n bits total', 'n² bits', 'n log n bits', 'n bits total'],
     correctAnswerIndex: 0,
-    explanation: 'Each increment flips all trailing 1s and the next 0 â€” bit i flips every 2^i increments, summing to â‰¤ 2n.',
+    explanation: 'Each increment flips all trailing 1s and the next 0 — bit i flips every 2^i increments, summing to ≤ 2n.',
     hint: 'Sum the flip frequencies across bits.'
   },
   {
@@ -1895,16 +1895,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'Amortized analysis is...',
     options: ['a worst-case bound averaged over a sequence, not an average-case analysis', 'the same as average-case analysis', 'an upper bound on a single operation', 'a randomized expectation'],
     correctAnswerIndex: 0,
-    explanation: 'It is worst-case over the sequence â€” no probability involved.',
+    explanation: 'It is worst-case over the sequence — no probability involved.',
     hint: 'Deterministic, but over many operations.'
   },
   {
     id: 'q20-amortized-10',
     levelId: 'level-20-amortized',
-    question: 'If Î¦ starts at 0 and never drops below 0, then total amortized cost...',
+    question: 'If Φ starts at 0 and never drops below 0, then total amortized cost...',
     options: ['is an upper bound on total actual cost', 'is lower than the actual cost', 'is unrelated to actual cost', 'must equal actual cost'],
     correctAnswerIndex: 0,
-    explanation: 'Since Î£(actual) = Î£(amortized) âˆ’ (Î¦_final âˆ’ Î¦_0) â‰¤ Î£(amortized).',
+    explanation: 'Since Σ(actual) = Σ(amortized) − (Φ_final − Φ_0) ≤ Σ(amortized).',
     hint: 'The potential bookkeeping never understates work.'
   },
   {
@@ -1956,7 +1956,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q21-fibonacci-8',
     levelId: 'level-21-fibonacci',
     question: 'The maximum degree of any node in a Fibonacci heap with n elements is...',
-    options: ['O(log n)', 'O(n)', 'O(1)', 'O(âˆšn)'],
+    options: ['O(log n)', 'O(n)', 'O(1)', 'O(√n)'],
     correctAnswerIndex: 0,
     explanation: 'The marking bound makes tree sizes grow at least Fibonacci-like with degree.',
     hint: 'The name of the heap gives a hint.'
@@ -1965,7 +1965,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q21-fibonacci-9',
     levelId: 'level-21-fibonacci',
     question: 'Dijkstra\u2019s algorithm with a Fibonacci heap runs in...',
-    options: ['O(E + V log V)', 'O((V + E) log V)', 'O(VÂ²)', 'O(E log V)'],
+    options: ['O(E + V log V)', 'O((V + E) log V)', 'O(V²)', 'O(E log V)'],
     correctAnswerIndex: 0,
     explanation: 'E decrease-keys at O(1) plus V extract-mins at O(log V).',
     hint: 'Count the two heap operation kinds.'
@@ -1994,7 +1994,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'A large prime is used as the modulus in Rabin-Karp to...',
     options: ['reduce hash collisions', 'speed up string comparison', 'allow negative hashes', 'make the pattern shorter'],
     correctAnswerIndex: 0,
-    explanation: 'A big modulus spreads hashes, so collisions â€” and O(M) verifications â€” are rare.',
+    explanation: 'A big modulus spreads hashes, so collisions — and O(M) verifications — are rare.',
     hint: 'Fewer false matches.'
   },
   {
@@ -2010,7 +2010,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q22-rabinkarp-6',
     levelId: 'level-22-rabinkarp',
     question: 'Rabin-Karp\u2019s average time is O(N + M) but the worst case is...',
-    options: ['O(NÂ·M) when many windows collide', 'O(NÂ²)', 'O(2^N)', 'O(N log M)'],
+    options: ['O(N·M) when many windows collide', 'O(N²)', 'O(2^N)', 'O(N log M)'],
     correctAnswerIndex: 0,
     explanation: 'If every window hash matches, each is verified in O(M).',
     hint: 'Pathological hash collisions.'
@@ -2019,7 +2019,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q22-rabinkarp-7',
     levelId: 'level-22-rabinkarp',
     question: 'Shifting the window from position i to i + 1 (length M, base d, modulus q) computes the new hash as...',
-    options: ['h = ((h âˆ’ old_charÂ·d^(Mâˆ’1))Â·d + new_char) mod q', 'h = (h + new_char) mod q', 'h = (h âˆ’ old_char) mod q', 'h = old_charÂ·new_char mod q'],
+    options: ['h = ((h − old_char·d^(M−1))·d + new_char) mod q', 'h = (h + new_char) mod q', 'h = (h − old_char) mod q', 'h = old_char·new_char mod q'],
     correctAnswerIndex: 0,
     explanation: 'Remove the leading contribution, scale, add the new trailing character.',
     hint: 'Slide out, shift, slide in.'
@@ -2054,10 +2054,10 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q23-convexhull-3',
     levelId: 'level-23-convexhull',
-    question: 'The cross product (b âˆ’ a) Ã— (c âˆ’ a) being positive means the turn at b is...',
+    question: 'The cross product (b − a) × (c − a) being positive means the turn at b is...',
     options: ['counter-clockwise', 'clockwise', 'collinear', 'undefined'],
     correctAnswerIndex: 0,
-    explanation: 'A positive cross product indicates a left (counter-clockwise) turn from aâ†’bâ†’c.',
+    explanation: 'A positive cross product indicates a left (counter-clockwise) turn from a→b→c.',
     hint: 'Positive = left turn.'
   },
   {
@@ -2073,7 +2073,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q23-convexhull-5',
     levelId: 'level-23-convexhull',
     question: 'Jarvis March (gift wrapping) runs in...',
-    options: ['O(NÂ·H) where H is the hull size', 'O(N log N)', 'O(NÂ²) always', 'O(H log N)'],
+    options: ['O(N·H) where H is the hull size', 'O(N log N)', 'O(N²) always', 'O(H log N)'],
     correctAnswerIndex: 0,
     explanation: 'Each hull vertex is found by scanning all N points.',
     hint: 'The complexity involves the output size.'
@@ -2093,14 +2093,14 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'Andrew\u2019s monotone chain sorts points by...',
     options: ['(x, y) and builds the hull in two passes (lower + upper)', 'polar angle', 'random order', 'y, then angle'],
     correctAnswerIndex: 0,
-    explanation: 'Two sweeps â€” left-to-right and right-to-left â€” build the lower and upper hulls.',
+    explanation: 'Two sweeps — left-to-right and right-to-left — build the lower and upper hulls.',
     hint: 'Sort once, sweep twice.'
   },
   {
     id: 'q23-convexhull-8',
     levelId: 'level-23-convexhull',
     question: 'In Graham Scan, a point is popped from the hull stack when it makes...',
-    options: ['a non-counter-clockwise turn (including collinear)', 'a counter-clockwise turn', 'a 90Â° turn', 'any turn'],
+    options: ['a non-counter-clockwise turn (including collinear)', 'a counter-clockwise turn', 'a 90° turn', 'any turn'],
     correctAnswerIndex: 0,
     explanation: 'Non-CCW turns break the convex boundary, so the middle point leaves.',
     hint: 'Hull boundary must turn strictly left.'
@@ -2189,7 +2189,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
   {
     id: 'q24-npcomplete-10',
     levelId: 'level-24-npcomplete',
-    question: 'Which problem is definitely in P (assuming P â‰  NP)?',
+    question: 'Which problem is definitely in P (assuming P ≠ NP)?',
     options: ['Shortest path with non-negative weights (Dijkstra)', '3-SAT', 'Hamiltonian cycle', 'TSP decision'],
     correctAnswerIndex: 0,
     explanation: 'Dijkstra solves it in polynomial time, so it is in P, not NP-complete.',
@@ -2235,7 +2235,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q25-toposort-5',
     levelId: 'level-25-toposort',
     question: 'What is the time complexity of Kahn\u2019s algorithm with adjacency lists?',
-    options: ['O(V + E)', 'O(VÂ²)', 'O(E log V)', 'O(V log V)'],
+    options: ['O(V + E)', 'O(V²)', 'O(E log V)', 'O(V log V)'],
     correctAnswerIndex: 0,
     explanation: 'Each vertex is dequeued once and each edge relaxes an in-degree once: O(V + E).',
     hint: 'Count how many times each edge is touched.'
@@ -2309,16 +2309,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'In linear probing, when a slot is occupied we:',
     options: ['Try the next consecutive slot', 'Try slots at squared offsets', 'Rehash the key', 'Abort insertion'],
     correctAnswerIndex: 0,
-    explanation: 'Linear probing scans (h(k) + i) mod m for i = 0, 1, 2, â€¦',
+    explanation: 'Linear probing scans (h(k) + i) mod m for i = 0, 1, 2, …',
     hint: 'Move one step at a time.'
   },
   {
     id: 'q26-hashing-4',
     levelId: 'level-26-hashing',
-    question: 'What does load factor Î± = n/m measure?',
+    question: 'What does load factor α = n/m measure?',
     options: ['Average number of keys per slot', 'Hash function speed', 'Table size in bytes', 'Number of hash functions'],
     correctAnswerIndex: 0,
-    explanation: 'Î± = keys/slots; high Î± raises collision probability, so tables resize near Î± = 0.75.',
+    explanation: 'α = keys/slots; high α raises collision probability, so tables resize near α = 0.75.',
     hint: 'n keys into m slots.'
   },
   {
@@ -2345,13 +2345,13 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'Double hashing avoids clustering by using:',
     options: ['A second hash function for the probe step', 'Two linked lists per bucket', 'Sorting before probing', 'Bigger slots'],
     correctAnswerIndex: 0,
-    explanation: 'Probe sequence is (h1(k) + iÂ·h2(k)) mod m, varying the step per key.',
+    explanation: 'Probe sequence is (h1(k) + i·h2(k)) mod m, varying the step per key.',
     hint: 'A second hash decides the step size.'
   },
   {
     id: 'q26-hashing-8',
     levelId: 'level-26-hashing',
-    question: 'When Î± of a hash table reaches the threshold, the standard fix is:',
+    question: 'When α of a hash table reaches the threshold, the standard fix is:',
     options: ['Rehash into a larger table', 'Disallow new inserts', 'Switch to linear search', 'Delete all colliding keys'],
     correctAnswerIndex: 0,
     explanation: 'Resizing (typically doubling) and rehashing restores a low load factor.',
@@ -2433,7 +2433,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q27-fenwick-7',
     levelId: 'level-27-fenwick',
     question: 'Building a BIT from an array of size N costs:',
-    options: ['O(N) with a linear build trick', 'O(N log N) always', 'O(NÂ²)', 'O(log N)'],
+    options: ['O(N) with a linear build trick', 'O(N log N) always', 'O(N²)', 'O(log N)'],
     correctAnswerIndex: 0,
     explanation: 'Adding arr[i] into tree[i] and its ancestors once each totals O(N).',
     hint: 'Each index propagates once per level.'
@@ -2444,7 +2444,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'The index you add to when updating position i is:',
     options: ['i += lowbit(i)', 'i *= 2', 'i -= lowbit(i)', 'i = i + 1 only'],
     correctAnswerIndex: 0,
-    explanation: 'Updates climb: i â†’ i + lowbit(i) until past N.',
+    explanation: 'Updates climb: i → i + lowbit(i) until past N.',
     hint: 'Opposite direction of the query walk.'
   },
   {
@@ -2469,7 +2469,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q28-editdistance-1',
     levelId: 'level-28-editdistance',
     question: 'What is the edit distance between "cat" and "car"?',
-    options: ['1 (substitute t â†’ r)', '2', '3', '0'],
+    options: ['1 (substitute t → r)', '2', '3', '0'],
     correctAnswerIndex: 0,
     explanation: 'Only the last character differs, so one substitution suffices.',
     hint: 'Compare the strings position by position.'
@@ -2498,16 +2498,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'For mismatched characters the recurrence is:',
     options: ['1 + min(dp[i-1][j], dp[i][j-1], dp[i-1][j-1])', 'dp[i-1][j] only', 'dp[i-1][j-1] * 2', 'max(dp[i-1][j], dp[i][j-1])'],
     correctAnswerIndex: 0,
-    explanation: 'Delete, insert, or substitute â€” the cheapest of the three plus one.',
+    explanation: 'Delete, insert, or substitute — the cheapest of the three plus one.',
     hint: 'Take the minimum of three neighbors.'
   },
   {
     id: 'q28-editdistance-5',
     levelId: 'level-28-editdistance',
     question: 'The time and space complexity of the classic 2D edit distance DP is:',
-    options: ['O(NÂ·M) time, O(NÂ·M) space', 'O(N) time, O(1) space', 'O(N log M)', 'O(NÂ²Â·MÂ²)'],
+    options: ['O(N·M) time, O(N·M) space', 'O(N) time, O(1) space', 'O(N log M)', 'O(N²·M²)'],
     correctAnswerIndex: 0,
-    explanation: 'Filling an NÃ—M grid gives quadratic time; the full grid needs quadratic space.',
+    explanation: 'Filling an N×M grid gives quadratic time; the full grid needs quadratic space.',
     hint: 'Two strings of lengths N and M.'
   },
   {
@@ -2552,16 +2552,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'LCS (Longest Common Subsequence) relates to edit distance by allowing:',
     options: ['Only insertions and deletions, no substitutions', 'Only substitutions', 'Reversals', 'Any combination of two ops'],
     correctAnswerIndex: 0,
-    explanation: 'Without substitution, edit distance = N + M - 2Â·LCS length.',
+    explanation: 'Without substitution, edit distance = N + M - 2·LCS length.',
     hint: 'What can you build with only insert/delete?'
   },
   {
     id: 'q29-bitmaskdp-1',
     levelId: 'level-29-bitmaskdp',
     question: 'What is the complexity of Held-Karp (bitmask TSP) for N cities?',
-    options: ['O(2^N Â· NÂ²)', 'O(N!)', 'O(NÂ³)', 'O(2^N Â· N)'],
+    options: ['O(2^N · N²)', 'O(N!)', 'O(N³)', 'O(2^N · N)'],
     correctAnswerIndex: 0,
-    explanation: 'There are 2^N subsets and N endpoints, each transitioned over N predecessors: O(2^N Â· NÂ²).',
+    explanation: 'There are 2^N subsets and N endpoints, each transitioned over N predecessors: O(2^N · N²).',
     hint: 'Subsets times endpoints times predecessors.'
   },
   {
@@ -2595,7 +2595,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q29-bitmaskdp-5',
     levelId: 'level-29-bitmaskdp',
     question: 'Why is Held-Karp dramatically faster than brute-force TSP for N = 20?',
-    options: ['2^20Â·20Â² â‰ˆ 400M vs 20! â‰ˆ 2.4Â·10^18', 'It is exponential too but smaller exponent', 'It is polynomial', 'It skips cities'],
+    options: ['2^20·20² ≈ 400M vs 20! ≈ 2.4·10^18', 'It is exponential too but smaller exponent', 'It is polynomial', 'It skips cities'],
     correctAnswerIndex: 0,
     explanation: 'Brute force explores (N-1)! permutations; Held-Karp collapses permutations into subset states.',
     hint: 'Compare orders of magnitude.'
@@ -2604,9 +2604,9 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q29-bitmaskdp-6',
     levelId: 'level-29-bitmaskdp',
     question: 'Subset-sum DP with N items and target T using bitmasks needs:',
-    options: ['2^N states (or O(NÂ·T) with sums)', 'TÂ² states', 'N! states', 'No states'],
+    options: ['2^N states (or O(N·T) with sums)', 'T² states', 'N! states', 'No states'],
     correctAnswerIndex: 0,
-    explanation: 'Mask tracks which items are used; alternative is classic O(NÂ·T) DP on sums.',
+    explanation: 'Mask tracks which items are used; alternative is classic O(N·T) DP on sums.',
     hint: 'Either masks or target values.'
   },
   {
@@ -2624,7 +2624,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'N = 30 with 2^N states is usually:',
     options: ['Too large (~10^9 states) for typical time limits', 'Trivial', 'Optimal', 'Impossible to code'],
     correctAnswerIndex: 0,
-    explanation: 'About a billion states is infeasible; N â‰¤ 20 is the practical bound for bitmask DP.',
+    explanation: 'About a billion states is infeasible; N ≤ 20 is the practical bound for bitmask DP.',
     hint: 'Count the states.'
   },
   {
@@ -2633,7 +2633,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'The classic NP-Hard problem solved by Held-Karp bitmask DP is:',
     options: ['Travelling Salesman Problem', 'Binary search', 'MST', 'KMP'],
     correctAnswerIndex: 0,
-    explanation: 'Held-Karp gives the exact TSP in O(2^N Â· NÂ²) instead of factorial time.',
+    explanation: 'Held-Karp gives the exact TSP in O(2^N · N²) instead of factorial time.',
     hint: 'Tour through all cities.'
   },
   {
@@ -2642,7 +2642,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'In bitmask DP for matching problems, a full mask (1 << N) - 1 means:',
     options: ['All N items are selected', 'No items selected', 'Half selected', 'An error'],
     correctAnswerIndex: 0,
-    explanation: 'N ones in binary â€” the complete subset used to collect the final answer.',
+    explanation: 'N ones in binary — the complete subset used to collect the final answer.',
     hint: 'All bits set.'
   },
   {
@@ -2678,7 +2678,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'Ford-Fulkerson using BFS for augmenting paths is called:',
     options: ['Edmonds-Karp', 'Kruskal', 'Bellman-Ford', 'Floyd-Warshall'],
     correctAnswerIndex: 0,
-    explanation: 'BFS (shortest augmenting path) gives the Edmonds-Karp bound of O(VÂ·EÂ²).',
+    explanation: 'BFS (shortest augmenting path) gives the Edmonds-Karp bound of O(V·E²).',
     hint: 'Name of the BFS variant.'
   },
   {
@@ -2712,9 +2712,9 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q30-maxflow-8',
     levelId: 'level-30-maxflow',
     question: 'The complexity of Edmonds-Karp is:',
-    options: ['O(VÂ·EÂ²)', 'O(VÂ²)', 'O(E log V)', 'O(VÂ·E)'],
+    options: ['O(V·E²)', 'O(V²)', 'O(E log V)', 'O(V·E)'],
     correctAnswerIndex: 0,
-    explanation: 'O(E) BFS per augmentation, at most O(VÂ·E) augmentations.',
+    explanation: 'O(E) BFS per augmentation, at most O(V·E) augmentations.',
     hint: 'V times E BFS each costing E.'
   },
   {
@@ -2723,7 +2723,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'If no augmenting path exists in the residual graph, then:',
     options: ['The current flow is maximal', 'Add more capacity', 'Remove edges', 'Restart the algorithm'],
     correctAnswerIndex: 0,
-    explanation: 'No augmenting path implies a saturated cut â€” flow equals cut capacity, hence maximum.',
+    explanation: 'No augmenting path implies a saturated cut — flow equals cut capacity, hence maximum.',
     hint: 'Termination condition.'
   },
   {
@@ -2766,16 +2766,16 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q31-skiplist-4',
     levelId: 'level-31-skiplist',
     question: 'A skip list with p = 1/2 has approximately how many levels for N elements?',
-    options: ['logâ‚‚ N', 'N', 'NÂ²', 'sqrt(N)'],
+    options: ['log₂ N', 'N', 'N²', 'sqrt(N)'],
     correctAnswerIndex: 0,
-    explanation: 'Expected level count is logâ‚/â‚š N, i.e., logâ‚‚ N for p = 1/2.',
+    explanation: 'Expected level count is log₁/ₚ N, i.e., log₂ N for p = 1/2.',
     hint: 'Exponential decay of node counts per level.'
   },
   {
     id: 'q31-skiplist-5',
     levelId: 'level-31-skiplist',
     question: 'The expected space usage of a skip list is:',
-    options: ['O(N) (2N total pointers on average)', 'O(NÂ²)', 'O(N log N)', 'O(2^N)'],
+    options: ['O(N) (2N total pointers on average)', 'O(N²)', 'O(N log N)', 'O(2^N)'],
     correctAnswerIndex: 0,
     explanation: 'Each node averages 1/(1-p) = 2 pointers for p = 1/2.',
     hint: 'Sum of a geometric series.'
@@ -2795,7 +2795,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'Deletion in a skip list:',
     options: ['Unlinks the node at every level it appears', 'Rebuilds the whole list', 'Shifts all elements left', 'Uses rotations'],
     correctAnswerIndex: 0,
-    explanation: 'The node\u2019s predecessors at each level skip over it â€” O(log N) expected.',
+    explanation: 'The node\u2019s predecessors at each level skip over it — O(log N) expected.',
     hint: 'Fix all pointers pointing to it.'
   },
   {
@@ -2903,7 +2903,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'A single worst-case splay operation can cost:',
     options: ['O(N)', 'O(1)', 'O(log N) always', 'O(N log N)'],
     correctAnswerIndex: 0,
-    explanation: 'A skewed tree can force a deep rotation chain â€” but amortized across operations it is O(log N).',
+    explanation: 'A skewed tree can force a deep rotation chain — but amortized across operations it is O(log N).',
     hint: 'Worst case, not amortized.'
   },
   {
@@ -2919,7 +2919,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q33-radixsort-1',
     levelId: 'level-33-radixsort',
     question: 'What is the time complexity of Radix Sort on N numbers with d digits?',
-    options: ['O(d Â· N)', 'O(N log N)', 'O(NÂ²)', 'O(dÂ² Â· N)'],
+    options: ['O(d · N)', 'O(N log N)', 'O(N²)', 'O(d² · N)'],
     correctAnswerIndex: 0,
     explanation: 'Each of the d digit passes is a linear counting sort over N elements.',
     hint: 'Linear passes times digits.'
@@ -2939,7 +2939,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     question: 'Each radix pass relies on which underlying stable sort?',
     options: ['Counting sort', 'Insertion sort', 'Quick sort', 'Merge sort'],
     correctAnswerIndex: 0,
-    explanation: 'Counting sort over a small digit range (0â€“9 or 0â€“255) is linear per pass.',
+    explanation: 'Counting sort over a small digit range (0–9 or 0–255) is linear per pass.',
     hint: 'Linear by digit range.'
   },
   {
@@ -2991,7 +2991,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q33-radixsort-9',
     levelId: 'level-33-radixsort',
     question: 'The space complexity of counting sort is:',
-    options: ['O(k) auxiliary (plus output array)', 'O(1)', 'O(N log N)', 'O(kÂ²)'],
+    options: ['O(k) auxiliary (plus output array)', 'O(1)', 'O(N log N)', 'O(k²)'],
     correctAnswerIndex: 0,
     explanation: 'The count array of size k plus the output array of size N.',
     hint: 'Count buckets + output.'
@@ -3000,7 +3000,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q33-radixsort-10',
     levelId: 'level-33-radixsort',
     question: 'Which comparison-based lower bound does radix sort bypass?',
-    options: ['Î©(N log N)', 'Î©(NÂ²)', 'Î©(N)', 'Î©(2^N)'],
+    options: ['Ω(N log N)', 'Ω(N²)', 'Ω(N)', 'Ω(2^N)'],
     correctAnswerIndex: 0,
     explanation: 'Radix sort is not comparison-based, so the N log N decision-tree bound does not apply.',
     hint: 'Information-theoretic bound.'
@@ -3018,7 +3018,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q34-zalgo-2',
     levelId: 'level-34-zalgo',
     question: 'The Z-array is computed in:',
-    options: ['O(N) using the [l, r] window trick', 'O(NÂ²)', 'O(N log N)', 'O(MÂ·N)'],
+    options: ['O(N) using the [l, r] window trick', 'O(N²)', 'O(N log N)', 'O(M·N)'],
     correctAnswerIndex: 0,
     explanation: 'The maintained Z-box [l, r] lets later values copy earlier ones when inside the box.',
     hint: 'Linear with a sliding window.'
@@ -3063,7 +3063,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q34-zalgo-7',
     levelId: 'level-34-zalgo',
     question: 'The Z-algorithm finds all occurrences of a pattern in time:',
-    options: ['O(N + M)', 'O(NÂ·M)', 'O(N log M)', 'O(MÂ²)'],
+    options: ['O(N + M)', 'O(N·M)', 'O(N log M)', 'O(M²)'],
     correctAnswerIndex: 0,
     explanation: 'Linear Z-array computation over the concatenated string of length N + M + 1.',
     hint: 'Linear overall.'
@@ -3099,7 +3099,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q35-manacher-1',
     levelId: 'level-35-manacher',
     question: "What is the time complexity of Manacher's algorithm?",
-    options: ['O(N)', 'O(NÂ²)', 'O(N log N)', 'O(NÂ³)'],
+    options: ['O(N)', 'O(N²)', 'O(N log N)', 'O(N³)'],
     correctAnswerIndex: 0,
     explanation: 'The palindrome radius array is built with linear amortized work per character.',
     hint: 'Linear time palindrome finder.'
@@ -3126,7 +3126,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q35-manacher-4',
     levelId: 'level-35-manacher',
     question: 'The mirror of index i inside the current palindrome is:',
-    options: ['2Â·center - i', 'center + i', 'i - center', 'center - i'],
+    options: ['2·center - i', 'center + i', 'i - center', 'center - i'],
     correctAnswerIndex: 0,
     explanation: 'Mirroring across the current center reuses already-computed radii.',
     hint: 'Symmetric reflection.'
@@ -3153,7 +3153,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q35-manacher-7',
     levelId: 'level-35-manacher',
     question: 'A naive expansion around each center costs:',
-    options: ['O(NÂ²) total', 'O(N)', 'O(N log N)', 'O(NÂ³)'],
+    options: ['O(N²) total', 'O(N)', 'O(N log N)', 'O(N³)'],
     correctAnswerIndex: 0,
     explanation: 'N centers each expanding O(N) gives quadratic time; Manacher avoids re-expansion.',
     hint: 'Before optimization.'
@@ -3180,7 +3180,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q35-manacher-10',
     levelId: 'level-35-manacher',
     question: 'The space complexity of Manacher\u2019s algorithm is:',
-    options: ['O(N) for the radius array', 'O(1)', 'O(NÂ²)', 'O(log N)'],
+    options: ['O(N) for the radius array', 'O(1)', 'O(N²)', 'O(log N)'],
     correctAnswerIndex: 0,
     explanation: 'One radius array of length 2N+1 over the transformed string.',
     hint: 'Linear auxiliary space.'
@@ -3216,7 +3216,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q36-bloomfilter-4',
     levelId: 'level-36-bloomfilter',
     question: 'The optimal number of hash functions k for m bits and n items is:',
-    options: ['(m/n) Â· ln 2', 'n/m', 'm', '1 always'],
+    options: ['(m/n) · ln 2', 'n/m', 'm', '1 always'],
     correctAnswerIndex: 0,
     explanation: 'This minimizes the false-positive rate for a fixed m/n ratio.',
     hint: 'Minimizes the error formula.'
@@ -3243,7 +3243,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q36-bloomfilter-7',
     levelId: 'level-36-bloomfilter',
     question: 'The space benefit of Bloom filters over hash sets is:',
-    options: ['Constant bits per item regardless of key size', 'Zero bits', 'NÂ² bits', 'It stores full keys'],
+    options: ['Constant bits per item regardless of key size', 'Zero bits', 'N² bits', 'It stores full keys'],
     correctAnswerIndex: 0,
     explanation: 'Only hash-derived bits are stored, not the keys themselves.',
     hint: 'Keys never stored.'
@@ -3279,7 +3279,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q37-sparsetable-1',
     levelId: 'level-37-sparsetable',
     question: 'What are the build and query complexities of a Sparse Table?',
-    options: ['Build O(N log N), query O(1)', 'Build O(N), query O(log N)', 'Build O(N log N), query O(log N)', 'Build O(NÂ²), query O(1)'],
+    options: ['Build O(N log N), query O(1)', 'Build O(N), query O(log N)', 'Build O(N log N), query O(log N)', 'Build O(N²), query O(1)'],
     correctAnswerIndex: 0,
     explanation: 'N log N intervals are precomputed, and overlapping two intervals answers any range in O(1).',
     hint: 'Power-of-two intervals.'
@@ -3315,7 +3315,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q37-sparsetable-5',
     levelId: 'level-37-sparsetable',
     question: 'Range sum queries on a sparse table:',
-    options: ['Need log N time (sum is not idempotent)', 'Are also O(1)', 'Are impossible', 'Take O(NÂ²)'],
+    options: ['Need log N time (sum is not idempotent)', 'Are also O(1)', 'Are impossible', 'Take O(N²)'],
     correctAnswerIndex: 0,
     explanation: 'Sum cannot overlap intervals, so queries decompose into O(log N) disjoint segments.',
     hint: 'Overlap would double-count.'
@@ -3342,9 +3342,9 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q37-sparsetable-8',
     levelId: 'level-37-sparsetable',
     question: 'The total memory of a sparse table is:',
-    options: ['O(N log N)', 'O(N)', 'O(log N)', 'O(NÂ²)'],
+    options: ['O(N log N)', 'O(N)', 'O(log N)', 'O(N²)'],
     correctAnswerIndex: 0,
-    explanation: 'N rows Ã— log N levels of power-of-two intervals.',
+    explanation: 'N rows × log N levels of power-of-two intervals.',
     hint: 'Row times levels.'
   },
   {
@@ -3390,13 +3390,13 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     options: ['|row1 - row2| == |col1 - col2|', 'row1 == row2', 'col1 == col2', 'row1 + col1 == 0'],
     correctAnswerIndex: 0,
     explanation: 'Diagonal conflict means equal row and column differences.',
-    hint: 'Slope of Â±1.'
+    hint: 'Slope of ±1.'
   },
   {
     id: 'q38-nqueens-4',
     levelId: 'level-38-nqueens',
     question: 'The most efficient pruning tracks attacks using:',
-    options: ['Booleans for columns and the two diagonals (r+c, r-c)', 'A full NÃ—N grid scan', 'Sorting queens', 'A priority queue'],
+    options: ['Booleans for columns and the two diagonals (r+c, r-c)', 'A full N×N grid scan', 'Sorting queens', 'A priority queue'],
     correctAnswerIndex: 0,
     explanation: 'O(1) conflict checks: col[c], diag1[r+c], diag2[r-c+N-1].',
     hint: 'Constant-time checks.'
@@ -3405,7 +3405,7 @@ export const QUIZ_QUESTIONS: QuizQuestion[] = [
     id: 'q38-nqueens-5',
     levelId: 'level-38-nqueens',
     question: 'The worst-case time complexity of N-Queens is:',
-    options: ['Exponential (O(N!) with pruning)', 'O(NÂ²)', 'O(N log N)', 'O(NÂ³)'],
+    options: ['Exponential (O(N!) with pruning)', 'O(N²)', 'O(N log N)', 'O(N³)'],
     correctAnswerIndex: 0,
     explanation: 'Branching factor shrinks as rows fill, but worst case remains factorial without strong pruning.',
     hint: 'Permutations of columns.'

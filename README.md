@@ -39,7 +39,7 @@ The quality bar is simple: a learner should never see an unrelated animation, un
 | Study vault | Create, edit, search, pin, and organize notes and bookmarks |
 | Flashcards | Review concepts in small repeatable sessions |
 | Dashboard | Track XP, stars, completed levels, streaks, badges, and category progress |
-| Teacher console | Inspect learner activity and assign level tasks (security hardening is tracked in the roadmap) |
+| Teacher console | Create scoped classrooms, enroll learners, assign lessons with due dates, inspect progress, and export CSV reports |
 
 ## Curriculum map
 
@@ -51,17 +51,17 @@ The current catalog spans:
 - Strings and tries: Trie, KMP, Suffix Array, Z Algorithm, and Manacher
 - Advanced structures and techniques: DSU, hashing, skip lists, bloom filters, sparse tables, and more
 
-Content breadth does not automatically mean interactive completeness. Run `npm run validate:content` and consult [PROJECT_UPDATE_PLAN.md](./PROJECT_UPDATE_PLAN.md) for the implementation status and release sequence.
+Every campaign level now declares a topic-specific engine in the visualizer registry. Run `npm run validate:content` after any curriculum change; it rejects missing theory, code, questions, or visualizer mappings.
 
 ## Technology
 
 | Surface | Stack |
 |---|---|
-| Frontend | React 18, TypeScript, Vite |
+| Frontend | React 18, TypeScript, Vite 8 |
 | Authentication UI | Clerk |
 | API | Express, TypeScript |
 | Database | PostgreSQL, Prisma |
-| Mobile | Capacitor, native Android project |
+| Mobile | Capacitor 8, Gradle 8.13, Android SDK 36 |
 | Visuals | SVG/DOM renderers, frame-based algorithm engines, Lucide icons |
 
 ## Repository layout
@@ -87,7 +87,7 @@ ADSA GAME/
 
 ### Prerequisites
 
-- Node.js 20 LTS or newer
+- Node.js 20.19 or newer (Node 22/24 supported)
 - npm 10 or newer
 - PostgreSQL 15 or newer
 - A Clerk application for authenticated flows
@@ -153,7 +153,9 @@ Open `http://localhost:5173`. The API health endpoint is `http://localhost:5000/
 | `npm run dev` | Start the Vite development server |
 | `npm run build` | Type-check and build the web app |
 | `npm run validate:content` | Audit level/question references and content coverage |
-| `npm run check` | Run content audit and frontend/backend production builds |
+| `npm run test` | Run deterministic algorithm-engine tests |
+| `npm run check` | Run the complete content, type, test, and frontend/backend build gate |
+| `npm --prefix backend run test` | Run protected API integration tests |
 | `npm --prefix backend run dev` | Start the API in watch mode |
 | `npm --prefix backend run prisma:deploy` | Apply committed migrations |
 | `npm run cap:sync` | Build web assets and synchronize native projects |
@@ -192,7 +194,7 @@ A topic is complete only when its pieces agree with each other.
 - Database changes require a committed Prisma migration.
 - Do not commit `.env`, database credentials, Clerk secrets, generated clients, build output, or `node_modules`.
 
-The current security and migration work is detailed in the phase plan. Do not deploy publicly until all P0 release blockers there are closed.
+The API verifies Clerk bearer tokens, derives ownership from the verified subject, validates request bodies, rate-limits traffic, restricts CORS, and keeps roles and rewards server-owned. Production still requires real Clerk keys, an explicit origin allow-list, applied migrations, and a provisioned teacher/admin account.
 
 ## Quality gate
 
@@ -219,19 +221,25 @@ npm run cap:sync
 npm run cap:open:android
 ```
 
-Use the same major version for all Capacitor packages. Test authentication, app resume, Android back behavior, safe areas, keyboard input, network loss, and deep links on a real device before release.
+Use Java 21 and Android SDK 36. `ANDROID_HOME` must point to the installed SDK before running `android\gradlew.bat assembleDebug`. Test authentication, app resume, Android back behavior, safe areas, keyboard input, network loss, and deep links on a real device before release.
 
 ## Roadmap and project status
 
 The authoritative implementation sequence, risk register, API direction, acceptance criteria, test plan, and next sprint are in [PROJECT_UPDATE_PLAN.md](./PROJECT_UPDATE_PLAN.md).
 
-Current baseline:
+Implemented baseline (verified 5 August 2026):
 
 - 38 campaign levels
-- approximately 373 detailed quiz entries
-- frontend and backend production builds passing
-- performance warning on the initial frontend JavaScript chunk
-- automated test/CI and secure server-owned identity work in progress
+- 373 detailed quiz entries with validated answer indexes and unique IDs
+- topic-specific visualizer registration for all 38 campaign levels
+- server-owned identity, rewards, unlocks, streaks, achievements, and one-time guest migration
+- quiz-attempt history, mistake review, offline completion queue, and spaced-repetition flashcards
+- classroom-scoped assignments, due dates, teacher instructions, reports, and CSV export
+- lazy-loaded learning surfaces; initial production JavaScript is about 406 KB minified / 125 KB gzip with no Vite chunk warning
+- 37 deterministic engine tests, 4 protected API integration tests, and a CI quality workflow
+- frontend and backend production builds plus Android debug assembly passing
+
+Remaining release work is explicit in the plan: browser E2E and automated accessibility coverage, transactional/idempotency hardening, observability/privacy operations, real-device Android smoke testing, and removal of generated dependencies/build artifacts from version control.
 
 ## Contributing
 

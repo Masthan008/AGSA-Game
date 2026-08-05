@@ -1,6 +1,6 @@
 import React from 'react';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
-import { Zap, Star, User, Compass, PlayCircle, Swords, Code2, LayoutDashboard, ArrowLeftRight, FileText, Layers, Terminal, Trophy, ClipboardList } from 'lucide-react';
+import { Zap, Star, User, Compass, PlayCircle, Swords, Code2, LayoutDashboard, ArrowLeftRight, FileText, Layers, Terminal, Trophy, ClipboardList, RefreshCcw } from 'lucide-react';
 import { UserProgress } from '../types';
 
 interface HeaderProps {
@@ -13,6 +13,7 @@ interface HeaderProps {
 const NAV_ITEMS = [
   { key: 'campaign', label: 'Campaign', icon: Compass },
   { key: 'assignments', label: 'Tasks', icon: ClipboardList },
+  { key: 'review', label: 'Review', icon: RefreshCcw },
   { key: 'visualizer', label: 'Visualizer', icon: PlayCircle },
   { key: 'arena', label: 'Arena', icon: Swords },
   { key: 'library', label: 'Code Hub', icon: Code2 },
@@ -49,7 +50,7 @@ export const Header: React.FC<HeaderProps> = ({ userProgress, activeTab, setActi
         justifyContent: 'space-between',
         height: 60
       }}>
-        {/* Brand Logo & Name */}
+        {/* Compact home logo. The product name lives in the site footer. */}
         <div
           style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
           onClick={() => setActiveTab('campaign')}
@@ -72,18 +73,11 @@ export const Header: React.FC<HeaderProps> = ({ userProgress, activeTab, setActi
               onError={(e) => { (e.target as HTMLElement).style.display = 'none'; }}
             />
           </div>
-          <div>
-            <h1 style={{ fontSize: '1.1rem', fontWeight: 900, letterSpacing: '-0.04em', lineHeight: 1.1, color: '#000000' }}>
-              ADSA QUEST
-            </h1>
-            <span style={{ fontSize: '0.6rem', fontWeight: 600, color: 'var(--text-muted)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
-              30 Topics Engine
-            </span>
-          </div>
+          <span className="sr-only">Go to campaign</span>
         </div>
 
         {/* Desktop CRED Floating Pill Items */}
-        <nav className="desktop-only" style={{ display: 'flex', gap: 2, background: 'var(--bg-light)', padding: 4, borderRadius: '100px' }}>
+        <nav className="desktop-only" aria-label="Primary learning navigation" style={{ display: 'flex', gap: 2, background: 'var(--bg-light)', padding: 4, borderRadius: '100px', maxWidth: '62vw', overflowX: 'auto' }}>
           {NAV_ITEMS.map((item) => {
             const Icon = item.icon;
             const isActive = activeTab === item.key;

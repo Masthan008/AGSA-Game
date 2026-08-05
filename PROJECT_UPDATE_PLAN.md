@@ -3,7 +3,21 @@
 **Prepared:** 5 August 2026  
 **Repository version:** frontend `3.0.0`, backend `1.0.0`  
 **Planning horizon:** 12–16 weeks  
-**Status:** Proposed implementation roadmap
+**Status:** Active implementation ledger — phases 0–5 substantially delivered; release hardening remains
+
+### Implementation snapshot — 5 August 2026
+
+| Phase | State | Delivered | Still required before production |
+|---|---|---|---|
+| 0 — Baseline | Substantially complete | Setup docs, environment template, seven Prisma migrations, content validator, UTF-8 repair, unified quality command, Capacitor alignment | Stop tracking generated dependencies/build output; add deterministic seed and formatter/linter |
+| 1 — Security | Substantially complete | Clerk bearer auth, verified subject ownership, server-controlled roles, CORS/Helmet/rate and payload limits, Zod validation, protected-route tests | Audit-log persistence and exhaustive authorization matrix |
+| 2 — Progress | Substantially complete | Server hydration, authoritative rewards/unlocks/streaks, achievements, guest import, offline queue, attempts and mistakes | Put reward write set in one transaction and persist idempotency keys |
+| 3 — Curriculum | Complete for declared catalog | All 38 levels mapped to compatible engines, expanded theory/code, deterministic engine tests, zero-warning content audit | Continue expert content review and add visual regression coverage |
+| 4 — Learner loop | Substantially complete | Assignments, leaderboard, bookmarks, mistake review, spaced repetition, live profile metrics | Adaptive home recommendations and consistent visible API retry states |
+| 5 — Teacher | Substantially complete | Classrooms, join codes, scoped enrollment/assignment/reporting, due dates, instructions, CSV export | Richer pagination/filtering and printable reports |
+| 6 — Release quality | In progress | Lazy loading, error boundary, CI, unit/integration tests, bundle warning removed, Android debug build | Playwright/axe flows, observability/privacy operations, real-device release smoke test |
+
+Legend: “substantially complete” means the usable vertical slice exists and passes the current automated gate; the final column is not silently treated as done.
 
 ## 1. Executive summary
 
@@ -25,15 +39,15 @@ Deliver **ADSA Quest 4.0: Trusted Learning Progress** with:
 
 | Layer | Current implementation | Notes |
 |---|---|---|
-| Web client | React 18, TypeScript, Vite 5 | One large `App.tsx` controls navigation and most global state. No router or state/query library. |
+| Web client | React 18, TypeScript, Vite 8 | `App.tsx` coordinates navigation and shared state; heavy learning surfaces are lazy-loaded. No router or state/query library. |
 | UI | Custom CSS and inline styles, Lucide icons | Broad component library, but responsive and accessibility behavior is not systematically tested. |
 | Authentication | Clerk React UI | Sign-in exists, but API requests do not send or verify Clerk session tokens. |
 | API | Express 4 + TypeScript | REST endpoints for users, progress, completions, notes, bookmarks, leaderboard, and admin tasks. |
-| Persistence | Prisma 5 + PostgreSQL | Models: User, LevelProgress, PuzzleCompletion, Bookmark, UserNote, Task. No migrations are checked into the repository. |
+| Persistence | Prisma 5 + PostgreSQL | Seven committed migrations cover progress, achievements, guest migration, classrooms, attempts, and flashcard scheduling. |
 | Local persistence | `localStorage` | Onboarding, role, progress, note pins, and intro state are stored independently. |
 | Learning engine | Frame-generating TypeScript algorithms | Dedicated engines exist for AVL, interactive trees, Dijkstra, Knapsack, Trie, Segment Tree, KMP, and B-Tree. |
 | Mobile | Capacitor + Android project | Android shell/assets exist; Capacitor major versions are inconsistent across packages. |
-| Delivery quality | TypeScript production builds | No lint, unit tests, integration tests, end-to-end tests, CI, error monitoring, or analytics. |
+| Delivery quality | Unified content/type/test/build gate | Vitest engine tests, Supertest API tests, CI, code splitting, error boundary, and Android debug assembly exist; E2E, automated a11y, and monitoring remain. |
 
 ## 3. Present feature inventory
 
@@ -427,14 +441,16 @@ For a small team, execute Phases 0–2 sequentially, then run visualizer/content
 
 ## 13. Immediate next sprint (recommended 10 working days)
 
-1. Add setup documentation, backend environment template, formatting/linting, and content validation.
-2. Create the first Prisma migration and seed; stop tracking generated dependencies/artifacts.
-3. Implement verified Clerk auth middleware and authenticated API client.
-4. Convert notes and completions to `/me` endpoints with ownership tests.
-5. Remove client-controlled admin role and fail-open admin behavior.
-6. Define the visualizer registry and mark current capability truthfully for all 38 levels.
-7. Fix UTF-8 text and remove disconnected imports/components or place them in the roadmap explicitly.
-8. Add CI with frontend/backend builds plus the first security and engine tests.
+The original stabilization sprint has been delivered. The next sprint should close the measurable production gaps:
+
+1. Add Playwright journeys for guest onboarding, authenticated hydration, quiz completion, mistake review, assignment completion, and authorization denial.
+2. Add axe-powered accessibility checks plus a manual keyboard/screen-reader checklist for every primary learning flow.
+3. Move completion rewards, streak updates, achievements, assignment completion, and attempt persistence into a database transaction; persist and deduplicate idempotency keys.
+4. Replace silent list fallbacks in the API client with typed success/error results and visible retry states.
+5. Add structured request correlation, privacy-conscious error monitoring, uptime checks, backup/restore rehearsal, and retention/account export/deletion procedures.
+6. Remove tracked `node_modules`, generated Prisma clients, `dist`, and native build outputs in a dedicated reviewed cleanup commit; add lint/format and secret scanning.
+7. Add learner recommendations from due flashcards, recent mistakes, unfinished assignments, and next unlocked lesson.
+8. Run signed Android release assembly and real-device smoke tests for auth, resume/back, safe areas, keyboard, network loss, and queued synchronization.
 
 ### Sprint definition of done
 
@@ -445,13 +461,14 @@ For a small team, execute Phases 0–2 sequentially, then run visualizer/content
 
 ## 14. Current validation snapshot
 
-At the time of this analysis:
+Verified on 5 August 2026 with `npm run check`:
 
-- frontend TypeScript/Vite production build: **passes**;
-- backend TypeScript build: **passes**;
-- frontend output: approximately **857 KB JavaScript minified / 233 KB gzip**, with a Vite large-chunk warning;
-- catalog: **38 campaign levels**, approximately **373 quiz entries**, plus one inline introductory question per level;
-- automated project tests: **none found**;
-- project README, CI workflow, committed Prisma migrations, and backend environment example: **not found**.
+- content audit: **38 campaign levels, 373 detailed questions, 0 warnings**;
+- frontend type-check, production build, and **37 deterministic engine tests: pass**;
+- backend type-check, production build, and **4 protected API integration tests: pass**;
+- initial frontend JavaScript: approximately **406 KB minified / 125 KB gzip**, with no large-chunk warning;
+- CI workflow, README, backend environment example, and **seven committed Prisma migrations: present**;
+- Capacitor Android synchronization and Gradle `assembleDebug`: **pass** with Java 21 / SDK 36;
+- production dependency audits: **0 known vulnerabilities** in frontend and backend at verification time.
 
-This snapshot should be captured again after every phase so the roadmap remains measurable and current.
+Re-run this snapshot after every phase. Passing this gate does not replace the pending E2E, accessibility, operational, and real-device release checks above.

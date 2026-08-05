@@ -2,8 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { UserProgress, LevelTopic, AnimationFrame } from './types';
 import { LEVEL_TOPICS } from './data/levelsData';
-import { CODE_TEMPLATES } from './data/codeTemplates';
-import { THEORY_DATA } from './data/theoryData';
 
 import { Header } from './components/Header';
 import { BottomNavMobile } from './components/BottomNavMobile';
@@ -17,25 +15,12 @@ import { MultiLangCodeViewer } from './components/Visualizer/MultiLangCodeViewer
 import { TheoryTab } from './components/Visualizer/TheoryTab';
 import { NodeControlPanel } from './components/Visualizer/NodeControlPanel';
 
-import { QuizArena } from './components/Games/QuizArena';
-import { MultiLangHub } from './components/Library/MultiLangHub';
-import { ProgressDashboard } from './components/Dashboard/ProgressDashboard';
-import { AlgoCompare } from './components/Comparison/AlgoCompare';
-import { PracticePlayground } from './components/Practice/PracticePlayground';
-import { Leaderboard } from './components/Social/Leaderboard';
-
-import { NotesPage } from './components/Notes/NotesPage';
-import { SandboxPage } from './components/Sandbox/SandboxPage';
-import { FlashcardPage } from './components/Flashcards/FlashcardPage';
-import { ProfilePage } from './components/Profile/ProfilePage';
 
 import { SplashScreen } from './components/Onboarding/SplashScreen';
 import { OnboardingScreens } from './components/Onboarding/OnboardingScreens';
 import { AuthModal } from './components/Auth/AuthModal';
-import { AdminPage } from './components/Admin/AdminPage';
-import { AssignmentsPage } from './components/Assignments/AssignmentsPage';
 
-import { fetchMyProfile, syncUserProfile, recordLevelCompletion, recordCompletion, setApiTokenProvider, AccountRole } from './services/api';
+import { createBookmark, deleteBookmark, fetchUserBookmarks, fetchMyProfile, flushPendingMutations, importGuestProgress, syncUserProfile, recordLevelCompletion, recordCompletion, setApiTokenProvider } from './services/api';
 
 import { generateAVLTreeFrames } from './algorithms/avlTreeEngine';
 import { generateDijkstraFrames } from './algorithms/dijkstraEngine';
@@ -44,6 +29,11 @@ import { generateTrieFrames } from './algorithms/trieEngine';
 import { generateSegmentTreeFrames } from './algorithms/segmentTreeEngine';
 import { generateKMPFrames } from './algorithms/kmpEngine';
 import { generateBTreeFrames } from './algorithms/bTreeEngine';
+import { generateBellmanFordFrames, generateBfsDfsFrames, generateFloydWarshallFrames, generateMaxFlowFrames, generateMstFrames, generateTarjanFrames, generateTopologicalFrames } from './algorithms/graphLearningEngines';
+import { generateBitmaskDpFrames, generateEditDistanceFrames, generateLcsFrames, generateMatrixChainFrames, generateNQueensFrames } from './algorithms/dpLearningEngines';
+import { generateManacherFrames, generateSuffixArrayFrames, generateZFrames } from './algorithms/stringLearningEngines';
+import { generateAmortizedFrames, generateBloomFilterFrames, generateConvexHullFrames, generateDsuFrames, generateFenwickFrames, generateFibonacciHeapFrames, generateHashingFrames, generateHeapFrames, generateNpCompleteFrames, generateRabinKarpFrames, generateRadixSortFrames, generateRedBlackFrames, generateSkipListFrames, generateSparseTableFrames, generateSplayFrames } from './algorithms/advancedStructureEngines';
+import { hasDedicatedVisualizer, usesMatrixRenderer } from './algorithms/visualizerRegistry';
 import {
   generateEmptyTreeFrame,
   generateInteractiveInsertFrames,
@@ -51,13 +41,31 @@ import {
   generateInteractiveSearchFrames
 } from './algorithms/interactiveTreeEngine';
 import { resolveCodeHighlights } from './algorithms/codeLineResolver';
-import { BookOpen, PlayCircle, Code2 } from 'lucide-react';
+import { Bookmark, BookmarkCheck, BookOpen, PlayCircle, Code2 } from 'lucide-react';
+import type { CodeSnippet } from './types';
+import type { TopicTheory } from './data/theoryData';
+import { Footer } from './components/Footer';
 
-type Tab = 'campaign' | 'assignments' | 'visualizer' | 'arena' | 'library' | 'dashboard' | 'compare' | 'notes' | 'sandbox' | 'flashcards' | 'leaderboard' | 'profile';
+const MultiLangHub = React.lazy(() => import('./components/Library/MultiLangHub').then(module => ({ default: module.MultiLangHub })));
+const ProgressDashboard = React.lazy(() => import('./components/Dashboard/ProgressDashboard').then(module => ({ default: module.ProgressDashboard })));
+const AlgoCompare = React.lazy(() => import('./components/Comparison/AlgoCompare').then(module => ({ default: module.AlgoCompare })));
+const Leaderboard = React.lazy(() => import('./components/Social/Leaderboard').then(module => ({ default: module.Leaderboard })));
+const NotesPage = React.lazy(() => import('./components/Notes/NotesPage').then(module => ({ default: module.NotesPage })));
+const SandboxPage = React.lazy(() => import('./components/Sandbox/SandboxPage').then(module => ({ default: module.SandboxPage })));
+const FlashcardPage = React.lazy(() => import('./components/Flashcards/FlashcardPage').then(module => ({ default: module.FlashcardPage })));
+const ProfilePage = React.lazy(() => import('./components/Profile/ProfilePage').then(module => ({ default: module.ProfilePage })));
+const AdminPage = React.lazy(() => import('./components/Admin/AdminPage').then(module => ({ default: module.AdminPage })));
+const AssignmentsPage = React.lazy(() => import('./components/Assignments/AssignmentsPage').then(module => ({ default: module.AssignmentsPage })));
+const QuizArena = React.lazy(() => import('./components/Games/QuizArena').then(module => ({ default: module.QuizArena })));
+const MistakeReviewPage = React.lazy(() => import('./components/Review/MistakeReviewPage').then(module => ({ default: module.MistakeReviewPage })));
+const AboutPage = React.lazy(() => import('./components/About/AboutPage').then(module => ({ default: module.AboutPage })));
+
+const PageLoader = () => <div role="status" style={{ minHeight: 240, display: 'grid', placeItems: 'center', color: 'var(--text-muted)', fontWeight: 700 }}>Loading learning space…</div>;
+
+type Tab = 'campaign' | 'assignments' | 'review' | 'visualizer' | 'arena' | 'library' | 'dashboard' | 'compare' | 'notes' | 'sandbox' | 'flashcards' | 'leaderboard' | 'profile' | 'about';
 type VisualizerMode = 'canvas' | 'theory' | 'code';
 
 const TREE_LEVEL_KEYS = ['avl', 'bst', 'redblack', 'btree', 'segment', 'heap'];
-const INTERACTIVE_VISUALIZERS = new Set(['avl', 'bst', 'btree', 'segment', 'dijkstra', 'knapsack', 'trie', 'kmp']);
 
 function isTreeLevel(key: string): boolean {
   return TREE_LEVEL_KEYS.includes(key);
@@ -82,11 +90,17 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     setApiTokenProvider(() => getToken());
-    return () => setApiTokenProvider(null);
+    const flush = () => { void flushPendingMutations(); };
+    window.addEventListener('online', flush);
+    flush();
+    return () => { window.removeEventListener('online', flush); setApiTokenProvider(null); };
   }, [getToken]);
   const [activeTab, setActiveTab] = useState<Tab>('campaign');
   const [visualizerMode, setVisualizerMode] = useState<VisualizerMode>('canvas');
   const [currentLevel, setCurrentLevel] = useState<LevelTopic>(LEVEL_TOPICS[0]);
+  const [codeSnippet, setCodeSnippet] = useState<CodeSnippet | null>(null);
+  const [currentTheory, setCurrentTheory] = useState<TopicTheory | null>(null);
+  const [currentBookmarkId, setCurrentBookmarkId] = useState<string | null>(null);
 
   // Splash, Onboarding & Auth Modal States
   const [showSplash, setShowSplash] = useState(true);
@@ -94,17 +108,6 @@ export const App: React.FC = () => {
     return !localStorage.getItem('adsa_quest_v2_onboarded');
   });
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
-
-  // Account role — asked at login/sign-up (Student vs Teacher/Admin).
-  // Persisted locally; synced to the backend so the admin dashboard can
-  // recognize the admin account alongside the ADMIN_EMAILS allow-list.
-  const [accountRole, setAccountRole] = useState<AccountRole>(() =>
-    localStorage.getItem('adsa_quest_v2_role') === 'admin' ? 'admin' : 'student'
-  );
-  const handleRoleChange = (role: AccountRole) => {
-    setAccountRole(role);
-    localStorage.setItem('adsa_quest_v2_role', role);
-  };
 
   // Admin route — reachable ONLY via the direct URL /#/admin (no nav link).
   const [isAdminRoute, setIsAdminRoute] = useState(() => window.location.hash === '#/admin');
@@ -149,7 +152,14 @@ export const App: React.FC = () => {
   useEffect(() => {
     if (!isLoaded || !isSignedIn || !user) return;
     let active = true;
-    syncUserProfile(userProgress, user.primaryEmailAddress?.emailAddress, accountRole)
+    syncUserProfile(userProgress, user.primaryEmailAddress?.emailAddress)
+      .then(async () => {
+        const migrationKey = `adsa_quest_guest_migrated_${user.id}`;
+        if (!localStorage.getItem(migrationKey) && userProgress.completedLevels.length > 0) {
+          const imported = await importGuestProgress(userProgress);
+          if (imported) localStorage.setItem(migrationKey, '1');
+        }
+      })
       .then(() => fetchMyProfile())
       .then(profile => {
         if (!active || !profile) return;
@@ -162,10 +172,11 @@ export const App: React.FC = () => {
           levelUnlocked: profile.levelUnlocked,
           starsPerLevel,
           completedLevels: profile.progress.map((item: any) => item.levelId),
+          badges: (profile.achievements || []).map((item: any) => item.badgeKey),
         }));
       });
     return () => { active = false; };
-  }, [isLoaded, isSignedIn, user?.id, accountRole]);
+  }, [isLoaded, isSignedIn, user?.id]);
 
   // Code-practice session tracker (shown in the admin dashboard)
   const recordPracticeSession = (kind: string) => {
@@ -213,10 +224,64 @@ export const App: React.FC = () => {
       generated = generateBTreeFrames(2, currentLevel.defaultInput as number[]);
     } else if (key === 'segment') {
       generated = generateSegmentTreeFrames(currentLevel.defaultInput as number[]);
+    } else if (key === 'redblack') {
+      generated = generateRedBlackFrames();
+    } else if (key === 'heap') {
+      generated = generateHeapFrames(currentLevel.defaultInput as number[]);
+    } else if (key === 'dsu') {
+      generated = generateDsuFrames();
+    } else if (key === 'hashing') {
+      generated = generateHashingFrames(currentLevel.defaultInput as number[]);
+    } else if (key === 'fenwick') {
+      generated = generateFenwickFrames(currentLevel.defaultInput as number[]);
+    } else if (key === 'skiplist') {
+      generated = generateSkipListFrames();
+    } else if (key === 'splay') {
+      generated = generateSplayFrames();
+    } else if (key === 'radixsort') {
+      generated = generateRadixSortFrames(currentLevel.defaultInput as number[]);
+    } else if (key === 'bloomfilter') {
+      generated = generateBloomFilterFrames(currentLevel.defaultInput as string[]);
+    } else if (key === 'sparsetable') {
+      generated = generateSparseTableFrames(currentLevel.defaultInput as number[]);
+    } else if (key === 'amortized') {
+      generated = generateAmortizedFrames();
+    } else if (key === 'fibonacci') {
+      generated = generateFibonacciHeapFrames();
+    } else if (key === 'rabinkarp') {
+      const input = currentLevel.defaultInput as string[]; generated = generateRabinKarpFrames(input[0], input[1]);
+    } else if (key === 'convexhull') {
+      generated = generateConvexHullFrames();
+    } else if (key === 'npcomplete') {
+      generated = generateNpCompleteFrames();
     } else if (key === 'dijkstra') {
       generated = generateDijkstraFrames();
+    } else if (key === 'bfsdfs') {
+      generated = generateBfsDfsFrames();
+    } else if (key === 'bellmanford') {
+      generated = generateBellmanFordFrames();
+    } else if (key === 'mst') {
+      generated = generateMstFrames();
+    } else if (key === 'floydwarshall') {
+      generated = generateFloydWarshallFrames();
+    } else if (key === 'tarjan') {
+      generated = generateTarjanFrames();
+    } else if (key === 'toposort') {
+      generated = generateTopologicalFrames();
+    } else if (key === 'maxflow') {
+      generated = generateMaxFlowFrames();
     } else if (key === 'knapsack') {
       generated = generateKnapsackFrames();
+    } else if (key === 'lcs') {
+      const input = currentLevel.defaultInput as string[]; generated = generateLcsFrames(input[0], input[1]);
+    } else if (key === 'matrixchain') {
+      generated = generateMatrixChainFrames(currentLevel.defaultInput as number[]);
+    } else if (key === 'editdistance') {
+      const input = currentLevel.defaultInput as string[]; generated = generateEditDistanceFrames(input[0], input[1]);
+    } else if (key === 'bitmaskdp') {
+      generated = generateBitmaskDpFrames();
+    } else if (key === 'nqueens') {
+      generated = generateNQueensFrames(Number((currentLevel.defaultInput as number[])[0]) || 4);
     } else if (key === 'trie') {
       const words = Array.isArray(currentLevel.defaultInput) && typeof currentLevel.defaultInput[0] === 'string'
         ? currentLevel.defaultInput as string[]
@@ -225,6 +290,12 @@ export const App: React.FC = () => {
     } else if (key === 'kmp') {
       const input = typeof currentLevel.defaultInput === 'string' ? currentLevel.defaultInput : 'ABABDABACDABABCABAB';
       generated = generateKMPFrames(input, 'ABABCABAB');
+    } else if (key === 'suffixarray') {
+      generated = generateSuffixArrayFrames((currentLevel.defaultInput as string[])[0]);
+    } else if (key === 'zalgo') {
+      const input = currentLevel.defaultInput as string[]; generated = generateZFrames(`${input[1]}$${input[0]}`);
+    } else if (key === 'manacher') {
+      generated = generateManacherFrames((currentLevel.defaultInput as string[])[0]);
     } else {
       generated = [{
         stepIndex: 1, totalSteps: 1,
@@ -240,6 +311,37 @@ export const App: React.FC = () => {
     setStepIndex(0);
     setIsPlaying(false);
   }, [currentLevel]);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([import('./data/codeTemplates'), import('./data/theoryData')]).then(([codes, theories]) => {
+      if (!active) return;
+      setCodeSnippet(codes.CODE_TEMPLATES[currentLevel.algorithmKey] || null);
+      setCurrentTheory(theories.THEORY_DATA[currentLevel.algorithmKey] || null);
+    });
+    return () => { active = false; };
+  }, [currentLevel.algorithmKey]);
+
+  useEffect(() => {
+    let active = true;
+    fetchUserBookmarks(userProgress.username || 'Student').then(items => {
+      if (active) setCurrentBookmarkId(items.find((item: any) => item.topicId === currentLevel.id)?.id || null);
+    });
+    return () => { active = false; };
+  }, [currentLevel.id, userProgress.username]);
+
+  const toggleCurrentBookmark = async () => {
+    if (!isSignedIn) {
+      setIsAuthModalOpen(true);
+      return;
+    }
+    if (currentBookmarkId) {
+      if (await deleteBookmark(currentBookmarkId)) setCurrentBookmarkId(null);
+      return;
+    }
+    const result = await createBookmark(userProgress.username || 'Student', currentLevel.id, currentLevel.title);
+    if (result?.bookmark?.id) setCurrentBookmarkId(result.bookmark.id);
+  };
 
   // Auto-play timer — guarded by the animation generation so stale ticks from
   // a previous sequence can never advance the new one.
@@ -263,12 +365,9 @@ export const App: React.FC = () => {
   }, [isPlaying, frames, playbackSpeed]);
 
   const currentFrame = frames[stepIndex] || frames[0];
-  const codeSnippet = CODE_TEMPLATES[currentLevel.algorithmKey] || CODE_TEMPLATES['avl'];
-  const currentTheory = THEORY_DATA[currentLevel.algorithmKey] || THEORY_DATA['avl'];
-
   // Live code-highlight lines: resolved from the frame's semantic step against
   // the actual displayed template, so canvas and code tracer stay in sync.
-  const activeCodeLines = currentFrame?.codeStep
+  const activeCodeLines = currentFrame?.codeStep && codeSnippet
     ? resolveCodeHighlights(currentFrame.codeStep, codeSnippet)
     : currentFrame?.highlightCodeLines || {};
 
@@ -372,6 +471,7 @@ export const App: React.FC = () => {
         levelUnlocked: result.user.levelUnlocked,
         starsPerLevel,
         completedLevels: result.user.progress.map((item: any) => item.levelId),
+        badges: (result.user.achievements || []).map((item: any) => item.badgeKey),
       }));
     }
   };
@@ -396,7 +496,7 @@ export const App: React.FC = () => {
   if (isAdminRoute) {
     return (
       <div style={{ minHeight: '100vh', background: '#fff' }}>
-        <AdminPage />
+        <React.Suspense fallback={<PageLoader />}><AdminPage /></React.Suspense>
       </div>
     );
   }
@@ -418,11 +518,10 @@ export const App: React.FC = () => {
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
         onLoginAsGuest={handleUpdateUsername}
-        role={accountRole}
-        onRoleChange={handleRoleChange}
       />
 
       {/* 4. Main App Navigation & Pages */}
+      <a className="skip-link" href="#main-content">Skip to learning content</a>
       <Header
         userProgress={userProgress}
         activeTab={activeTab}
@@ -430,13 +529,15 @@ export const App: React.FC = () => {
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
       />
 
-      <main style={{ flex: 1, paddingBottom: 80 }}>
+      <main id="main-content" tabIndex={-1} style={{ flex: 1, paddingBottom: 80 }}>
+        <React.Suspense fallback={<PageLoader />}>
         {/* CAMPAIGN */}
         {activeTab === 'campaign' && (
           <LevelMap userProgress={userProgress} onSelectLevel={handleSelectLevel} onStartQuiz={handleStartQuiz} />
         )}
 
         {activeTab === 'assignments' && <AssignmentsPage onStartLevel={handleSelectLevel} />}
+        {activeTab === 'review' && <MistakeReviewPage onReviewLevel={handleStartQuiz} />}
 
         {/* VISUALIZER & THEORY */}
         {activeTab === 'visualizer' && (
@@ -452,6 +553,10 @@ export const App: React.FC = () => {
                 </span>
                 <h2 style={{ fontSize: '1.3rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#000' }}>{currentLevel.title}</h2>
               </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <button className="btn btn-secondary btn-sm" onClick={toggleCurrentBookmark} aria-pressed={Boolean(currentBookmarkId)} title={currentBookmarkId ? 'Remove bookmark' : 'Save topic to Study Vault'}>
+                {currentBookmarkId ? <BookmarkCheck size={15} color="#34C759" /> : <Bookmark size={15} />} {currentBookmarkId ? 'Saved' : 'Save'}
+              </button>
               <select value={currentLevel.id}
                 onChange={e => {
                   const t = LEVEL_TOPICS.find(l => l.id === e.target.value);
@@ -464,6 +569,7 @@ export const App: React.FC = () => {
                 )}
                 {unlockedLevels.map(l => <option key={l.id} value={l.id}>L{l.levelNumber}: {l.title}</option>)}
               </select>
+              </div>
             </div>
 
             {/* Visualizer Mode Selector Switch */}
@@ -495,20 +601,20 @@ export const App: React.FC = () => {
 
             {/* VIEW 1: THEORY MODE */}
             {visualizerMode === 'theory' && (
-              <TheoryTab theory={currentTheory} />
+              currentTheory ? <TheoryTab theory={currentTheory} /> : <PageLoader />
             )}
 
             {/* VIEW 2: CODE TRACER MODE */}
             {visualizerMode === 'code' && (
               <div style={{ height: 520 }}>
-                <MultiLangCodeViewer codeSnippet={codeSnippet} activeLineNumbers={activeCodeLines} />
+                {codeSnippet ? <MultiLangCodeViewer codeSnippet={codeSnippet} activeLineNumbers={activeCodeLines} /> : <PageLoader />}
               </div>
             )}
 
             {/* VIEW 3: CANVAS & INTERACTIVE NODE CONTROLS */}
             {visualizerMode === 'canvas' && (
               <div>
-                {!INTERACTIVE_VISUALIZERS.has(currentLevel.algorithmKey) && (
+                {!hasDedicatedVisualizer(currentLevel.algorithmKey) && (
                   <div role="status" className="card-light" style={{ padding: '16px 18px', marginBottom: 16, borderLeft: '4px solid #007AFF' }}>
                     <strong style={{ display: 'block', marginBottom: 4 }}>Guided concept mode</strong>
                     <span style={{ color: 'var(--text-secondary)', fontSize: '0.86rem', lineHeight: 1.55 }}>
@@ -517,7 +623,7 @@ export const App: React.FC = () => {
                   </div>
                 )}
                 {/* Node Insert / Delete Control Bar */}
-                {(currentLevel.category === 'Trees' || currentLevel.algorithmKey === 'avl' || currentLevel.algorithmKey === 'bst') && (
+                {(currentLevel.algorithmKey === 'avl' || currentLevel.algorithmKey === 'bst') && (
                   <NodeControlPanel
                     onInsertNode={handleInsertNode}
                     onDeleteNode={handleDeleteNode}
@@ -531,7 +637,7 @@ export const App: React.FC = () => {
                 {/* Split Canvas + Explanation */}
                 <div style={{ display: 'grid', gridTemplateColumns: 'minmax(300px, 1.4fr) minmax(280px, 1fr)', gap: 16 }}>
                   <div>
-                    {currentLevel.algorithmKey === 'knapsack' || currentLevel.algorithmKey === 'lcs' || currentLevel.algorithmKey === 'matrixchain'
+                    {usesMatrixRenderer(currentLevel.algorithmKey)
                       ? <DpMatrixCanvas dpMatrix={currentFrame?.dpMatrix} />
                       : <TreeSvgCanvas nodes={currentFrame?.nodes || []} edges={currentFrame?.edges || []} />
                     }
@@ -549,7 +655,7 @@ export const App: React.FC = () => {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                     <div style={{ height: 250 }}><ExplanationPanel currentFrame={currentFrame} /></div>
                     <div style={{ flex: 1, minHeight: 250 }}>
-                      <MultiLangCodeViewer codeSnippet={codeSnippet} activeLineNumbers={activeCodeLines} />
+                      {codeSnippet ? <MultiLangCodeViewer codeSnippet={codeSnippet} activeLineNumbers={activeCodeLines} /> : <PageLoader />}
                     </div>
                   </div>
                 </div>
@@ -598,7 +704,11 @@ export const App: React.FC = () => {
             onResetProgress={handleResetProgress}
           />
         )}
+        {activeTab === 'about' && <AboutPage onExplore={() => setActiveTab('campaign')} />}
+        </React.Suspense>
       </main>
+
+      <Footer onNavigate={(tab) => setActiveTab(tab as Tab)} />
 
       <BottomNavMobile activeTab={activeTab} setActiveTab={setActiveTab} />
     </div>

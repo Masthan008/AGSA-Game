@@ -1,0 +1,1 @@
+ALTER TABLE "User" ADD COLUMN "guestMigratedAt" TIMESTAMP(3);

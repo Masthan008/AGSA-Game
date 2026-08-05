@@ -3,6 +3,7 @@ import { CheckCircle2, Circle, ClipboardList, Clock3, PlayCircle, RefreshCw } fr
 import { LEVEL_TOPICS } from '../../data/levelsData';
 import { fetchMyTasks } from '../../services/api';
 import { LevelTopic } from '../../types';
+import { TreeAssignmentsPanel } from './TreeAssignmentsPanel';
 
 interface Assignment {
   id: string;
@@ -45,6 +46,7 @@ export const AssignmentsPage: React.FC<AssignmentsPageProps> = ({ onStartLevel }
           </div>
         </div>
       </div>
+      <TreeAssignmentsPanel />
 
       {loading && <div role="status" className="card-light" style={{ padding: 30, textAlign: 'center' }}>Loading your learning plan…</div>}
       {!loading && tasks.length === 0 && (

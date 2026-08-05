@@ -2,8 +2,10 @@ import React from 'react';
 import { ArrowUpRight, Github, GraduationCap } from 'lucide-react';
 
 const LINKS = [
-  { key: 'campaign', label: 'Campaign' }, { key: 'visualizer', label: 'Visualizer' },
-  { key: 'library', label: 'Code Hub' }, { key: 'flashcards', label: 'Flashcards' }, { key: 'about', label: 'About' },
+  { key: 'library', label: 'Code Hub' }, { key: 'notes', label: 'Notes' },
+  { key: 'flashcards', label: 'Flashcards' }, { key: 'sandbox', label: 'Sandbox' },
+  { key: 'leaderboard', label: 'Leaderboard' }, { key: 'compare', label: 'Compare' },
+  { key: 'review', label: 'Mistake Review' }, { key: 'about', label: 'About' },
 ];
 
 export const Footer: React.FC<{ onNavigate: (tab: string) => void }> = ({ onNavigate }) => (

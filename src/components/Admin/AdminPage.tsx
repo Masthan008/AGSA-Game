@@ -201,7 +201,7 @@ export const AdminPage: React.FC = () => {
   ];
 
   return (
-    <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto', padding: '24px 16px' }}>
+    <div className="admin-command-center" style={{ maxWidth: 'var(--max-width)', margin: '0 auto', padding: '24px 16px' }}>
       {/* Header */}
       <div className="cmp-hero" style={{ padding: '24px 28px', marginBottom: 20 }}>
         <div className="cmp-hero-orb cmp-hero-orb-a" />

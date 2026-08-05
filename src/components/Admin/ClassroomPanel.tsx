@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { BookOpenCheck, Copy, Download, Plus, School, UserPlus } from 'lucide-react';
+import { BookOpenCheck, BrainCircuit, Copy, Download, GitBranch, Plus, School, UserPlus } from 'lucide-react';
 import { LEVEL_TOPICS } from '../../data/levelsData';
-import { addClassroomMember, assignClassroomTasks, createTeacherClassroom, fetchClassroomReport, fetchTeacherClassrooms } from '../../services/api';
+import { addClassroomMember, assignClassroomTasks, createTeacherClassroom, createTreeAssignment, fetchClassroomReport, fetchStudentWeakSkills, fetchTeacherClassrooms } from '../../services/api';
 
 interface ClassroomPanelProps { students: { id: string; username: string }[] }
 
@@ -12,6 +12,12 @@ export const ClassroomPanel: React.FC<ClassroomPanelProps> = ({ students }) => {
   const [levelId, setLevelId] = useState(LEVEL_TOPICS[0].id);
   const [dueAt, setDueAt] = useState('');
   const [message, setMessage] = useState('');
+  const [treeTopic, setTreeTopic] = useState<'avl'|'btree'>('avl');
+  const [treeOperation, setTreeOperation] = useState('construct');
+  const [treeValues, setTreeValues] = useState('30,20,40,10,25');
+  const [weakness, setWeakness] = useState<any[]|null>(null);
+  const [recentSubmissions, setRecentSubmissions] = useState<any[]>([]);
+  const [replayId, setReplayId] = useState<string|null>(null);
   const load = () => fetchTeacherClassrooms().then(setRooms);
   useEffect(() => { void load(); }, []);
 
@@ -51,6 +57,18 @@ export const ClassroomPanel: React.FC<ClassroomPanelProps> = ({ students }) => {
           <select value={levelId} onChange={event => setLevelId(event.target.value)}>{LEVEL_TOPICS.map(level => <option key={level.id} value={level.id}>L{level.levelNumber} · {level.title}</option>)}</select>
           <input type="date" value={dueAt} onChange={event => setDueAt(event.target.value)} aria-label="Due date" />
           <button className="btn btn-primary btn-sm" disabled={room.members.length === 0} onClick={async () => { if (await assignClassroomTasks(room.id, [levelId], dueAt ? new Date(`${dueAt}T23:59:59`).toISOString() : undefined)) { setMessage('Class assignment published'); load(); } }}><BookOpenCheck size={13} /> Assign</button>
+        </div>
+        <div className="teacher-tree-builder">
+          <div className="teacher-tree-title"><GitBranch size={16}/><div><strong>Tree virtual-lab work</strong><small>Assign construction, insertion, deletion, identification, or repair.</small></div></div>
+          <div className="teacher-tree-fields">
+            <select value={treeTopic} onChange={event=>setTreeTopic(event.target.value as 'avl'|'btree')}><option value="avl">AVL Tree</option><option value="btree">B-Tree (degree 2)</option></select>
+            <select value={treeOperation} onChange={event=>setTreeOperation(event.target.value)}>{['construct','search','insert','delete','identify','repair'].map(value=><option key={value} value={value}>{value[0].toUpperCase()+value.slice(1)}</option>)}</select>
+            <input value={treeValues} onChange={event=>setTreeValues(event.target.value)} aria-label="Initial tree values" placeholder="30,20,40,10,25"/>
+            <button className="btn btn-primary btn-sm" disabled={!studentId} onClick={async()=>{const values=treeValues.split(',').map(v=>Number(v.trim())).filter(Number.isFinite);const created=await createTreeAssignment({studentId,classroomId:room.id,topic:treeTopic,operation:treeOperation,initialState:{values},btreeDegree:treeTopic==='btree'?2:undefined,difficulty:'beginner',instructions:`${treeOperation[0].toUpperCase()+treeOperation.slice(1)} the assigned ${treeTopic.toUpperCase()} tree and submit a valid final structure.`,dueAt:dueAt?new Date(`${dueAt}T23:59:59`).toISOString():null,maxAttempts:3,hintsAllowed:true,requiredScore:70,xpReward:40});setMessage(created?'Tree-lab assignment published':'Could not publish tree assignment')}}><BookOpenCheck size={13}/> Assign lab</button>
+          </div>
+          <button className="btn btn-secondary btn-sm" disabled={!studentId} onClick={async()=>{const result=await fetchStudentWeakSkills(studentId);setWeakness(result?.weakSkills||[]);setRecentSubmissions(result?.recentSubmissions||[]);setMessage(result?'Learner skill report loaded':'Learner must belong to this classroom')}}><BrainCircuit size={14}/> Inspect learner weaknesses</button>
+          {weakness&&<div className="weak-skill-list">{weakness.length===0?<span>No skills below 70% mastery yet.</span>:weakness.map(skill=><div key={`${skill.topic}-${skill.skillKey}`}><strong>{skill.topic.toUpperCase()} · {skill.skillKey.replace(/-/g,' ')}</strong><span>{Math.round(skill.mastery)}% mastery · {skill.correct}/{skill.attempts} correct · {skill.hintsUsed} hints</span></div>)}</div>}
+          {recentSubmissions.length>0&&<div className="submission-replays"><strong>Recent work and operation replay</strong>{recentSubmissions.map(submission=><article key={submission.id}><button onClick={()=>setReplayId(replayId===submission.id?null:submission.id)}><span>{submission.assignment.topic.toUpperCase()} · {submission.assignment.operation}</span><em>{submission.status} · {submission.score}% · attempt {submission.attemptNumber}</em></button>{replayId===submission.id&&<ol>{submission.steps.length?submission.steps.map((step:any)=><li key={step.id}><b>Step {step.sequence+1}: {step.operation}</b><span>{step.skillKey?.replace(/-/g,' ')||'tree operation'} · {step.correct===false?'needs review':'recorded'}</span></li>):<li><span>No individual steps were captured for this submission.</span></li>}</ol>}</article>)}</div>}
         </div>
       </article>)}
       {rooms.length === 0 && <div style={{ color: 'var(--text-muted)', fontSize: '.8rem' }}>No classrooms yet. Create the first learning group above.</div>}

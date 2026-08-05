@@ -1,6 +1,6 @@
 import { LevelTopic } from '../types';
 
-export const LEVEL_TOPICS: LevelTopic[] = [
+const BASE_LEVEL_TOPICS: LevelTopic[] = [
   {
     id: 'level-1-avl',
     levelNumber: 1,
@@ -762,3 +762,18 @@ export const LEVEL_TOPICS: LevelTopic[] = [
     ]
   }
 ];
+
+const TREE_FOUNDATION: Record<number, Partial<LevelTopic>> = {
+  1:{title:'AVL Foundations & Tree Identification',description:'Recognize BST ordering, node height, balance factors, and valid AVL structure before performing operations.',algorithmKey:'avl',difficulty:'Easy',estimatedMinutes:10,defaultInput:[30,20,40,10,25]},
+  2:{title:'AVL Search, Height & Balance Factors',description:'Trace searches and calculate subtree heights and balance factors node by node.',algorithmKey:'avl',difficulty:'Easy',estimatedMinutes:10,defaultInput:[40,20,60,10,30,50,70]},
+  3:{title:'AVL Single Rotations — LL & RR',description:'Identify same-direction imbalance and repair it with one right or left rotation.',algorithmKey:'avl',difficulty:'Medium',estimatedMinutes:12,defaultInput:[30,20,10,40,50]},
+  4:{title:'AVL Double Rotations — LR & RL',description:'Resolve opposite-direction imbalance using two synchronized rotations.',algorithmKey:'avl',difficulty:'Medium',estimatedMinutes:12,defaultInput:[30,10,20,40,35]},
+  5:{title:'AVL Insertion Construction Lab',description:'Construct AVL trees, update ancestor heights, and select the correct rotation after every insertion.',algorithmKey:'avl',difficulty:'Medium',estimatedMinutes:15,defaultInput:[50,30,70,20,40,60,80,10]},
+  6:{title:'AVL Deletion & Mastery Challenge',description:'Delete leaves, one-child, and two-child nodes, then rebalance every affected ancestor.',algorithmKey:'avl',difficulty:'Hard',estimatedMinutes:16,defaultInput:[50,30,70,20,40,60,80,10,25]},
+  7:{title:'B-Tree Foundations & Identification',description:'Understand multi-key nodes, minimum degree, separator ranges, and equal-depth leaves.',algorithmKey:'btree',difficulty:'Easy',estimatedMinutes:11,defaultInput:[10,20,30,40,50]},
+  8:{title:'B-Tree Search & Leaf Insertion',description:'Route searches through separator keys and insert safely into non-full leaves.',algorithmKey:'btree',difficulty:'Medium',estimatedMinutes:13,defaultInput:[10,20,30,40,50,60]},
+  9:{title:'B-Tree Splits & Median Promotion',description:'Split overflowing nodes, promote medians, and handle cascading root growth.',algorithmKey:'btree',difficulty:'Medium',estimatedMinutes:15,defaultInput:[10,20,30,40,50,60,70]},
+  10:{title:'B-Tree Deletion, Borrowing & Merging',description:'Repair underflow by borrowing, merging, predecessor replacement, and root contraction.',algorithmKey:'btree',difficulty:'Hard',estimatedMinutes:18,defaultInput:[10,20,30,40,50,60,70,80]},
+};
+
+export const LEVEL_TOPICS: LevelTopic[] = BASE_LEVEL_TOPICS.map(level => level.levelNumber <= 10 ? { ...level, ...TREE_FOUNDATION[level.levelNumber], category:'Trees' } : level);

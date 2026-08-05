@@ -1,0 +1,26 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { AlertTriangle, CheckCircle2, ChevronDown, ChevronUp, GitBranch, RotateCcw, Send, Sparkles } from 'lucide-react';
+import { fetchMyTreeAssignments, submitTreeAssignment } from '../../services/api';
+
+type TreeAssignment = { id:string; topic:'avl'|'btree'; operation:string; initialState:any; btreeDegree?:number; difficulty:string; instructions?:string; dueAt?:string; maxAttempts:number; requiredScore:number; xpReward:number; submissions:{status:string;score:number;attemptNumber:number;feedback:any;id:string}[] };
+type AvlNode = { key:number; left:AvlNode|null; right:AvlNode|null };
+
+const balancedAvl = (keys:number[]):AvlNode|null => { if(!keys.length)return null; const sorted=[...new Set(keys)].sort((a,b)=>a-b); const build=(lo:number,hi:number):AvlNode|null=>{if(lo>hi)return null;const mid=Math.floor((lo+hi)/2);return{key:sorted[mid],left:build(lo,mid-1),right:build(mid+1,hi)}};return build(0,sorted.length-1); };
+const degreeTwoBTree = (keys:number[]) => { const sorted=[...new Set(keys)].sort((a,b)=>a-b).slice(0,7); if(sorted.length<=3)return{keys:sorted}; const mid=Math.floor(sorted.length/2); return{keys:[sorted[mid]],children:[{keys:sorted.slice(0,mid)},{keys:sorted.slice(mid+1)}]}; };
+
+export const TreeAssignmentsPanel:React.FC = () => {
+  const [items,setItems]=useState<TreeAssignment[]>([]),[open,setOpen]=useState<string|null>(null),[message,setMessage]=useState(''),[busy,setBusy]=useState(false);
+  const [values,setValues]=useState('');
+  const load=()=>fetchMyTreeAssignments().then(setItems);
+  useEffect(()=>{void load()},[]);
+  const counts=useMemo(()=>({pending:items.filter(i=>i.submissions[0]?.status!=='completed').length,done:items.filter(i=>i.submissions[0]?.status==='completed').length}),[items]);
+  const start=(item:TreeAssignment)=>{setOpen(open===item.id?null:item.id);const saved=localStorage.getItem(`tree-work-${item.id}`);const initial=Array.isArray(item.initialState?.values)?item.initialState.values.join(', '):'';setValues(saved??initial);setMessage('')};
+  const submit=async(item:TreeAssignment)=>{const numbers=values.split(',').map(v=>Number(v.trim())).filter(Number.isFinite);if(!numbers.length){setMessage('Enter at least one numeric key.');return}setBusy(true);const finalState=item.topic==='avl'?balancedAvl(numbers):degreeTwoBTree(numbers);const result=await submitTreeAssignment(item.id,finalState,0,0,[{operation:item.operation,payload:{values:numbers},stateAfter:finalState,skillKey:item.topic==='avl'?'avl-invariants':'node-capacity'}]);setBusy(false);if(!result){setMessage('Could not reach the validation service.');return}if(result.ok){localStorage.removeItem(`tree-work-${item.id}`);setMessage(result.assessment?.valid?`Completed! ${result.xpAwarded} XP awarded.`:`Score ${result.assessment?.score ?? 0}. Review: ${(result.assessment?.errors||[]).join(' ')}`);void load()}else setMessage(result.error?.message||'Submission was not accepted.')};
+
+  return <section className="tree-work-section"><header><div><span>TREE LAB WORK</span><h3>Interactive AVL & B-tree assignments</h3></div><div><b>{counts.pending} pending</b><b>{counts.done} completed</b></div></header>
+    {items.length===0&&<div className="tree-work-empty"><GitBranch/><strong>No tree-lab assignments yet</strong><span>Construction, deletion, identification, and repair work from your teacher will appear here.</span></div>}
+    {items.map(item=>{const latest=item.submissions[0],done=latest?.status==='completed',expanded=open===item.id;return <article key={item.id} className={`tree-work-card ${done?'done':''}`}><button className="tree-work-summary" onClick={()=>start(item)}><span className="tree-work-icon"><GitBranch/></span><span><small>{item.topic.toUpperCase()} · {item.operation} · {item.difficulty}</small><strong>{item.instructions||`${item.operation} the assigned ${item.topic.toUpperCase()} tree`}</strong><em>{latest?`Attempt ${latest.attemptNumber} · Score ${latest.score}`:`Up to ${item.maxAttempts} attempts · ${item.xpReward} XP`}</em></span>{done?<CheckCircle2 color="#28a745"/>:expanded?<ChevronUp/>:<ChevronDown/>}</button>
+      {expanded&&!done&&<div className="tree-workspace"><label>Final keys (comma separated)<input value={values} onChange={event=>{setValues(event.target.value);localStorage.setItem(`tree-work-${item.id}`,event.target.value)}} placeholder="30, 20, 40, 10, 25"/></label><div className="tree-work-preview"><span>{item.topic==='avl'?'Balanced AVL preview':'Degree-2 B-tree preview'}</span><strong>{values||'No keys entered'}</strong><small>The server independently checks every structural invariant before awarding XP.</small></div><div className="tree-work-actions"><button className="btn btn-secondary" onClick={()=>{setValues('');localStorage.removeItem(`tree-work-${item.id}`)}}><RotateCcw size={15}/> Clear</button><button className="btn btn-primary" disabled={busy} onClick={()=>submit(item)}><Send size={15}/>{busy?'Validating…':'Submit work'}</button></div>{message&&<div className={`tree-result ${message.startsWith('Completed')?'success':''}`}>{message.startsWith('Completed')?<Sparkles/>:<AlertTriangle/>}{message}</div>}</div>}
+    </article>})}
+  </section>;
+};

@@ -36,6 +36,11 @@ model User {
   flashcardReviews FlashcardReview[]
   idempotencyRecords IdempotencyRecord[]
   auditEvents   AuditLog[]       @relation("AuditActor")
+  treeAssignmentsReceived TreeAssignment[] @relation("TreeAssignmentStudent")
+  treeAssignmentsCreated  TreeAssignment[] @relation("TreeAssignmentTeacher")
+  treeSubmissions          TreeSubmission[]
+  lessonCheckpoints        LessonCheckpoint[]
+  skillMastery             StudentSkillMastery[]
 }
 
 model IdempotencyRecord {
@@ -187,6 +192,100 @@ model Classroom {
   teacher     User     @relation("TeacherClassrooms", fields: [teacherId], references: [id], onDelete: Cascade)
   members     ClassroomMember[]
   tasks       Task[]
+  treeAssignments TreeAssignment[]
+}
+
+model TreeAssignment {
+  id             String   @id @default(uuid())
+  studentId      String
+  teacherId      String
+  classroomId    String?
+  topic          String
+  operation      String
+  initialState   Json
+  targetState    Json?
+  btreeDegree    Int?
+  difficulty     String   @default("beginner")
+  instructions   String?
+  dueAt          DateTime?
+  maxAttempts    Int      @default(3)
+  hintsAllowed   Boolean  @default(true)
+  requiredScore  Int      @default(70)
+  xpReward       Int      @default(40)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  student        User     @relation("TreeAssignmentStudent", fields: [studentId], references: [id], onDelete: Cascade)
+  teacher        User     @relation("TreeAssignmentTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  classroom      Classroom? @relation(fields: [classroomId], references: [id], onDelete: SetNull)
+  submissions    TreeSubmission[]
+
+  @@index([studentId, dueAt])
+  @@index([teacherId, createdAt])
+  @@index([classroomId])
+}
+
+model TreeSubmission {
+  id             String   @id @default(uuid())
+  assignmentId   String
+  studentId      String
+  status         String   @default("in_progress")
+  finalState     Json?
+  score          Int      @default(0)
+  hintsUsed      Int      @default(0)
+  durationMs     Int      @default(0)
+  attemptNumber  Int      @default(1)
+  feedback       Json?
+  startedAt      DateTime @default(now())
+  submittedAt    DateTime?
+
+  assignment     TreeAssignment @relation(fields: [assignmentId], references: [id], onDelete: Cascade)
+  student        User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  steps          TreeOperationStep[]
+
+  @@unique([assignmentId, studentId, attemptNumber])
+  @@index([studentId, submittedAt])
+}
+
+model TreeOperationStep {
+  id             String   @id @default(uuid())
+  submissionId   String
+  sequence       Int
+  operation      String
+  payload        Json
+  stateAfter     Json
+  correct        Boolean?
+  skillKey       String?
+  createdAt      DateTime @default(now())
+
+  submission     TreeSubmission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+
+  @@unique([submissionId, sequence])
+}
+
+model LessonCheckpoint {
+  id             String   @id @default(uuid())
+  userId         String
+  topic          String
+  checkpointKey  String
+  completedAt    DateTime @default(now())
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, topic, checkpointKey])
+}
+
+model StudentSkillMastery {
+  id             String   @id @default(uuid())
+  userId         String
+  topic          String
+  skillKey       String
+  attempts       Int      @default(0)
+  correct        Int      @default(0)
+  hintsUsed      Int      @default(0)
+  mastery        Float    @default(0)
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@unique([userId, topic, skillKey])
+  @@index([userId, mastery])
 }
 
 model ClassroomMember {

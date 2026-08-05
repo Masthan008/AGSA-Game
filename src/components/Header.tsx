@@ -1,6 +1,6 @@
 import React from 'react';
 import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
-import { Zap, Star, User, Compass, PlayCircle, Swords, Code2, LayoutDashboard, ArrowLeftRight, FileText, Layers, Terminal, Trophy, ClipboardList, RefreshCcw } from 'lucide-react';
+import { Zap, Star, User, Compass, PlayCircle, Swords, LayoutDashboard, ClipboardList } from 'lucide-react';
 import { UserProgress } from '../types';
 
 interface HeaderProps {
@@ -12,17 +12,10 @@ interface HeaderProps {
 
 const NAV_ITEMS = [
   { key: 'campaign', label: 'Campaign', icon: Compass },
-  { key: 'assignments', label: 'Tasks', icon: ClipboardList },
-  { key: 'review', label: 'Review', icon: RefreshCcw },
-  { key: 'visualizer', label: 'Visualizer', icon: PlayCircle },
-  { key: 'arena', label: 'Arena', icon: Swords },
-  { key: 'library', label: 'Code Hub', icon: Code2 },
-  { key: 'notes', label: 'Notes', icon: FileText },
-  { key: 'sandbox', label: 'Sandbox', icon: Terminal },
-  { key: 'flashcards', label: 'Cards', icon: Layers },
-  { key: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { key: 'leaderboard', label: 'Ranks', icon: Trophy },
-  { key: 'compare', label: 'Compare', icon: ArrowLeftRight },
+  { key: 'assignments', label: 'My Work', icon: ClipboardList },
+  { key: 'tree-lab', label: 'Virtual Lab', icon: PlayCircle },
+  { key: 'arena', label: 'Quiz Arena', icon: Swords },
+  { key: 'dashboard', label: 'Progress', icon: LayoutDashboard },
 ];
 
 export const Header: React.FC<HeaderProps> = ({ userProgress, activeTab, setActiveTab, onOpenAuthModal }) => {

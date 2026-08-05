@@ -370,7 +370,7 @@ export const FlashcardPage: React.FC<FlashcardPageProps> = ({ userId }) => {
   };
 
   return (
-    <div style={{ maxWidth: 680, margin: '0 auto', padding: '24px 16px' }}>
+    <div className="flashcard-reimagined" style={{ maxWidth: 760, margin: '0 auto', padding: '24px 16px' }}>
       {/* Header */}
       <div style={{ textAlign: 'center', marginBottom: 20 }}>
         <h2 className="section-title">ADSA Memory Flashcards ({CARDS.length} Cards)</h2>

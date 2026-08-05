@@ -59,10 +59,11 @@ const AssignmentsPage = React.lazy(() => import('./components/Assignments/Assign
 const QuizArena = React.lazy(() => import('./components/Games/QuizArena').then(module => ({ default: module.QuizArena })));
 const MistakeReviewPage = React.lazy(() => import('./components/Review/MistakeReviewPage').then(module => ({ default: module.MistakeReviewPage })));
 const AboutPage = React.lazy(() => import('./components/About/AboutPage').then(module => ({ default: module.AboutPage })));
+const TreeLearningLab = React.lazy(() => import('./components/TreeLab/TreeLearningLab').then(module => ({ default: module.TreeLearningLab })));
 
 const PageLoader = () => <div role="status" style={{ minHeight: 240, display: 'grid', placeItems: 'center', color: 'var(--text-muted)', fontWeight: 700 }}>Loading learning space…</div>;
 
-type Tab = 'campaign' | 'assignments' | 'review' | 'visualizer' | 'arena' | 'library' | 'dashboard' | 'compare' | 'notes' | 'sandbox' | 'flashcards' | 'leaderboard' | 'profile' | 'about';
+type Tab = 'campaign' | 'assignments' | 'review' | 'tree-lab' | 'visualizer' | 'arena' | 'library' | 'dashboard' | 'compare' | 'notes' | 'sandbox' | 'flashcards' | 'leaderboard' | 'profile' | 'about';
 type VisualizerMode = 'canvas' | 'theory' | 'code';
 
 const TREE_LEVEL_KEYS = ['avl', 'bst', 'redblack', 'btree', 'segment', 'heap'];
@@ -538,10 +539,11 @@ export const App: React.FC = () => {
 
         {activeTab === 'assignments' && <AssignmentsPage onStartLevel={handleSelectLevel} />}
         {activeTab === 'review' && <MistakeReviewPage onReviewLevel={handleStartQuiz} />}
+        {activeTab === 'tree-lab' && <TreeLearningLab />}
 
         {/* VISUALIZER & THEORY */}
         {activeTab === 'visualizer' && (
-          <div style={{ maxWidth: 'var(--max-width)', margin: '0 auto', padding: '20px 16px' }}>
+          <div className="quiz-arena-shell" style={{ maxWidth: 'var(--max-width)', margin: '0 auto', padding: '20px 16px' }}>
             {/* Topic Banner */}
             <div className="card-light" style={{
               padding: '16px 20px', marginBottom: 16,

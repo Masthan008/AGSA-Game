@@ -8,6 +8,7 @@ import { rateLimit } from 'express-rate-limit';
 import { z } from 'zod';
 import type { RequestHandler } from 'express';
 import { randomBytes, randomUUID } from 'node:crypto';
+import { assessTree } from './treeLab.js';
 
 dotenv.config();
 
@@ -148,6 +149,15 @@ const quizAttemptSchema = z.object({
   selectedIndex: z.number().int().min(0).max(10), correct: z.boolean(), hintUsed: z.boolean().default(false),
 });
 const flashcardReviewSchema = z.object({ cardId: z.string().regex(/^fc-\d+$/), rating: z.enum(['again','hard','good','easy']) });
+const treeAssignmentSchema = z.object({
+  studentId: z.string().min(1).max(200), classroomId: z.string().uuid().nullable().optional(), topic: z.enum(['avl', 'btree']),
+  operation: z.enum(['construct', 'search', 'insert', 'delete', 'identify', 'repair']), initialState: z.unknown(), targetState: z.unknown().optional(),
+  btreeDegree: z.number().int().min(2).max(6).optional(), difficulty: z.enum(['beginner', 'intermediate', 'advanced', 'challenge']).default('beginner'),
+  instructions: z.string().trim().max(2000).optional(), dueAt: z.string().datetime().nullable().optional(), maxAttempts: z.number().int().min(1).max(20).default(3),
+  hintsAllowed: z.boolean().default(true), requiredScore: z.number().int().min(1).max(100).default(70), xpReward: z.number().int().min(0).max(500).default(40),
+});
+const treeCheckpointSchema = z.object({ topic: z.enum(['avl', 'btree']), checkpointKey: z.string().regex(/^[a-z0-9-]{2,80}$/) });
+const treeSubmissionSchema = z.object({ finalState: z.unknown(), hintsUsed: z.number().int().min(0).max(100).default(0), durationMs: z.number().int().min(0).max(86400000).default(0), steps: z.array(z.object({ operation: z.string().max(40), payload: z.unknown(), stateAfter: z.unknown(), skillKey: z.string().max(80).optional() })).max(500).default([]) });
 
 const awardAchievements = async (userId: string, db: any = prisma) => {
   const user = await db.user.findUnique({ where: { id: userId }, include: { progress: true } });
@@ -777,6 +787,79 @@ app.get('/api/v1/teacher/classrooms/:id/report', async (req: any, res) => {
   }));
   await writeAudit(requestOwnerId(req)!, 'classrooms.report.read', 'Classroom', classroom.id);
   res.json({ classroom: { id: classroom.id, name: classroom.name }, learners });
+});
+
+app.get('/api/v1/me/tree-assignments', async (req: any, res) => {
+  const studentId = requestOwnerId(req);
+  if (!studentId) return apiError(req, res, 401, 'AUTH_REQUIRED', 'Authentication required');
+  const assignments = await prisma.treeAssignment.findMany({ where: { studentId }, include: { submissions: { orderBy: { attemptNumber: 'desc' }, take: 1 } }, orderBy: [{ dueAt: 'asc' }, { createdAt: 'desc' }] });
+  res.json({ assignments });
+});
+
+app.post('/api/v1/me/lesson-checkpoints', validateBody(treeCheckpointSchema), async (req: any, res) => {
+  const userId = requestOwnerId(req);
+  if (!userId) return apiError(req, res, 401, 'AUTH_REQUIRED', 'Authentication required');
+  const checkpoint = await prisma.lessonCheckpoint.upsert({ where: { userId_topic_checkpointKey: { userId, topic: req.body.topic, checkpointKey: req.body.checkpointKey } }, update: {}, create: { userId, ...req.body } });
+  res.status(201).json({ checkpoint });
+});
+
+app.post('/api/v1/me/tree-assignments/:id/submit', validateBody(treeSubmissionSchema), async (req: any, res) => {
+  const studentId = requestOwnerId(req), key = req.header('idempotency-key');
+  if (!studentId) return apiError(req, res, 401, 'AUTH_REQUIRED', 'Authentication required');
+  if (!key || !/^[a-zA-Z0-9._:-]{8,128}$/.test(key)) return apiError(req, res, 400, 'IDEMPOTENCY_KEY_REQUIRED', 'A valid Idempotency-Key header is required');
+  const replay = await prisma.idempotencyRecord.findUnique({ where: { userId_key: { userId: studentId, key } } });
+  if (replay) return res.status(replay.statusCode).json(replay.responseJson);
+  const assignment = await prisma.treeAssignment.findFirst({ where: { id: req.params.id, studentId }, include: { submissions: true } });
+  if (!assignment) return apiError(req, res, 404, 'ASSIGNMENT_NOT_FOUND', 'Tree assignment not found');
+  if (assignment.submissions.length >= assignment.maxAttempts) return apiError(req, res, 409, 'ATTEMPT_LIMIT', 'Maximum attempts reached');
+  const assessment = assessTree(assignment.topic, req.body.finalState, assignment.btreeDegree || undefined);
+  const adjustedScore = Math.max(0, assessment.score - req.body.hintsUsed * 3);
+  const completed = adjustedScore >= assignment.requiredScore && assessment.valid;
+  const response = await prisma.$transaction(async tx => {
+    const priorCompleted = assignment.submissions.some(item => item.status === 'completed');
+    const submission = await tx.treeSubmission.create({ data: { assignmentId: assignment.id, studentId, status: completed ? 'completed' : 'needs_retry', finalState: req.body.finalState as any, score: adjustedScore, hintsUsed: req.body.hintsUsed, durationMs: req.body.durationMs, attemptNumber: assignment.submissions.length + 1, feedback: assessment as any, submittedAt: new Date(), steps: { create: req.body.steps.map((step: any, sequence: number) => ({ ...step, sequence, correct: assessment.skills[step.skillKey || ''] ?? null })) } } });
+    for (const [skillKey, correct] of Object.entries(assessment.skills)) {
+      const existing = await tx.studentSkillMastery.findUnique({ where: { userId_topic_skillKey: { userId: studentId, topic: assignment.topic, skillKey } } });
+      const attempts = (existing?.attempts || 0) + 1, correctCount = (existing?.correct || 0) + (correct ? 1 : 0), hintsUsed = (existing?.hintsUsed || 0) + req.body.hintsUsed;
+      await tx.studentSkillMastery.upsert({ where: { userId_topic_skillKey: { userId: studentId, topic: assignment.topic, skillKey } }, update: { attempts, correct: correctCount, hintsUsed, mastery: Math.max(0, correctCount / attempts * 100 - hintsUsed * 2) }, create: { userId: studentId, topic: assignment.topic, skillKey, attempts, correct: correctCount, hintsUsed, mastery: Math.max(0, correctCount / attempts * 100 - hintsUsed * 2) } });
+    }
+    if (completed && !priorCompleted) await tx.user.update({ where: { id: studentId }, data: { xp: { increment: assignment.xpReward } } });
+    const result = { submission, assessment, xpAwarded: completed && !priorCompleted ? assignment.xpReward : 0 };
+    await tx.idempotencyRecord.create({ data: { userId: studentId, key, operation: 'tree-assignment-submit', responseJson: result as any, expiresAt: new Date(Date.now() + 7 * 86400000) } });
+    return result;
+  });
+  res.status(201).json(response);
+});
+
+app.post('/api/v1/teacher/tree-assignments', validateBody(treeAssignmentSchema), async (req: any, res) => {
+  if (!(await adminGate(req, res))) return;
+  const teacherId = requestOwnerId(req)!;
+  if (req.body.classroomId) {
+    const classroom = await prisma.classroom.findFirst({ where: { id: req.body.classroomId, teacherId, members: { some: { userId: req.body.studentId } } } });
+    if (!classroom) return apiError(req, res, 403, 'CLASSROOM_SCOPE_REQUIRED', 'Student is not in this teacher classroom');
+  }
+  const assignment = await prisma.treeAssignment.create({ data: { ...req.body, teacherId, dueAt: req.body.dueAt ? new Date(req.body.dueAt) : null, initialState: req.body.initialState as any, targetState: req.body.targetState as any } });
+  await writeAudit(teacherId, 'tree-assignment.create', 'TreeAssignment', assignment.id, { studentId: assignment.studentId, topic: assignment.topic, operation: assignment.operation });
+  res.status(201).json({ assignment });
+});
+
+app.get('/api/v1/teacher/students/:id/weak-skills', async (req: any, res) => {
+  if (!(await adminGate(req, res))) return;
+  const teacherId = requestOwnerId(req)!;
+  const allowed = await prisma.classroomMember.findFirst({ where: { userId: req.params.id, classroom: { teacherId } } });
+  if (!allowed) return apiError(req, res, 403, 'CLASSROOM_SCOPE_REQUIRED', 'Student is not in this teacher classroom');
+  const skills = await prisma.studentSkillMastery.findMany({ where: { userId: req.params.id }, orderBy: { mastery: 'asc' } });
+  const recentSubmissions = await prisma.treeSubmission.findMany({ where: { studentId: req.params.id, assignment: { teacherId } }, include: { assignment: { select: { topic: true, operation: true, instructions: true } }, steps: { orderBy: { sequence: 'asc' } } }, orderBy: { submittedAt: 'desc' }, take: 10 });
+  res.json({ weakSkills: skills.filter(item => item.mastery < 70), skills, recentSubmissions });
+});
+
+app.get('/api/v1/teacher/submissions/:id/replay', async (req: any, res) => {
+  if (!(await adminGate(req, res))) return;
+  const teacherId = requestOwnerId(req)!;
+  const submission = await prisma.treeSubmission.findFirst({ where: { id: req.params.id, assignment: { teacherId } }, include: { assignment: true, steps: { orderBy: { sequence: 'asc' } } } });
+  if (!submission) return apiError(req, res, 404, 'SUBMISSION_NOT_FOUND', 'Submission not found');
+  await writeAudit(teacherId, 'tree-submission.replay', 'TreeSubmission', submission.id);
+  res.json({ submission });
 });
 
 app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
